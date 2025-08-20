@@ -1,0 +1,23 @@
+name: cnh_n
+description: "Khám phá thế giới với ứng dụng đặt vé máy bay tiện lợi của chúng tôi, giúp bạn tìm kiếm, so sánh và đặt vé dễ dàng cho mọi hành trình."
+publish_to: "none"
+version: 1.0.0
+
+environment:
+  sdk: ^3.6.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  google_fonts: ^6.1.0
+  shared_preferences: ^2.0.0
+  intl: 0.20.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
