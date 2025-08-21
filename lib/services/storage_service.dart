@@ -17,9 +17,8 @@ class StorageService {
     final prefs = await SharedPreferences.getInstance();
     final bookings = await getBookings();
     bookings.add(booking);
-    final bookingsJson = bookings
-        .map((booking) => jsonEncode(booking.toJson()))
-        .toList();
+    final bookingsJson =
+        bookings.map((booking) => jsonEncode(booking.toJson())).toList();
     await prefs.setStringList(_bookingsKey, bookingsJson);
   }
 
@@ -27,9 +26,8 @@ class StorageService {
     final prefs = await SharedPreferences.getInstance();
     final bookings = await getBookings();
     bookings.removeWhere((booking) => booking.bookingId == bookingId);
-    final bookingsJson = bookings
-        .map((booking) => jsonEncode(booking.toJson()))
-        .toList();
+    final bookingsJson =
+        bookings.map((booking) => jsonEncode(booking.toJson())).toList();
     await prefs.setStringList(_bookingsKey, bookingsJson);
   }
 

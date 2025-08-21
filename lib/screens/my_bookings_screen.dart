@@ -95,15 +95,15 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
           Text(
             'Chưa có vé nào',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w500,
-            ),
+                  fontWeight: FontWeight.w500,
+                ),
           ),
           const SizedBox(height: 8),
           Text(
             'Hãy đặt vé máy bay đầu tiên của bạn',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.grey.shade600,
-            ),
+                  color: Colors.grey.shade600,
+                ),
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
@@ -163,15 +163,15 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               Text(
                 booking.bookingId,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
               ),
               Text(
                 '${booking.flight.airline} ${booking.flight.flightNumber}',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
+                      fontWeight: FontWeight.w500,
+                    ),
               ),
             ],
           ),
@@ -191,20 +191,20 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               Text(
                 DateFormat('HH:mm').format(booking.flight.departureTime),
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
               Text(
                 booking.flight.departure.code,
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
+                      fontWeight: FontWeight.w500,
+                    ),
               ),
               Text(
                 booking.flight.departure.city,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: Colors.grey.shade600,
-                ),
+                      color: Colors.grey.shade600,
+                    ),
               ),
             ],
           ),
@@ -220,9 +220,9 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               child: Text(
                 booking.flight.duration,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
-                  fontWeight: FontWeight.w500,
-                ),
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      fontWeight: FontWeight.w500,
+                    ),
               ),
             ),
             const SizedBox(height: 8),
@@ -271,20 +271,20 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               Text(
                 DateFormat('HH:mm').format(booking.flight.arrivalTime),
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
               Text(
                 booking.flight.arrival.code,
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
+                      fontWeight: FontWeight.w500,
+                    ),
               ),
               Text(
                 booking.flight.arrival.city,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: Colors.grey.shade600,
-                ),
+                      color: Colors.grey.shade600,
+                    ),
               ),
             ],
           ),
@@ -297,7 +297,10 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+        color: Theme.of(context)
+            .colorScheme
+            .primaryContainer
+            .withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -309,14 +312,14 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               Text(
                 'Ngày đặt',
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: Colors.grey.shade600,
-                ),
+                      color: Colors.grey.shade600,
+                    ),
               ),
               Text(
                 DateFormat('dd/MM/yyyy').format(booking.bookingDate),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
+                      fontWeight: FontWeight.w500,
+                    ),
               ),
             ],
           ),
@@ -326,14 +329,14 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               Text(
                 'Hành khách',
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: Colors.grey.shade600,
-                ),
+                      color: Colors.grey.shade600,
+                    ),
               ),
               Text(
                 '${booking.passengers.length} người',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
+                      fontWeight: FontWeight.w500,
+                    ),
               ),
             ],
           ),
@@ -343,15 +346,15 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               Text(
                 'Tổng giá',
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: Colors.grey.shade600,
-                ),
+                      color: Colors.grey.shade600,
+                    ),
               ),
               Text(
                 '${NumberFormat('#,###', 'vi').format(booking.totalPrice)} ₫',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
               ),
             ],
           ),
@@ -392,9 +395,9 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
       child: Text(
         text,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: textColor,
-          fontWeight: FontWeight.w500,
-        ),
+              color: textColor,
+              fontWeight: FontWeight.w500,
+            ),
       ),
     );
   }
@@ -417,8 +420,8 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                 Text(
                   'Chi tiết đặt vé',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
                 IconButton(
                   onPressed: () => Navigator.pop(context),
@@ -428,13 +431,20 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
             ),
             const SizedBox(height: 16),
             _buildDetailRow('Mã đặt chỗ', booking.bookingId),
-            _buildDetailRow('Chuyến bay', '${booking.flight.airline} ${booking.flight.flightNumber}'),
-            _buildDetailRow('Tuyến đường', '${booking.flight.departure.city} → ${booking.flight.arrival.city}'),
-            _buildDetailRow('Ngày bay', DateFormat('dd/MM/yyyy HH:mm').format(booking.flight.departureTime)),
-            _buildDetailRow('Hành khách', booking.passengers.map((p) => p.fullName).join(', ')),
+            _buildDetailRow('Chuyến bay',
+                '${booking.flight.airline} ${booking.flight.flightNumber}'),
+            _buildDetailRow('Tuyến đường',
+                '${booking.flight.departure.city} → ${booking.flight.arrival.city}'),
+            _buildDetailRow(
+                'Ngày bay',
+                DateFormat('dd/MM/yyyy HH:mm')
+                    .format(booking.flight.departureTime)),
+            _buildDetailRow('Hành khách',
+                booking.passengers.map((p) => p.fullName).join(', ')),
             _buildDetailRow('Email liên hệ', booking.contactEmail),
             _buildDetailRow('SĐT liên hệ', booking.contactPhone),
-            _buildDetailRow('Tổng giá', '${NumberFormat('#,###', 'vi').format(booking.totalPrice)} ₫'),
+            _buildDetailRow('Tổng giá',
+                '${NumberFormat('#,###', 'vi').format(booking.totalPrice)} ₫'),
             const SizedBox(height: 16),
             if (booking.status == BookingStatus.confirmed)
               SizedBox(
@@ -465,16 +475,16 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
             child: Text(
               label,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey.shade600,
-              ),
+                    color: Colors.grey.shade600,
+                  ),
             ),
           ),
           Expanded(
             child: Text(
               value,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
+                    fontWeight: FontWeight.w500,
+                  ),
             ),
           ),
         ],
@@ -487,7 +497,8 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Xác nhận hủy vé'),
-        content: const Text('Bạn có chắc chắn muốn hủy vé này không? Hành động này không thể hoàn tác.'),
+        content: const Text(
+            'Bạn có chắc chắn muốn hủy vé này không? Hành động này không thể hoàn tác.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),

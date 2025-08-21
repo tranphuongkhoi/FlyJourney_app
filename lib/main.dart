@@ -1,43 +1,27 @@
 import 'package:flutter/material.dart';
-import 'screens/home_screen.dart';
-import 'screens/booking_screen.dart';
-import 'screens/search_screen.dart';
-import 'screens/news_screen.dart';
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:cnh_n/theme.dart';
+import 'package:cnh_n/screens/home_screen.dart';
 
-void main() {
-  runApp(const FlyJourneyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('vi_VN', null);
+  runApp(const MyApp());
 }
 
-class FlyJourneyApp extends StatelessWidget {
-  const FlyJourneyApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'FlyJourney',
-      theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.blue),
-      initialRoute: '/',
-      onGenerateRoute: (settings) {
-        switch (settings.name) {
-          case '/':
-            return MaterialPageRoute(builder: (_) => const HomeScreen());
-          case '/search':
-            final args = (settings.arguments as Map?) ?? {};
-            return MaterialPageRoute(
-              builder: (_) => SearchScreen(
-                from: args['from'] as String?,
-                to: args['to'] as String?,
-                date: args['date'] as DateTime?,
-              ),
-            );
-          case '/booking':
-            return MaterialPageRoute(builder: (_) => const BookingScreen());
-          case '/news':
-            return MaterialPageRoute(builder: (_) => const NewsScreen());
-          default:
-            return MaterialPageRoute(builder: (_) => const HomeScreen());
-        }
-      },
+      title: 'CNH Airlines - Đặt vé máy bay',
+      debugShowCheckedModeBanner: false,
+      theme: lightTheme,
+      darkTheme: darkTheme,
+      themeMode: ThemeMode.system,
+      home: const HomePage(),
     );
   }
 }

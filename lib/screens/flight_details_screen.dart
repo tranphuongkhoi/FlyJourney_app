@@ -55,7 +55,10 @@ class FlightDetailsScreen extends StatelessWidget {
           end: Alignment.bottomRight,
           colors: [
             Theme.of(context).colorScheme.primaryContainer,
-            Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.5),
+            Theme.of(context)
+                .colorScheme
+                .primaryContainer
+                .withValues(alpha: 0.5),
           ],
         ),
       ),
@@ -80,20 +83,21 @@ class FlightDetailsScreen extends StatelessWidget {
                 Text(
                   flight.airline,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
                 Text(
                   flight.flightNumber,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Colors.grey.shade700,
-                  ),
+                        color: Colors.grey.shade700,
+                      ),
                 ),
                 Text(
-                  DateFormat('EEEE, dd/MM/yyyy', 'vi').format(flight.departureTime),
+                  DateFormat('EEEE, dd/MM/yyyy', 'vi')
+                      .format(flight.departureTime),
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey.shade600,
-                  ),
+                        color: Colors.grey.shade600,
+                      ),
                 ),
               ],
             ),
@@ -111,13 +115,13 @@ class FlightDetailsScreen extends StatelessWidget {
             child: Text(
               '${flight.availableSeats} chỗ trống',
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: flight.availableSeats > 20
-                    ? Colors.green.shade700
-                    : flight.availableSeats > 10
-                        ? Colors.orange.shade700
-                        : Colors.red.shade700,
-                fontWeight: FontWeight.w500,
-              ),
+                    color: flight.availableSeats > 20
+                        ? Colors.green.shade700
+                        : flight.availableSeats > 10
+                            ? Colors.orange.shade700
+                            : Colors.red.shade700,
+                    fontWeight: FontWeight.w500,
+                  ),
             ),
           ),
         ],
@@ -143,8 +147,8 @@ class FlightDetailsScreen extends StatelessWidget {
                 Text(
                   'Lộ trình bay',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
               ],
             ),
@@ -157,35 +161,40 @@ class FlightDetailsScreen extends StatelessWidget {
                     children: [
                       Text(
                         DateFormat('HH:mm').format(flight.departureTime),
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineMedium
+                            ?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         flight.departure.code,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                ),
                       ),
                       Text(
                         flight.departure.name,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey.shade600,
-                        ),
+                              color: Colors.grey.shade600,
+                            ),
                       ),
                       Text(
                         flight.departure.city,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
+                              fontWeight: FontWeight.w500,
+                            ),
                       ),
                     ],
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.primaryContainer,
                     borderRadius: BorderRadius.circular(20),
@@ -195,9 +204,11 @@ class FlightDetailsScreen extends StatelessWidget {
                       Text(
                         flight.duration,
                         style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.onPrimaryContainer,
-                        ),
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onPrimaryContainer,
+                            ),
                       ),
                       Row(
                         mainAxisSize: MainAxisSize.min,
@@ -238,8 +249,10 @@ class FlightDetailsScreen extends StatelessWidget {
                       Text(
                         'Bay thẳng',
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onPrimaryContainer,
-                        ),
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onPrimaryContainer,
+                            ),
                       ),
                     ],
                   ),
@@ -250,30 +263,34 @@ class FlightDetailsScreen extends StatelessWidget {
                     children: [
                       Text(
                         DateFormat('HH:mm').format(flight.arrivalTime),
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineMedium
+                            ?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         flight.arrival.code,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                ),
                       ),
                       Text(
                         flight.arrival.name,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey.shade600,
-                        ),
+                              color: Colors.grey.shade600,
+                            ),
                         textAlign: TextAlign.end,
                       ),
                       Text(
                         flight.arrival.city,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
+                              fontWeight: FontWeight.w500,
+                            ),
                       ),
                     ],
                   ),
@@ -305,8 +322,8 @@ class FlightDetailsScreen extends StatelessWidget {
                 Text(
                   'Thông tin chuyến bay',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
               ],
             ),
@@ -340,14 +357,16 @@ class FlightDetailsScreen extends StatelessWidget {
                 Text(
                   'Thông tin máy bay',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            _buildInfoRow(context, 'Loại máy bay', flight.aircraft, Icons.flight),
-            _buildInfoRow(context, 'Cấu hình ghế', '3-3', Icons.airline_seat_recline_normal),
+            _buildInfoRow(
+                context, 'Loại máy bay', flight.aircraft, Icons.flight),
+            _buildInfoRow(context, 'Cấu hình ghế', '3-3',
+                Icons.airline_seat_recline_normal),
             _buildInfoRow(context, 'Wi-Fi', 'Có sẵn', Icons.wifi),
             _buildInfoRow(context, 'Giải trí', 'Màn hình cá nhân', Icons.tv),
           ],
@@ -376,8 +395,8 @@ class FlightDetailsScreen extends StatelessWidget {
                 Text(
                   'Chi tiết giá',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
               ],
             ),
@@ -406,8 +425,8 @@ class FlightDetailsScreen extends StatelessWidget {
                 Text(
                   'Đã bao gồm',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.green.shade600,
-                  ),
+                        color: Colors.green.shade600,
+                      ),
                 ),
               ],
             ),
@@ -418,15 +437,15 @@ class FlightDetailsScreen extends StatelessWidget {
                 Text(
                   'Tổng cộng',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
                 Text(
                   '${NumberFormat('#,###', 'vi').format(totalPrice)} ₫',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                 ),
               ],
             ),
@@ -455,22 +474,26 @@ class FlightDetailsScreen extends StatelessWidget {
                 Text(
                   'Chính sách',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            _buildPolicyItem(context, 'Đổi vé', 'Phí đổi: 500.000 ₫', Icons.swap_horiz),
-            _buildPolicyItem(context, 'Hoàn vé', 'Phí hoàn: 700.000 ₫', Icons.undo),
-            _buildPolicyItem(context, 'Check-in online', 'Mở 24h trước giờ bay', Icons.check_circle),
+            _buildPolicyItem(
+                context, 'Đổi vé', 'Phí đổi: 500.000 ₫', Icons.swap_horiz),
+            _buildPolicyItem(
+                context, 'Hoàn vé', 'Phí hoàn: 700.000 ₫', Icons.undo),
+            _buildPolicyItem(context, 'Check-in online', 'Mở 24h trước giờ bay',
+                Icons.check_circle),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildInfoRow(BuildContext context, String label, String value, IconData icon) {
+  Widget _buildInfoRow(
+      BuildContext context, String label, String value, IconData icon) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -486,15 +509,16 @@ class FlightDetailsScreen extends StatelessWidget {
           Text(
             value,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w500,
-            ),
+                  fontWeight: FontWeight.w500,
+                ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildPolicyItem(BuildContext context, String title, String description, IconData icon) {
+  Widget _buildPolicyItem(
+      BuildContext context, String title, String description, IconData icon) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -508,14 +532,14 @@ class FlightDetailsScreen extends StatelessWidget {
                 Text(
                   title,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
+                        fontWeight: FontWeight.w500,
+                      ),
                 ),
                 Text(
                   description,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey.shade600,
-                  ),
+                        color: Colors.grey.shade600,
+                      ),
                 ),
               ],
             ),
@@ -549,15 +573,15 @@ class FlightDetailsScreen extends StatelessWidget {
                 Text(
                   'Tổng cộng',
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: Colors.grey.shade600,
-                  ),
+                        color: Colors.grey.shade600,
+                      ),
                 ),
                 Text(
                   '${NumberFormat('#,###', 'vi').format(totalPrice)} ₫',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                 ),
               ],
             ),
@@ -582,9 +606,9 @@ class FlightDetailsScreen extends StatelessWidget {
             child: Text(
               'Đặt vé',
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onPrimary,
-                fontWeight: FontWeight.bold,
-              ),
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
           ),
         ],
