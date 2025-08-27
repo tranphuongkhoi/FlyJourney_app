@@ -8,7 +8,7 @@ import 'package:cnh_n/screens/connection_test_screen.dart';
 import 'package:cnh_n/constants/colors.dart';
 
 class HomePage extends StatefulWidget {
-  final VoidCallback? onNavigateToExplore;
+  final Function(String)? onNavigateToExplore;
   
   const HomePage({super.key, this.onNavigateToExplore});
 
@@ -86,9 +86,9 @@ class _HomePageState extends State<HomePage> {
             'Fly Journey',
             style: TextStyle(
               fontFamily: 'BalooBhaijaan2',
-              fontSize: 24,
+              fontSize: 32, // Increased from 28 to 32
               fontWeight: FontWeight.w700,
-              color: Color(0xFF1E293B),
+              color: AppColors.primaryBlue, // Changed to blue
             ),
           ),
           Row(
@@ -846,20 +846,49 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         const SizedBox(height: 20),
-        Row(
+        // 2x2 Grid
+        Column(
           children: [
-            Expanded(
-              child: _buildDestinationCard(
-                'Kuala Lumpur',
-                'assets/images/kuala_lumpur.jpg',
-              ),
+            // Row 1: Kuala Lumpur and Phú Quốc
+            Row(
+              children: [
+                Expanded(
+                  child: _buildDestinationCard(
+                    'Kuala Lumpur',
+                    'assets/images/kuala_lumpur.jpg',
+                    [Colors.red.shade200, Colors.red.shade400], // Màu đỏ nhạt - Malaysia
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildDestinationCard(
+                    'Phú Quốc',
+                    'assets/images/phu_quoc.jpg',
+                    [Colors.teal.shade200, Colors.teal.shade400], // Màu xanh ngọc - biển đảo
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: _buildDestinationCard(
-                'Phú Quốc',
-                'assets/images/phu_quoc.jpg',
-              ),
+            const SizedBox(height: 12),
+            // Row 2: Đà Nẵng and Đà Lạt
+            Row(
+              children: [
+                Expanded(
+                  child: _buildDestinationCard(
+                    'Đà Nẵng',
+                    'assets/images/da_nang.jpg',
+                    [Colors.orange.shade200, Colors.orange.shade400], // Màu cam nhạt - miền Trung
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildDestinationCard(
+                    'Đà Lạt',
+                    'assets/images/da_lat.jpg',
+                    [Colors.green.shade200, Colors.green.shade400], // Màu xanh lá - cao nguyên
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -867,23 +896,24 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildDestinationCard(String name, String imagePath) {
+  Widget _buildDestinationCard(String name, String imagePath, List<Color> gradientColors) {
     return GestureDetector(
       onTap: () {
         if (widget.onNavigateToExplore != null) {
-          widget.onNavigateToExplore!();
+          widget.onNavigateToExplore!(name);
         }
       },
       child: Container(
-        height: 200,
+        width: (MediaQuery.of(context).size.width - 64) / 2, // Dynamic width for 2 cards per row
+        height: 100, // Much shorter height for rectangular shape
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8), // Reduced from 20 to 8
+          borderRadius: BorderRadius.circular(12), // Slightly rounded corners
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Colors.blue.shade300,
-              Colors.blue.shade600,
+              gradientColors[1], // Đậm hơn ở trên
+              gradientColors[0], // Nhạt hơn ở dưới
             ],
           ),
           boxShadow: [
@@ -897,13 +927,13 @@ class _HomePageState extends State<HomePage> {
         child: Stack(
         children: [
           Positioned(
-            bottom: 20,
-            left: 20,
+            bottom: 12,
+            left: 16,
             child: Text(
               name,
               style: const TextStyle(
                 fontFamily: 'BalooBhaijaan2',
-                fontSize: 18,
+                fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
               ),

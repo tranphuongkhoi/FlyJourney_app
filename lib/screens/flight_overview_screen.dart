@@ -17,12 +17,13 @@ class FlightOverviewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFE0F7FA), // Homepage background color
       appBar: AppBar(
         title: const Text(
           'Chi tiết chuyến bay',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFE0F7FA), // Homepage background color
         foregroundColor: Colors.black,
         elevation: 0,
         centerTitle: true,

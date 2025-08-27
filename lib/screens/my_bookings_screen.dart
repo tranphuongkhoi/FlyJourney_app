@@ -4,7 +4,9 @@ import 'package:cnh_n/models/booking.dart';
 import 'package:cnh_n/services/storage_service.dart';
 
 class MyBookingsScreen extends StatefulWidget {
-  const MyBookingsScreen({super.key});
+  final VoidCallback? onNavigateToSearch;
+  
+  const MyBookingsScreen({super.key, this.onNavigateToSearch});
 
   @override
   State<MyBookingsScreen> createState() => _MyBookingsScreenState();
@@ -43,25 +45,24 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFE0F7FA), // Homepage background color
       appBar: AppBar(
-        title: Text(
-          'Vé của tôi',
+        backgroundColor: const Color(0xFFE0F7FA), // Homepage background color
+        elevation: 0,
+        toolbarHeight: 80, // Increased height to match explore screen spacing
+        title: const Text(
+          'Thông tin vé đã đặt',
           style: TextStyle(
-            color: Theme.of(context).colorScheme.onPrimaryContainer,
+            fontFamily: 'BalooBhaijaan2',
+            fontSize: 28,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF1E293B),
           ),
         ),
-        iconTheme: IconThemeData(
-          color: Theme.of(context).colorScheme.onPrimaryContainer,
+        centerTitle: true, // Center the title to match explore screen
+        iconTheme: const IconThemeData(
+          color: Color(0xFF1E293B),
         ),
-        actions: [
-          IconButton(
-            icon: Icon(
-              Icons.refresh,
-              color: Theme.of(context).colorScheme.onPrimaryContainer,
-            ),
-            onPressed: _loadBookings,
-          ),
-        ],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -107,7 +108,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
-            onPressed: () => Navigator.pop(context),
+            onPressed: widget.onNavigateToSearch ?? () => Navigator.pop(context),
             icon: const Icon(Icons.search),
             label: const Text('Tìm chuyến bay'),
           ),

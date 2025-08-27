@@ -69,7 +69,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: const Color(0xFFE0F7FA), // Homepage background color
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -232,7 +232,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       width: double.infinity,
                       height: 56,
                       child: ElevatedButton(
-                        onPressed: _sendResetLink,
+                        onPressed: _isLoading ? null : _sendResetLink,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primaryBlue,
                           foregroundColor: Colors.white,
@@ -242,15 +242,24 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           elevation: 0,
                           shadowColor: AppColors.primaryBlue.withOpacity(0.3),
                         ),
-                        child: const Text(
-                          'Gửi Liên kết Đặt lại',
-                          style: TextStyle(
-                            fontFamily: 'BalooBhaijaan2',
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600, // SemiBold for buttons
-                            letterSpacing: 0.5,
-                          ),
-                        ),
+                        child: _isLoading
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Text(
+                                'Gửi Liên kết Đặt lại',
+                                style: TextStyle(
+                                  fontFamily: 'BalooBhaijaan2',
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600, // SemiBold for buttons
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
                       ),
                     ),
                     const SizedBox(height: 32),

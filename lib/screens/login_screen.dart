@@ -36,14 +36,8 @@ class _LoginScreenState extends State<LoginScreen> {
         final result = await _authService.login(_emailController.text, _passwordController.text);
         
         if (result['success'] == true) {
-          // Success
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(result['message']),
-              backgroundColor: Colors.green,
-            ),
-          );
-          Navigator.pop(context); // Go back to previous screen
+          // Success - navigate back to main screen by restarting the app
+          Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
         } else {
           // Error
           ScaffoldMessenger.of(context).showSnackBar(
@@ -85,7 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: const Color(0xFFE0F7FA), // Homepage background color
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -152,12 +146,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     // Title
                     const Text(
-                      'Đăng nhập',
+                      'Fly Journey',
                       style: TextStyle(
                         fontFamily: 'BalooBhaijaan2',
-                        fontSize: 32,
-                        fontWeight: FontWeight.w600, // SemiBold
-                        color: Color(0xFF1E293B),
+                        fontSize: 28,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primaryBlue,
                         letterSpacing: -0.5,
                       ),
                     ),

@@ -22,142 +22,278 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _logout() {
-    _authService.logout();
-    setState(() {});
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          contentPadding: const EdgeInsets.all(32),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Icon
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: Colors.orange.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(40),
+                ),
+                child: Icon(
+                  Icons.logout,
+                  size: 40,
+                  color: Colors.orange[600],
+                ),
+              ),
+              const SizedBox(height: 24),
+              
+              // Title
+              const Text(
+                'Xác nhận đăng xuất',
+                style: TextStyle(
+                  fontFamily: 'BalooBhaijaan2',
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF1E293B),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              
+              // Content
+              const Text(
+                'Bạn có chắc chắn muốn đăng xuất khỏi tài khoản không?',
+                style: TextStyle(
+                  fontFamily: 'BalooBhaijaan2',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  color: Color(0xFF64748B),
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+              
+              // Buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Đóng dialog
+                      },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF64748B),
+                        side: const BorderSide(color: Color(0xFFE5E7EB)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: const Text(
+                        'Hủy',
+                        style: TextStyle(
+                          fontFamily: 'BalooBhaijaan2',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        Navigator.of(context).pop(); // Đóng dialog
+                        
+                        // Thực hiện logout
+                        await _authService.logout();
+                        
+                        // Navigate back to main screen and refresh
+                        if (mounted) {
+                          Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        elevation: 0,
+                      ),
+                      child: const Text(
+                        'Đăng xuất',
+                        style: TextStyle(
+                          fontFamily: 'BalooBhaijaan2',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      body: SafeArea(
-        child: _authService.isLoggedIn
-            ? _buildLoggedInProfile()
-            : _buildLoginPrompt(),
+      backgroundColor: const Color(0xFFE0F7FA), // Homepage background color
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFE0F7FA), // Homepage background color
+        elevation: 0,
+        toolbarHeight: 80, // Increased height to match other screens
+        title: const Text(
+          'Thông tin cá nhân',
+          style: TextStyle(
+            fontFamily: 'BalooBhaijaan2',
+            fontSize: 28,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF1E293B),
+          ),
+        ),
+        centerTitle: true, // Center the title to match other screens
+        automaticallyImplyLeading: false,
+        actions: _authService.isLoggedIn ? [
+          IconButton(
+            onPressed: _logout,
+            icon: const Icon(
+              Icons.logout,
+              color: Color(0xFF6B7280),
+            ),
+          ),
+        ] : null,
       ),
+      body: _authService.isLoggedIn
+          ? _buildLoggedInProfile()
+          : _buildLoginPrompt(),
     );
   }
 
   Widget _buildLoggedInProfile() {
     final user = _authService.currentUser!;
     
-    return Column(
-      children: [
-        // Top bar
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Hồ sơ',
-                style: TextStyle(
-                  fontFamily: 'BalooBhaijaan2',
-                  fontSize: 24,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF1E293B),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20.0),
+      child: Column(
+        children: [
+          // Profile card
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(24.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
                 ),
-              ),
-              IconButton(
-                onPressed: _logout,
-                icon: const Icon(
-                  Icons.logout,
-                  color: Color(0xFF6B7280),
-                ),
-              ),
-            ],
-          ),
-        ),
-        
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(20.0),
+              ],
+            ),
             child: Column(
               children: [
-                // Profile card
+                // Avatar
                 Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(24.0),
+                  width: 80,
+                  height: 80,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.primaryBlue,
                     borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 20,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
                   ),
-                  child: Column(
-                    children: [
-                      // Avatar
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryBlue,
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        child: const Icon(
-                          Icons.person,
-                          color: Colors.white,
-                          size: 40,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      
-                      // Name
-                      Text(
-                        user.name,
-                        style: const TextStyle(
-                          fontFamily: 'BalooBhaijaan2',
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF1E293B),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      
-                      // Email
-                      Text(
-                        user.email,
-                        style: const TextStyle(
-                          fontFamily: 'BalooBhaijaan2',
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          color: Color(0xFF64748B),
-                        ),
-                      ),
-                    ],
+                  child: const Icon(
+                    Icons.person,
+                    color: Colors.white,
+                    size: 40,
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
                 
-                // Menu items
-                _buildMenuItem(Icons.person_outline, 'Thông tin cá nhân', () {}),
-                _buildMenuItem(Icons.bookmark_outline, 'Vé đã đặt', () {}),
-                _buildMenuItem(Icons.notifications_none, 'Thông báo', () {}),
-                _buildMenuItem(Icons.help_outline, 'Hỗ trợ', () {}),
-                _buildMenuItem(Icons.settings, 'Cài đặt', () {}),
+                // Name
+                Text(
+                  user.name,
+                  style: const TextStyle(
+                    fontFamily: 'BalooBhaijaan2',
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1E293B),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                
+                // Email
+                Text(
+                  user.email,
+                  style: const TextStyle(
+                    fontFamily: 'BalooBhaijaan2',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    color: Color(0xFF64748B),
+                  ),
+                ),
               ],
             ),
           ),
-        ),
-      ],
+          const SizedBox(height: 24),
+          
+          // Menu items
+          _buildMenuItem(Icons.person_outline, 'Thông tin cá nhân', () {}),
+          _buildMenuItem(Icons.bookmark_outline, 'Vé đã đặt', () {}),
+          _buildMenuItem(Icons.notifications_none, 'Thông báo', () {}),
+          _buildMenuItem(Icons.help_outline, 'Hỗ trợ', () {}),
+          _buildMenuItem(Icons.settings, 'Cài đặt', () {}),
+        ],
+      ),
     );
   }
 
   Widget _buildLoginPrompt() {
-    return Column(
-      children: [
-        // Top bar
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-          child: Row(
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(40.0),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
+              // FlyJourney Brand Text
               const Text(
-                'Hồ sơ',
+                'Fly Journey',
+                style: TextStyle(
+                  fontFamily: 'BalooBhaijaan2',
+                  fontSize: 32,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primaryBlue,
+                ),
+              ),
+              const SizedBox(height: 24),
+              
+              // Title
+              const Text(
+                'Đăng nhập để tiếp tục',
                 style: TextStyle(
                   fontFamily: 'BalooBhaijaan2',
                   fontSize: 24,
@@ -165,103 +301,49 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   color: Color(0xFF1E293B),
                 ),
               ),
+              const SizedBox(height: 8),
+              
+              // Description
+              const Text(
+                'Đăng nhập Fly Journey để xem thông tin cá nhân, vé đã đặt và trải nghiệm đặt vé máy bay tuyệt vời',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: 'BalooBhaijaan2',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  color: Color(0xFF64748B),
+                ),
+              ),
+              const SizedBox(height: 32),
+              
+              // Login button
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: ElevatedButton(
+                  onPressed: _navigateToLogin,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryBlue,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    'Đăng nhập',
+                    style: TextStyle(
+                      fontFamily: 'BalooBhaijaan2',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
-        
-        Expanded(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(40.0),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Icon
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryBlue.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      child: const Icon(
-                        Icons.person_outline,
-                        color: AppColors.primaryBlue,
-                        size: 40,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    
-                    // Title
-                    const Text(
-                      'Đăng nhập để tiếp tục',
-                      style: TextStyle(
-                        fontFamily: 'BalooBhaijaan2',
-                        fontSize: 24,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF1E293B),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    
-                    // Description
-                    const Text(
-                      'Đăng nhập để xem thông tin cá nhân, vé đã đặt và nhiều tính năng khác',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'BalooBhaijaan2',
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: Color(0xFF64748B),
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    
-                    // Login button
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton(
-                        onPressed: _navigateToLogin,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryBlue,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: const Text(
-                          'Đăng nhập',
-                          style: TextStyle(
-                            fontFamily: 'BalooBhaijaan2',
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 

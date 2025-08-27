@@ -13,6 +13,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final AuthService _authService = AuthService();
@@ -24,6 +25,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
+    _phoneController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
@@ -39,18 +41,35 @@ class _RegisterScreenState extends State<RegisterScreen> {
         final result = await _authService.register(
           _nameController.text,
           _emailController.text,
+          _phoneController.text,
           _passwordController.text,
         );
         
         if (result['success'] == true) {
-          // Success
+          // Success - navigate to OTP verification
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(result['message']),
               backgroundColor: Colors.green,
             ),
           );
-          Navigator.pop(context); // Go back to login screen
+          
+          // Log OTP if available for debugging
+          if (result['otp'] != null) {
+            print('🔢 DEBUG - OTP Code: ${result['otp']}');
+          }
+          
+          // Navigate to OTP verification screen with registration data
+          Navigator.pushNamed(
+            context, 
+            '/otp-verification',
+            arguments: {
+              'name': _nameController.text,
+              'email': _emailController.text,
+              'phone': _phoneController.text,
+              'password': _passwordController.text,
+            },
+          );
         } else {
           // Error
           ScaffoldMessenger.of(context).showSnackBar(
@@ -82,7 +101,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: const Color(0xFFE0F7FA), // Homepage background color
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -325,6 +344,72 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         }
                         if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
                           return 'Email không hợp lệ';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    
+                    // Phone field
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Số điện thoại',
+                        style: TextStyle(
+                          fontFamily: 'BalooBhaijaan2',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500, // Medium
+                          color: const Color(0xFF374151),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _phoneController,
+                      keyboardType: TextInputType.phone,
+                      style: const TextStyle(
+                        fontFamily: 'BalooBhaijaan2',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: 'Nhập số điện thoại',
+                        hintStyle: const TextStyle(
+                          fontFamily: 'BalooBhaijaan2',
+                          fontWeight: FontWeight.w400,
+                          color: Color(0xFF9CA3AF),
+                        ),
+                        prefixIcon: const Icon(
+                          Icons.phone_outlined,
+                          color: Color(0xFF6B7280),
+                          size: 20,
+                        ),
+                        filled: true,
+                        fillColor: const Color(0xFFF9FAFB),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: const BorderSide(color: AppColors.primaryBlue, width: 2),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: const BorderSide(color: Color(0xFFEF4444)),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Vui lòng nhập số điện thoại';
+                        }
+                        if (!RegExp(r'^[0-9]{10,11}$').hasMatch(value)) {
+                          return 'Số điện thoại không hợp lệ (10-11 số)';
                         }
                         return null;
                       },

@@ -14,11 +14,22 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
+  String? _selectedDestination;
 
   List<Widget> get _screens => [
-    HomePage(onNavigateToExplore: () => setState(() => _currentIndex = 1)),
-    const ExploreScreen(),
-    const MyBookingsScreen(),
+    HomePage(onNavigateToExplore: (destination) {
+      setState(() {
+        _selectedDestination = destination;
+        _currentIndex = 1;
+      });
+    }),
+    ExploreScreen(selectedDestination: _selectedDestination),
+    MyBookingsScreen(onNavigateToSearch: () {
+      setState(() {
+        _currentIndex = 0; // Navigate to Home tab
+        _selectedDestination = null; // Reset selected destination
+      });
+    }),
     const ProfileScreen(),
   ];
 
@@ -45,7 +56,7 @@ class _MainScreenState extends State<MainScreen> {
               children: [
                 _buildNavItem(0, Icons.home_outlined, Icons.home, 'Trang chủ'),
                 _buildNavItem(1, Icons.explore_outlined, Icons.explore, 'Khám phá'),
-                _buildNavItem(2, Icons.bookmark_outline, Icons.bookmark, 'Đặt chỗ'),
+                _buildNavItem(2, Icons.bookmark_outline, Icons.bookmark, 'Vé của tôi'),
                 _buildNavItem(3, Icons.person_outline, Icons.person, 'Hồ sơ'),
               ],
             ),
@@ -59,7 +70,15 @@ class _MainScreenState extends State<MainScreen> {
     final isSelected = _currentIndex == index;
     
     return GestureDetector(
-      onTap: () => setState(() => _currentIndex = index),
+      onTap: () {
+        setState(() {
+          _currentIndex = index;
+          // Reset selected destination when navigating to explore directly
+          if (index == 1) {
+            _selectedDestination = null;
+          }
+        });
+      },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
         decoration: BoxDecoration(

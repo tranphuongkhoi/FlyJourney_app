@@ -47,7 +47,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: const Color(0xFFE0F7FA), // Homepage background color
       appBar: _buildAppBar(),
       body: _buildNotificationsList(),
     );
