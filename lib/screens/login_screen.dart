@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cnh_n/screens/register_screen.dart';
 import 'package:cnh_n/screens/forgot_password_screen.dart';
+import 'package:cnh_n/services/auth_service.dart';
+import 'package:cnh_n/constants/colors.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,7 +15,9 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
   bool _obscurePassword = true;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -22,12 +26,45 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _login() {
+  void _login() async {
     if (_formKey.currentState!.validate()) {
-      // TODO: Implement login logic
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đăng nhập thành công!')),
-      );
+      setState(() {
+        _isLoading = true;
+      });
+
+      try {
+        final result = await _authService.login(_emailController.text, _passwordController.text);
+        
+        if (result['success'] == true) {
+          // Success
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result['message']),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.pop(context); // Go back to previous screen
+        } else {
+          // Error
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result['message']),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Có lỗi xảy ra. Vui lòng thử lại.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -49,6 +86,42 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: const Icon(
+              Icons.arrow_back,
+              color: AppColors.primaryBlue,
+              size: 20,
+            ),
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'Đăng nhập',
+          style: TextStyle(
+            fontFamily: 'BalooBhaijaan2',
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF1E293B),
+          ),
+        ),
+        centerTitle: true,
+      ),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -81,7 +154,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const Text(
                       'Đăng nhập',
                       style: TextStyle(
-                        fontFamily: 'NataSans',
+                        fontFamily: 'BalooBhaijaan2',
                         fontSize: 32,
                         fontWeight: FontWeight.w600, // SemiBold
                         color: Color(0xFF1E293B),
@@ -96,7 +169,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Text(
                         'Email hoặc Tên đăng nhập',
                         style: TextStyle(
-                          fontFamily: 'NataSans',
+                          fontFamily: 'BalooBhaijaan2',
                           fontSize: 14,
                           fontWeight: FontWeight.w500, // Medium
                           color: Color(0xFF374151),
@@ -107,14 +180,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     TextFormField(
                       controller: _emailController,
                       style: const TextStyle(
-                        fontFamily: 'NataSans',
+                        fontFamily: 'BalooBhaijaan2',
                         fontSize: 16,
                         fontWeight: FontWeight.w400,
                       ),
                       decoration: InputDecoration(
                         hintText: 'john.doe@example.com',
                         hintStyle: const TextStyle(
-                          fontFamily: 'NataSans',
+                          fontFamily: 'BalooBhaijaan2',
                           fontWeight: FontWeight.w400,
                           color: Color(0xFF9CA3AF),
                         ),
@@ -136,7 +209,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
-                          borderSide: const BorderSide(color: Color(0xFF4F46E5), width: 2),
+                          borderSide: const BorderSide(color: AppColors.primaryBlue, width: 2),
                         ),
                         errorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
@@ -158,7 +231,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Text(
                         'Mật khẩu',
                         style: TextStyle(
-                          fontFamily: 'NataSans',
+                          fontFamily: 'BalooBhaijaan2',
                           fontSize: 14,
                           fontWeight: FontWeight.w500, // Medium
                           color: Color(0xFF374151),
@@ -170,14 +243,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: _passwordController,
                       obscureText: _obscurePassword,
                       style: const TextStyle(
-                        fontFamily: 'NataSans',
+                        fontFamily: 'BalooBhaijaan2',
                         fontSize: 16,
                         fontWeight: FontWeight.w400,
                       ),
                       decoration: InputDecoration(
                         hintText: '••••••••',
                         hintStyle: const TextStyle(
-                          fontFamily: 'NataSans',
+                          fontFamily: 'BalooBhaijaan2',
                           fontWeight: FontWeight.w400,
                           color: Color(0xFF9CA3AF),
                         ),
@@ -211,7 +284,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
-                          borderSide: const BorderSide(color: Color(0xFF4F46E5), width: 2),
+                          borderSide: const BorderSide(color: AppColors.primaryBlue, width: 2),
                         ),
                         errorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
@@ -235,25 +308,34 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: double.infinity,
                       height: 56,
                       child: ElevatedButton(
-                        onPressed: _login,
+                        onPressed: _isLoading ? null : _login,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF4F46E5),
+                          backgroundColor: AppColors.primaryBlue,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
                           elevation: 0,
-                          shadowColor: const Color(0xFF4F46E5).withOpacity(0.3),
+                          shadowColor: AppColors.primaryBlue.withOpacity(0.3),
                         ),
-                        child: const Text(
-                          'Đăng nhập',
-                          style: TextStyle(
-                            fontFamily: 'NataSans',
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600, // SemiBold for buttons
-                            letterSpacing: 0.5,
-                          ),
-                        ),
+                        child: _isLoading
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Text(
+                                'Đăng nhập',
+                                style: TextStyle(
+                                  fontFamily: 'BalooBhaijaan2',
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600, // SemiBold for buttons
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -265,8 +347,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: OutlinedButton(
                         onPressed: _register,
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: const Color(0xFF4F46E5),
-                          side: const BorderSide(color: Color(0xFF4F46E5)),
+                          foregroundColor: AppColors.primaryBlue,
+                          side: const BorderSide(color: AppColors.primaryBlue),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -274,7 +356,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: const Text(
                           'Đăng ký',
                           style: TextStyle(
-                            fontFamily: 'NataSans',
+                            fontFamily: 'BalooBhaijaan2',
                             fontSize: 16,
                             fontWeight: FontWeight.w600, // SemiBold for buttons
                             letterSpacing: 0.5,
@@ -290,7 +372,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: const Text(
                         'Quên mật khẩu?',
                         style: TextStyle(
-                          fontFamily: 'NataSans',
+                          fontFamily: 'BalooBhaijaan2',
                           color: Color(0xFF64748B),
                           fontSize: 14,
                           fontWeight: FontWeight.w500, // Medium

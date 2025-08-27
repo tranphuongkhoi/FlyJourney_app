@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cnh_n/constants/colors.dart';
+import 'package:cnh_n/services/auth_service.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -10,6 +12,8 @@ class ForgotPasswordScreen extends StatefulWidget {
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
+  final AuthService _authService = AuthService();
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -17,12 +21,44 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     super.dispose();
   }
 
-  void _sendResetLink() {
+  void _sendResetLink() async {
     if (_formKey.currentState!.validate()) {
-      // TODO: Implement forgot password logic
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Liên kết đặt lại mật khẩu đã được gửi!')),
-      );
+      setState(() {
+        _isLoading = true;
+      });
+
+      try {
+        final result = await _authService.forgotPassword(_emailController.text);
+        
+        if (result['success'] == true) {
+          // Success
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result['message']),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else {
+          // Error
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result['message']),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Có lỗi xảy ra. Vui lòng thử lại.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -34,6 +70,42 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: const Icon(
+              Icons.arrow_back,
+              color: AppColors.primaryBlue,
+              size: 20,
+            ),
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'Quên mật khẩu',
+          style: TextStyle(
+            fontFamily: 'BalooBhaijaan2',
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF1E293B),
+          ),
+        ),
+        centerTitle: true,
+      ),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -66,7 +138,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     const Text(
                       'Quên mật khẩu?',
                       style: TextStyle(
-                        fontFamily: 'NataSans',
+                        fontFamily: 'BalooBhaijaan2',
                         fontSize: 32,
                         fontWeight: FontWeight.w600, // SemiBold
                         color: Color(0xFF1E293B),
@@ -80,7 +152,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       'Nhập địa chỉ email của bạn để nhận liên kết đặt lại mật khẩu.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontFamily: 'NataSans',
+                        fontFamily: 'BalooBhaijaan2',
                         fontSize: 16,
                         fontWeight: FontWeight.w400, // Regular
                         color: Color(0xFF64748B),
@@ -95,7 +167,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       child: const Text(
                         'Email',
                         style: TextStyle(
-                          fontFamily: 'NataSans',
+                          fontFamily: 'BalooBhaijaan2',
                           fontSize: 14,
                           fontWeight: FontWeight.w500, // Medium
                           color: Color(0xFF374151),
@@ -107,14 +179,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       style: const TextStyle(
-                        fontFamily: 'NataSans',
+                        fontFamily: 'BalooBhaijaan2',
                         fontSize: 16,
                         fontWeight: FontWeight.w400,
                       ),
                       decoration: InputDecoration(
                         hintText: 'email@example.com',
                         hintStyle: const TextStyle(
-                          fontFamily: 'NataSans',
+                          fontFamily: 'BalooBhaijaan2',
                           fontWeight: FontWeight.w400,
                           color: Color(0xFF9CA3AF),
                         ),
@@ -136,7 +208,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
-                          borderSide: const BorderSide(color: Color(0xFF4F46E5), width: 2),
+                          borderSide: const BorderSide(color: AppColors.primaryBlue, width: 2),
                         ),
                         errorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
@@ -162,18 +234,18 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       child: ElevatedButton(
                         onPressed: _sendResetLink,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF4F46E5),
+                          backgroundColor: AppColors.primaryBlue,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
                           elevation: 0,
-                          shadowColor: const Color(0xFF4F46E5).withOpacity(0.3),
+                          shadowColor: AppColors.primaryBlue.withOpacity(0.3),
                         ),
                         child: const Text(
                           'Gửi Liên kết Đặt lại',
                           style: TextStyle(
-                            fontFamily: 'NataSans',
+                            fontFamily: 'BalooBhaijaan2',
                             fontSize: 16,
                             fontWeight: FontWeight.w600, // SemiBold for buttons
                             letterSpacing: 0.5,
@@ -194,10 +266,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       child: const Text(
                         'Quay lại Đăng nhập',
                         style: TextStyle(
-                          fontFamily: 'NataSans',
+                          fontFamily: 'BalooBhaijaan2',
                           fontSize: 14,
                           fontWeight: FontWeight.w600, // SemiBold
-                          color: Color(0xFF4F46E5),
+                          color: AppColors.primaryBlue,
                         ),
                       ),
                     ),

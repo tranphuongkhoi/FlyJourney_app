@@ -3,6 +3,7 @@ import 'package:cnh_n/screens/home_screen.dart';
 import 'package:cnh_n/screens/explore_screen.dart';
 import 'package:cnh_n/screens/my_bookings_screen.dart';
 import 'package:cnh_n/screens/profile_screen.dart';
+import 'package:cnh_n/constants/colors.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -14,8 +15,8 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
-  final List<Widget> _screens = [
-    const HomePage(),
+  List<Widget> get _screens => [
+    HomePage(onNavigateToExplore: () => setState(() => _currentIndex = 1)),
     const ExploreScreen(),
     const MyBookingsScreen(),
     const ProfileScreen(),
@@ -62,7 +63,7 @@ class _MainScreenState extends State<MainScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF4F46E5).withOpacity(0.1) : Colors.transparent,
+          color: isSelected ? AppColors.primaryBlue.withOpacity(0.1) : Colors.transparent,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
@@ -70,17 +71,17 @@ class _MainScreenState extends State<MainScreen> {
           children: [
             Icon(
               isSelected ? filledIcon : outlineIcon,
-              color: isSelected ? const Color(0xFF4F46E5) : const Color(0xFF6B7280),
+              color: isSelected ? AppColors.primaryBlue : const Color(0xFF6B7280),
               size: 24,
             ),
             const SizedBox(height: 4),
             Text(
               label,
               style: TextStyle(
-                fontFamily: 'NataSans',
+                fontFamily: 'BalooBhaijaan2',
                 fontSize: 12,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                color: isSelected ? const Color(0xFF4F46E5) : const Color(0xFF6B7280),
+                color: isSelected ? AppColors.primaryBlue : const Color(0xFF6B7280),
               ),
             ),
           ],

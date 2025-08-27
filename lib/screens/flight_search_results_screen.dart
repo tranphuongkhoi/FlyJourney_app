@@ -4,32 +4,28 @@ import 'package:cnh_n/models/airport.dart';
 import 'package:cnh_n/models/flight.dart';
 import 'package:cnh_n/screens/flight_overview_screen.dart';
 import 'package:cnh_n/constants/colors.dart';
+import 'package:cnh_n/services/flight_service.dart';
 
-class SearchResultsScreen extends StatefulWidget {
-  final Airport departure;
-  final Airport arrival;
-  final DateTime departureDate;
-  final DateTime? returnDate;
-  final int passengers;
+class FlightSearchResultsScreen extends StatefulWidget {
+  final Map<String, dynamic> searchParams;
+  final bool isRoundTrip;
 
-  const SearchResultsScreen({
+  const FlightSearchResultsScreen({
     super.key,
-    required this.departure,
-    required this.arrival,
-    required this.departureDate,
-    this.returnDate,
-    required this.passengers,
+    required this.searchParams,
+    required this.isRoundTrip,
   });
 
   @override
-  State<SearchResultsScreen> createState() => _SearchResultsScreenState();
+  State<FlightSearchResultsScreen> createState() => _FlightSearchResultsScreenState();
 }
 
-class _SearchResultsScreenState extends State<SearchResultsScreen> {
+class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
   List<Flight> _flights = [];
   List<Flight> _filteredFlights = [];
   String _sortBy = 'price';
   bool _isLoading = true;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -37,28 +33,144 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
     _loadFlights();
   }
 
-  void _loadFlights() {
-    // Simulate loading delay
-    Future.delayed(const Duration(seconds: 1), () {
+  void _loadFlights() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      // Call real API
+      final result = await FlightService.searchFlights(widget.searchParams);
+      
+      if (result['success'] == true) {
+        // Parse API response to Flight objects
+        final searchResults = result['data']['search_results'];
+        
+        List<Flight> allFlights = [];
+        
+        // Check if search_results is a List or Map
+        if (searchResults is List) {
+          // Case 1: search_results is directly a list of flights
+          print('🛫 Direct flights list with ${searchResults.length} flights');
+          allFlights.addAll(searchResults.map((flightData) => _parseApiFlightToModel(flightData)).toList());
+        } else if (searchResults is Map<String, dynamic>) {
+          // Case 2: search_results is an object with outbound_flights and inbound_flights
+          final outboundFlights = (searchResults['outbound_flights'] as List?) ?? [];
+          final inboundFlights = (searchResults['inbound_flights'] as List?) ?? [];
+          
+          print('🛫 Outbound flights count: ${outboundFlights.length}');
+          print('🛬 Inbound flights count: ${inboundFlights.length}');
+          
+          allFlights.addAll(outboundFlights.map((flightData) => _parseApiFlightToModel(flightData)).toList());
+          allFlights.addAll(inboundFlights.map((flightData) => _parseApiFlightToModel(flightData)).toList());
+        }
+        
+        _flights = allFlights;
+        _filteredFlights = List.from(_flights);
+        
+        if (_flights.isEmpty) {
+          _errorMessage = 'Không tìm thấy chuyến bay nào cho tuyến này. Hiển thị dữ liệu mẫu.';
+          // Fallback to sample data if no flights found
+          _flights = _createSampleFlights();
+          _filteredFlights = List.from(_flights);
+        }
+        
+        _sortFlights();
+      } else {
+        // API error
+        _errorMessage = result['message'] ?? 'Có lỗi xảy ra khi tìm kiếm chuyến bay';
+        print('API Error: ${result['error']} - ${result['message']}');
+        
+        // Fallback to sample data for development
+        _flights = _createSampleFlights();
+        _filteredFlights = List.from(_flights);
+        _sortFlights();
+      }
+    } catch (e) {
+      // Network error
+      _errorMessage = 'Không thể kết nối đến server. Đang hiển thị dữ liệu mẫu.';
+      print('Network Error: $e');
+      
+      // Fallback to sample data
       _flights = _createSampleFlights();
       _filteredFlights = List.from(_flights);
       _sortFlights();
-      setState(() {
-        _isLoading = false;
-      });
+    }
+
+    setState(() {
+      _isLoading = false;
     });
   }
 
+  Flight _parseApiFlightToModel(Map<String, dynamic> apiData) {
+    // Parse API response to Flight model
+    final departureCode = apiData['departure_airport_code'] ?? 'HAN';
+    final arrivalCode = apiData['arrival_airport_code'] ?? 'SGN';
+    
+    final departure = Airport(
+      code: departureCode,
+      name: apiData['departure_airport'] ?? (departureCode == 'HAN' ? 'Sân bay quốc tế Nội Bài' : 'Sân bay quốc tế Tân Sơn Nhất'),
+      city: departureCode == 'HAN' ? 'Hà Nội' : 'TP.HCM',
+      country: 'Việt Nam',
+    );
+    
+    final arrival = Airport(
+      code: arrivalCode,
+      name: apiData['arrival_airport'] ?? (arrivalCode == 'SGN' ? 'Sân bay quốc tế Tân Sơn Nhất' : 'Sân bay quốc tế Nội Bài'),
+      city: arrivalCode == 'SGN' ? 'TP.HCM' : 'Hà Nội',
+      country: 'Việt Nam',
+    );
+
+    return Flight(
+      flightNumber: apiData['flight_number'] ?? 'Unknown',
+      airline: apiData['airline_name'] ?? 'Unknown Airline',
+      airlineLogo: apiData['logo_url'] ?? '',
+      departure: departure,
+      arrival: arrival,
+      departureTime: DateTime.tryParse(apiData['departure_time'] ?? '') ?? DateTime.now(),
+      arrivalTime: DateTime.tryParse(apiData['arrival_time'] ?? '') ?? DateTime.now().add(const Duration(hours: 2)),
+      price: (apiData['pricing']?['grand_total'] ?? 1500000).toDouble(),
+      aircraft: 'Aircraft', // API doesn't provide this field
+      availableSeats: apiData['total_seats'] ?? 120,
+      duration: _formatDuration(apiData['duration_minutes'] ?? 150),
+    );
+  }
+
+  String _formatDuration(int minutes) {
+    final hours = minutes ~/ 60;
+    final remainingMinutes = minutes % 60;
+    return '${hours}h ${remainingMinutes}m';
+  }
+
   List<Flight> _createSampleFlights() {
+    final departureCode = widget.searchParams['departure_airport_code'] ?? 'HAN';
+    final arrivalCode = widget.searchParams['arrival_airport_code'] ?? 'SGN';
+    final departureDate = DateTime.now().add(const Duration(days: 7));
+    
+    final departure = Airport(
+      code: departureCode,
+      name: departureCode == 'HAN' ? 'Sân bay quốc tế Nội Bài' : 'Sân bay quốc tế Tân Sơn Nhất',
+      city: departureCode == 'HAN' ? 'Hà Nội' : 'TP.HCM',
+      country: 'Việt Nam',
+    );
+    
+    final arrival = Airport(
+      code: arrivalCode,
+      name: arrivalCode == 'SGN' ? 'Sân bay quốc tế Tân Sơn Nhất' : 'Sân bay quốc tế Nội Bài',
+      city: arrivalCode == 'SGN' ? 'TP.HCM' : 'Hà Nội',
+      country: 'Việt Nam',
+    );
+
     return [
       Flight(
         flightNumber: 'VJ123',
         airline: 'VietJet Air',
         airlineLogo: '',
-        departure: widget.departure,
-        arrival: widget.arrival,
-        departureTime: widget.departureDate.add(const Duration(hours: 6)),
-        arrivalTime: widget.departureDate.add(const Duration(hours: 8, minutes: 30)),
+        departure: departure,
+        arrival: arrival,
+        departureTime: departureDate.add(const Duration(hours: 6)),
+        arrivalTime: departureDate.add(const Duration(hours: 8, minutes: 30)),
         price: 1450000,
         aircraft: 'Airbus A321',
         availableSeats: 24,
@@ -68,10 +180,10 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
         flightNumber: 'VN456',
         airline: 'Vietnam Airlines',
         airlineLogo: '',
-        departure: widget.departure,
-        arrival: widget.arrival,
-        departureTime: widget.departureDate.add(const Duration(hours: 8)),
-        arrivalTime: widget.departureDate.add(const Duration(hours: 10, minutes: 45)),
+        departure: departure,
+        arrival: arrival,
+        departureTime: departureDate.add(const Duration(hours: 8)),
+        arrivalTime: departureDate.add(const Duration(hours: 10, minutes: 45)),
         price: 2100000,
         aircraft: 'Boeing 787',
         availableSeats: 12,
@@ -81,10 +193,10 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
         flightNumber: 'BL789',
         airline: 'Bamboo Airways',
         airlineLogo: '',
-        departure: widget.departure,
-        arrival: widget.arrival,
-        departureTime: widget.departureDate.add(const Duration(hours: 14)),
-        arrivalTime: widget.departureDate.add(const Duration(hours: 16, minutes: 30)),
+        departure: departure,
+        arrival: arrival,
+        departureTime: departureDate.add(const Duration(hours: 14)),
+        arrivalTime: departureDate.add(const Duration(hours: 16, minutes: 30)),
         price: 1650000,
         aircraft: 'Embraer E195',
         availableSeats: 18,
@@ -94,10 +206,10 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
         flightNumber: 'VJ789',
         airline: 'VietJet Air',
         airlineLogo: '',
-        departure: widget.departure,
-        arrival: widget.arrival,
-        departureTime: widget.departureDate.add(const Duration(hours: 18)),
-        arrivalTime: widget.departureDate.add(const Duration(hours: 20, minutes: 30)),
+        departure: departure,
+        arrival: arrival,
+        departureTime: departureDate.add(const Duration(hours: 18)),
+        arrivalTime: departureDate.add(const Duration(hours: 20, minutes: 30)),
         price: 1890000,
         aircraft: 'Airbus A320',
         availableSeats: 8,
@@ -178,6 +290,10 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildSearchSummaryCard(),
+                if (_errorMessage != null) ...[
+                  const SizedBox(height: 16),
+                  _buildErrorMessage(),
+                ],
                 const SizedBox(height: 24),
                 _buildFlightsList(),
               ],
@@ -185,6 +301,57 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildErrorMessage() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.orange[50],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.orange[200]!),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.warning_amber,
+            color: Colors.orange[600],
+            size: 20,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              _errorMessage!,
+              style: TextStyle(
+                fontFamily: 'BalooBhaijaan2',
+                fontSize: 14,
+                color: Colors.orange[700],
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: _loadFlights,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.orange[600],
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: const Text(
+                'Thử lại',
+                style: TextStyle(
+                  fontFamily: 'BalooBhaijaan2',
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -258,6 +425,9 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
   }
 
   Widget _buildSearchSummaryCard() {
+    final departureCode = widget.searchParams['departure_airport_code'] ?? 'HAN';
+    final arrivalCode = widget.searchParams['arrival_airport_code'] ?? 'SGN';
+    
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -308,7 +478,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                 child: Column(
                   children: [
                     Text(
-                      widget.departure.code,
+                      departureCode,
                       style: const TextStyle(
                         fontFamily: 'BalooBhaijaan2',
                         fontSize: 28,
@@ -318,7 +488,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      widget.departure.city,
+                      departureCode == 'HAN' ? 'Hà Nội' : 'TP.HCM',
                       style: const TextStyle(
                         fontFamily: 'BalooBhaijaan2',
                         fontSize: 14,
@@ -344,7 +514,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      DateFormat('dd/MM').format(widget.departureDate),
+                      DateFormat('dd/MM').format(DateTime.now().add(const Duration(days: 7))),
                       style: const TextStyle(
                         fontFamily: 'BalooBhaijaan2',
                         fontSize: 12,
@@ -359,7 +529,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                 child: Column(
                   children: [
                     Text(
-                      widget.arrival.code,
+                      arrivalCode,
                       style: const TextStyle(
                         fontFamily: 'BalooBhaijaan2',
                         fontSize: 28,
@@ -369,7 +539,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      widget.arrival.city,
+                      arrivalCode == 'SGN' ? 'TP.HCM' : 'Hà Nội',
                       style: const TextStyle(
                         fontFamily: 'BalooBhaijaan2',
                         fontSize: 14,
@@ -384,7 +554,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
           const SizedBox(height: 20),
           // Results summary
           Text(
-            'Tìm thấy ${_filteredFlights.length} chuyến bay • ${widget.passengers} hành khách',
+            'Tìm thấy ${_filteredFlights.length} chuyến bay • ${widget.searchParams['passenger']?['adults'] ?? 1} hành khách',
             style: const TextStyle(
               fontFamily: 'BalooBhaijaan2',
               fontSize: 14,
@@ -399,11 +569,11 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
 
   Widget _buildFlightsList() {
     return Column(
-      children: _filteredFlights.map((flight) => _buildFlightCard(flight)).toList(),
+      children: _filteredFlights.map((flight) => _buildFlightCard(flight, _filteredFlights.indexOf(flight))).toList(),
     );
   }
 
-  Widget _buildFlightCard(Flight flight) {
+  Widget _buildFlightCard(Flight flight, int index) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -427,8 +597,10 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
             MaterialPageRoute(
               builder: (context) => FlightOverviewScreen(
                 flight: flight,
-                passengers: widget.passengers,
-                returnDate: widget.returnDate,
+                passengers: widget.searchParams['passenger']?['adults'] ?? 1,
+                returnDate: widget.isRoundTrip 
+                    ? DateTime.tryParse(widget.searchParams['return_date'] ?? '')
+                    : null,
               ),
             ),
           ),
@@ -658,13 +830,11 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
       case 'VietJet Air':
         return const Color(0xFFE53E3E);
       case 'Vietnam Airlines':
-        return AppColors.primaryBlue;
+        return const Color(0xFF1E3A8A);
       case 'Bamboo Airways':
         return const Color(0xFF16A34A);
       default:
-        return const Color(0xFF64748B);
+        return Colors.grey.shade600;
     }
   }
-}
-}
 }
