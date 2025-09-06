@@ -166,6 +166,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // Fly Journey Logo
+                    const Text(
+                      'Fly Journey',
+                      style: TextStyle(
+                        fontFamily: 'BalooBhaijaan2',
+                        fontSize: 28,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primaryBlue,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    
                     // Title
                     const Text(
                       'Chào mừng bạn!',
@@ -198,22 +210,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       width: 100,
                       height: 100,
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFF667EEA),
-                            Color(0xFF764BA2),
-                          ],
-                        ),
+                        color: AppColors.primaryBlue,
                         borderRadius: BorderRadius.circular(50),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF667EEA).withOpacity(0.3),
-                            blurRadius: 20,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
                       ),
                       child: const Icon(
                         Icons.flight_takeoff,

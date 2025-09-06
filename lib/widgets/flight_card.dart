@@ -16,11 +16,11 @@ class FlightCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), // Reduced from 16 to 10
       elevation: 2,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(10), // Reduced from 16 to 10
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -82,7 +82,7 @@ class FlightCard extends StatelessWidget {
                 : flight.availableSeats > 10
                     ? Colors.orange.shade100
                     : Colors.red.shade100,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(8), // Reduced from 12 to 8
           ),
           child: Text(
             '${flight.availableSeats} chỗ',
@@ -191,7 +191,7 @@ class FlightCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Bay thẳng',
+                flight.stopsCount == 0 ? 'Bay thẳng' : '${flight.stopsCount} điểm dừng',
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: Colors.grey.shade600,
                 ),
@@ -229,33 +229,42 @@ class FlightCard extends StatelessWidget {
   }
 
   Widget _buildFlightDetails(BuildContext context) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(
-          Icons.airplanemode_active,
-          size: 16,
-          color: Colors.grey.shade600,
+        Row(
+          children: [
+            Icon(
+              Icons.airplanemode_active,
+              size: 16,
+              color: Colors.grey.shade600,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              flight.aircraft,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: Colors.grey.shade600,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Icon(
+              Icons.event_seat,
+              size: 16,
+              color: Colors.grey.shade600,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              _getFlightClassDisplayName(flight.flightClass),
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: Colors.grey.shade600,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(width: 4),
-        Text(
-          flight.aircraft,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: Colors.grey.shade600,
-          ),
-        ),
-        const SizedBox(width: 16),
-        Icon(
-          Icons.event_seat,
-          size: 16,
-          color: Colors.grey.shade600,
-        ),
-        const SizedBox(width: 4),
-        Text(
-          'Phổ thông',
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: Colors.grey.shade600,
-          ),
-        ),
+        if (flight.fareClassDetails != null) ...[
+          const SizedBox(height: 8),
+          _buildFareClassDetails(context),
+        ],
       ],
     );
   }
@@ -302,6 +311,99 @@ class FlightCard extends StatelessWidget {
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  String _getFlightClassDisplayName(String flightClass) {
+    switch (flightClass.toLowerCase()) {
+      case 'economy':
+        return 'Phổ thông';
+      case 'premium_economy':
+        return 'Phổ thông đặc biệt';
+      case 'business':
+        return 'Thương gia';
+      case 'first':
+        return 'Hạng nhất';
+      default:
+        return 'Phổ thông';
+    }
+  }
+
+  Widget _buildFareClassDetails(BuildContext context) {
+    final fareDetails = flight.fareClassDetails!;
+    
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.luggage,
+                size: 14,
+                color: Colors.grey.shade600,
+              ),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  fareDetails.baggageKg.isNotEmpty 
+                      ? fareDetails.baggageKg 
+                      : 'Không bao gồm hành lý ký gửi',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: Colors.grey.shade700,
+                    fontSize: 11,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (fareDetails.refundable || fareDetails.changeable) ...[
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                if (fareDetails.refundable) ...[
+                  Icon(
+                    Icons.check_circle,
+                    size: 12,
+                    color: Colors.green.shade600,
+                  ),
+                  const SizedBox(width: 2),
+                  Text(
+                    'Hoàn tiền',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: Colors.green.shade700,
+                      fontSize: 10,
+                    ),
+                  ),
+                ],
+                if (fareDetails.refundable && fareDetails.changeable) 
+                  const SizedBox(width: 8),
+                if (fareDetails.changeable) ...[
+                  Icon(
+                    Icons.swap_horiz,
+                    size: 12,
+                    color: Colors.blue.shade600,
+                  ),
+                  const SizedBox(width: 2),
+                  Text(
+                    'Đổi vé',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: Colors.blue.shade700,
+                      fontSize: 10,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ],
         ],
       ),
     );

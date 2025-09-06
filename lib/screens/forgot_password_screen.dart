@@ -96,12 +96,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
-          'Quên mật khẩu',
+          'Fly Journey',
           style: TextStyle(
             fontFamily: 'BalooBhaijaan2',
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF1E293B),
+            fontSize: 28,
+            fontWeight: FontWeight.w700,
+            color: AppColors.primaryBlue,
           ),
         ),
         centerTitle: true,

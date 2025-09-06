@@ -13,6 +13,9 @@ dependencies:
   google_fonts: ^6.1.0
   shared_preferences: ^2.0.0
   intl: 0.20.2
+  http: ^1.1.0
+  dio: ^5.9.0
+  flutter_secure_storage: ^9.2.4
 
 dev_dependencies:
   flutter_test:
@@ -21,3 +24,32 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  
+  assets:
+    - lib/assets/Nata_Sans/
+    - lib/assets/Baloo_Bhaijaan_2/
+    - lib/assets/Images/
+  
+  fonts:
+    - family: NataSans
+      fonts:
+        - asset: lib/assets/Nata_Sans/static/NataSans-Regular.ttf
+          weight: 400
+        - asset: lib/assets/Nata_Sans/static/NataSans-Medium.ttf
+          weight: 500
+        - asset: lib/assets/Nata_Sans/static/NataSans-SemiBold.ttf
+          weight: 600
+        - asset: lib/assets/Nata_Sans/static/NataSans-Bold.ttf
+          weight: 700
+    - family: BalooBhaijaan2
+      fonts:
+        - asset: lib/assets/Baloo_Bhaijaan_2/static/BalooBhaijaan2-Regular.ttf
+          weight: 400
+        - asset: lib/assets/Baloo_Bhaijaan_2/static/BalooBhaijaan2-Medium.ttf
+          weight: 500
+        - asset: lib/assets/Baloo_Bhaijaan_2/static/BalooBhaijaan2-SemiBold.ttf
+          weight: 600
+        - asset: lib/assets/Baloo_Bhaijaan_2/static/BalooBhaijaan2-Bold.ttf
+          weight: 700
+        - asset: lib/assets/Baloo_Bhaijaan_2/static/BalooBhaijaan2-ExtraBold.ttf
+          weight: 800

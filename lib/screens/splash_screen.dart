@@ -74,17 +74,23 @@ class _SplashScreenState extends State<SplashScreen> {
               
               const SizedBox(height: 40),
               
-              // App title (no animation)
+              // App title with Hero Animation
               Center(
-                child: const Text(
-                  'Fly Journey',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: 'BalooBhaijaan2',
-                    fontSize: 48,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.primaryBlue,
-                    letterSpacing: 1.2,
+                child: Hero(
+                  tag: 'fly_journey_logo',
+                  child: Material(
+                    color: Colors.transparent,
+                    child: const Text(
+                      'Fly Journey',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'BalooBhaijaan2',
+                        fontSize: 48,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primaryBlue,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
                   ),
                 ),
               ),

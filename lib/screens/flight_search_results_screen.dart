@@ -104,37 +104,8 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
   }
 
   Flight _parseApiFlightToModel(Map<String, dynamic> apiData) {
-    // Parse API response to Flight model
-    final departureCode = apiData['departure_airport_code'] ?? 'HAN';
-    final arrivalCode = apiData['arrival_airport_code'] ?? 'SGN';
-    
-    final departure = Airport(
-      code: departureCode,
-      name: apiData['departure_airport'] ?? (departureCode == 'HAN' ? 'Sân bay quốc tế Nội Bài' : 'Sân bay quốc tế Tân Sơn Nhất'),
-      city: departureCode == 'HAN' ? 'Hà Nội' : 'TP.HCM',
-      country: 'Việt Nam',
-    );
-    
-    final arrival = Airport(
-      code: arrivalCode,
-      name: apiData['arrival_airport'] ?? (arrivalCode == 'SGN' ? 'Sân bay quốc tế Tân Sơn Nhất' : 'Sân bay quốc tế Nội Bài'),
-      city: arrivalCode == 'SGN' ? 'TP.HCM' : 'Hà Nội',
-      country: 'Việt Nam',
-    );
-
-    return Flight(
-      flightNumber: apiData['flight_number'] ?? 'Unknown',
-      airline: apiData['airline_name'] ?? 'Unknown Airline',
-      airlineLogo: apiData['logo_url'] ?? '',
-      departure: departure,
-      arrival: arrival,
-      departureTime: DateTime.tryParse(apiData['departure_time'] ?? '') ?? DateTime.now(),
-      arrivalTime: DateTime.tryParse(apiData['arrival_time'] ?? '') ?? DateTime.now().add(const Duration(hours: 2)),
-      price: (apiData['pricing']?['grand_total'] ?? 1500000).toDouble(),
-      aircraft: 'Aircraft', // API doesn't provide this field
-      availableSeats: apiData['total_seats'] ?? 120,
-      duration: _formatDuration(apiData['duration_minutes'] ?? 150),
-    );
+    // Use the updated Flight.fromJson method that handles all the new fields
+    return Flight.fromJson(apiData);
   }
 
   String _formatDuration(int minutes) {
@@ -164,7 +135,10 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
 
     return [
       Flight(
+        flightId: 1,
+        flightClassId: 1,
         flightNumber: 'VJ123',
+        airlineId: 2,
         airline: 'VietJet Air',
         airlineLogo: '',
         departure: departure,
@@ -175,9 +149,18 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
         aircraft: 'Airbus A321',
         availableSeats: 24,
         duration: '2h 30m',
+        durationMinutes: 150,
+        stopsCount: 0,
+        distance: 1166,
+        flightClass: 'economy',
+        totalSeats: 180,
+        taxAndFees: 150000,
       ),
       Flight(
+        flightId: 2,
+        flightClassId: 2,
         flightNumber: 'VN456',
+        airlineId: 1,
         airline: 'Vietnam Airlines',
         airlineLogo: '',
         departure: departure,
@@ -188,6 +171,12 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
         aircraft: 'Boeing 787',
         availableSeats: 12,
         duration: '2h 45m',
+        durationMinutes: 165,
+        stopsCount: 0,
+        distance: 1166,
+        flightClass: 'business',
+        totalSeats: 180,
+        taxAndFees: 200000,
       ),
       Flight(
         flightNumber: 'BL789',
@@ -397,25 +386,19 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
               ),
             ],
           ),
-          GestureDetector(
-            onTap: () {},
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: const Icon(
-                Icons.tune,
-                color: Color(0xFF6B7280),
-                size: 20,
+          // Fly Journey Brand with Hero Animation
+          Hero(
+            tag: 'fly_journey_logo',
+            child: Material(
+              color: Colors.transparent,
+              child: const Text(
+                'Fly Journey',
+                style: TextStyle(
+                  fontFamily: 'BalooBhaijaan2',
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primaryBlue,
+                ),
               ),
             ),
           ),
@@ -444,33 +427,6 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.primaryBlue.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.search,
-                  color: AppColors.primaryBlue,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Text(
-                'Kết quả tìm kiếm',
-                style: TextStyle(
-                  fontFamily: 'BalooBhaijaan2',
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF1E293B),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
           // Flight route info
           Row(
             children: [
