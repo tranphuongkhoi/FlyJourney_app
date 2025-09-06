@@ -4,12 +4,14 @@ import 'package:cnh_n/models/flight.dart';
 
 class FlightOverviewScreen extends StatelessWidget {
   final Flight flight;
+  final Flight? returnFlight;
   final int passengers;
   final DateTime? returnDate;
 
   const FlightOverviewScreen({
     super.key,
     required this.flight,
+    this.returnFlight,
     required this.passengers,
     this.returnDate,
   });
@@ -19,9 +21,9 @@ class FlightOverviewScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFE0F7FA), // Homepage background color
       appBar: AppBar(
-        title: const Text(
-          'Chi tiết chuyến bay',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: Text(
+          returnFlight != null ? 'Chi tiết vé khứ hồi' : 'Chi tiết chuyến bay',
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color(0xFFE0F7FA), // Homepage background color
         foregroundColor: Colors.black,
@@ -36,11 +38,27 @@ class FlightOverviewScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildFlightHeader(),
-                  const SizedBox(height: 24),
-                  _buildFlightRoute(),
-                  const SizedBox(height: 24),
-                  _buildFlightDetails(),
+                  // Outbound flight section
+                  _buildSectionHeader('🛫 Chuyến bay đi', true),
+                  const SizedBox(height: 16),
+                  _buildFlightHeader(flight),
+                  const SizedBox(height: 16),
+                  _buildFlightRoute(flight),
+                  const SizedBox(height: 16),
+                  _buildFlightDetails(flight),
+                  
+                  // Return flight section (if exists)
+                  if (returnFlight != null) ...[
+                    const SizedBox(height: 32),
+                    _buildSectionHeader('🛬 Chuyến bay về', false),
+                    const SizedBox(height: 16),
+                    _buildFlightHeader(returnFlight!),
+                    const SizedBox(height: 16),
+                    _buildFlightRoute(returnFlight!),
+                    const SizedBox(height: 16),
+                    _buildFlightDetails(returnFlight!),
+                  ],
+                  
                   const SizedBox(height: 24),
                   _buildPricingDetails(),
                   const SizedBox(height: 24),
@@ -58,7 +76,55 @@ class FlightOverviewScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFlightHeader() {
+  Widget _buildSectionHeader(String title, bool isOutbound) {
+    final Color primaryColor = isOutbound ? Colors.blue[600]! : Colors.green[600]!;
+    
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            primaryColor.withOpacity(0.08),
+            primaryColor.withOpacity(0.12),
+          ],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: primaryColor.withOpacity(0.15)),
+        boxShadow: [
+          BoxShadow(
+            color: primaryColor.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontFamily: 'BalooBhaijaan2',
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: primaryColor,
+              letterSpacing: 0.5,
+            ),
+          ),
+          const Spacer(),
+          Icon(
+            isOutbound ? Icons.flight_takeoff : Icons.flight_land,
+            color: primaryColor,
+            size: 24,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFlightHeader(Flight flightData) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -99,7 +165,7 @@ class FlightOverviewScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      flight.airline,
+                      flightData.airline,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,
@@ -107,7 +173,7 @@ class FlightOverviewScreen extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Chuyến bay ${flight.flightNumber}',
+                      'Chuyến bay ${flightData.flightNumber}',
                       style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 16,
@@ -126,7 +192,7 @@ class FlightOverviewScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              flight.aircraft,
+              flightData.aircraft,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 14,
@@ -139,7 +205,7 @@ class FlightOverviewScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFlightRoute() {
+  Widget _buildFlightRoute(Flight flightData) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -156,7 +222,7 @@ class FlightOverviewScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      flight.departure.code,
+                      flightData.departure.code,
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -164,7 +230,7 @@ class FlightOverviewScreen extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      flight.departure.name,
+                      flightData.departure.name,
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey.shade600,
@@ -174,14 +240,14 @@ class FlightOverviewScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      DateFormat('HH:mm').format(flight.departureTime),
+                      DateFormat('HH:mm').format(flightData.departureTime),
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     Text(
-                      DateFormat('dd/MM/yyyy').format(flight.departureTime),
+                      DateFormat('dd/MM/yyyy').format(flightData.departureTime),
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey.shade600,
@@ -199,7 +265,7 @@ class FlightOverviewScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      flight.duration,
+                      flightData.duration,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
@@ -226,7 +292,7 @@ class FlightOverviewScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      flight.arrival.code,
+                      flightData.arrival.code,
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -234,7 +300,7 @@ class FlightOverviewScreen extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      flight.arrival.name,
+                      flightData.arrival.name,
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey.shade600,
@@ -245,14 +311,14 @@ class FlightOverviewScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      DateFormat('HH:mm').format(flight.arrivalTime),
+                      DateFormat('HH:mm').format(flightData.arrivalTime),
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     Text(
-                      DateFormat('dd/MM/yyyy').format(flight.arrivalTime),
+                      DateFormat('dd/MM/yyyy').format(flightData.arrivalTime),
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey.shade600,
@@ -268,7 +334,7 @@ class FlightOverviewScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFlightDetails() {
+  Widget _buildFlightDetails(Flight flightData) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -287,14 +353,14 @@ class FlightOverviewScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          _buildDetailRow('Số chuyến bay', flight.flightNumber),
-          _buildDetailRow('Hãng hàng không', flight.airline),
-          _buildDetailRow('Máy bay', flight.aircraft),
-          _buildDetailRow('Thời gian bay', flight.duration),
-          _buildDetailRow('Ghế trống', '${flight.availableSeats} ghế'),
+          _buildDetailRow('Số chuyến bay', flightData.flightNumber),
+          _buildDetailRow('Hãng hàng không', flightData.airline),
+          _buildDetailRow('Máy bay', flightData.aircraft),
+          _buildDetailRow('Thời gian bay', flightData.duration),
+          _buildDetailRow('Ghế trống', '${flightData.availableSeats} ghế'),
           _buildDetailRow('Loại ghế', 'Economy Class'), // From API: cabin_class
           _buildDetailRow('Hành lý', '1 kiện x 23kg (miễn phí)'), // From API: baggage_kg
-          _buildDetailRow('Trạng thái', flight.availableSeats > 0 ? 'Còn chỗ' : 'Hết chỗ'),
+          _buildDetailRow('Trạng thái', flightData.availableSeats > 0 ? 'Còn chỗ' : 'Hết chỗ'),
         ],
       ),
     );
@@ -332,19 +398,23 @@ class FlightOverviewScreen extends StatelessWidget {
   }
 
   Widget _buildPricingDetails() {
+    final double outboundPrice = flight.price;
+    final double returnPrice = returnFlight?.price ?? 0;
+    final double totalPrice = outboundPrice + returnPrice;
+    
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.green.shade50,
+        color: Colors.blue.shade50,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.green.shade200),
+        border: Border.all(color: Colors.blue.shade200),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.receipt, color: Colors.green.shade700),
+              Icon(Icons.receipt, color: Colors.blue.shade700),
               const SizedBox(width: 8),
               const Text(
                 'Chi tiết giá vé',
@@ -356,12 +426,18 @@ class FlightOverviewScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          _buildPriceRow('Giá vé cơ bản', flight.price - (flight.price * 0.3)), // Rough calculation
-          _buildPriceRow('Thuế và phí', flight.price * 0.3), // Rough calculation
+          
+          // Outbound flight pricing
+          _buildPriceRow('🛫 Chuyến bay đi', outboundPrice),
+          
+          // Return flight pricing (if exists)
+          if (returnFlight != null) 
+            _buildPriceRow('🛬 Chuyến bay về', returnPrice),
+          
           const Divider(height: 24),
           _buildPriceRow(
-            'Tổng cộng',
-            flight.price,
+            returnFlight != null ? 'Tổng cộng (khứ hồi)' : 'Tổng cộng',
+            totalPrice,
             isTotal: true,
           ),
           const SizedBox(height: 8),
@@ -407,16 +483,16 @@ class FlightOverviewScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: Colors.green.shade50,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: Colors.green.shade200),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.people, color: Colors.orange.shade700),
+              Icon(Icons.people, color: Colors.green.shade700),
               const SizedBox(width: 8),
               const Text(
                 'Thông tin hành khách',
@@ -441,16 +517,16 @@ class FlightOverviewScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.red.shade50,
+        color: Colors.green.shade50,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.red.shade200),
+        border: Border.all(color: Colors.green.shade200),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.policy, color: Colors.red.shade700),
+              Icon(Icons.policy, color: Colors.green.shade700),
               const SizedBox(width: 8),
               const Text(
                 'Chính sách vé',
