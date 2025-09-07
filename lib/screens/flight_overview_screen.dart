@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cnh_n/models/flight.dart';
+import 'package:cnh_n/screens/booking_confirmation_screen.dart';
 
 class FlightOverviewScreen extends StatelessWidget {
   final Flight flight;
@@ -641,11 +642,15 @@ class FlightOverviewScreen extends StatelessWidget {
             Expanded(
               child: ElevatedButton(
                 onPressed: () {
-                  // TODO: Navigate to next screen (passenger details/booking)
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Chức năng đặt vé sẽ được triển khai sau'),
-                      backgroundColor: Colors.green,
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BookingConfirmationScreen(
+                        outboundFlight: flight,
+                        returnFlight: returnFlight,
+                        passengers: passengers,
+                        returnDate: returnDate,
+                      ),
                     ),
                   );
                 },

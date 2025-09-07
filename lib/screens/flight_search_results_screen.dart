@@ -31,6 +31,23 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
   bool _isLoading = true;
   String? _errorMessage;
 
+  // Track expanded states for flight cards
+  Map<int, bool> _expandedStates = {};
+
+  // Helper function to get total passenger count from search params
+  int get _totalPassengers {
+    final passengers = widget.searchParams['passengers'] ?? widget.searchParams['passenger'] ?? {};
+    final adults = passengers['adults'] ?? 1;
+    final children = passengers['children'] ?? 0; 
+    final infants = passengers['infants'] ?? passengers['infant'] ?? 0;
+    return adults + children + infants;
+  }
+
+  // Helper function to get unique key for flight (handles nullable flightId)
+  int _getFlightKey(Flight flight) {
+    return flight.flightId ?? flight.hashCode;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -367,17 +384,17 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
       child: FloatingActionButton.extended(
         onPressed: () {
           if (_selectedOutboundFlight != null && _selectedInboundFlight != null) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => FlightOverviewScreen(
-                  flight: _selectedOutboundFlight!,
-                  returnFlight: _selectedInboundFlight!,
-                  passengers: widget.searchParams['passenger']?['adults'] ?? 1,
-                  returnDate: DateTime.tryParse(widget.searchParams['return_date'] ?? ''),
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FlightOverviewScreen(
+                    flight: _selectedOutboundFlight!,
+                    returnFlight: _selectedInboundFlight!,
+                    passengers: _totalPassengers,
+                    returnDate: DateTime.tryParse(widget.searchParams['return_date'] ?? ''),
+                  ),
                 ),
-              ),
-            );
+              );
           }
         },
         backgroundColor: AppColors.primaryBlue,
@@ -773,8 +790,8 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
           // Results summary
           Text(
             widget.isRoundTrip && _inboundFlights.isNotEmpty
-                ? 'Tìm thấy ${_outboundFlights.length} chuyến bay đi • ${_inboundFlights.length} chuyến bay về • ${widget.searchParams['passenger']?['adults'] ?? 1} hành khách'
-                : 'Tìm thấy ${_filteredFlights.length} chuyến bay • ${widget.searchParams['passenger']?['adults'] ?? 1} hành khách',
+                ? 'Tìm thấy ${_outboundFlights.length} chuyến bay đi • ${_inboundFlights.length} chuyến bay về • $_totalPassengers hành khách'
+                : 'Tìm thấy ${_filteredFlights.length} chuyến bay • $_totalPassengers hành khách',
             style: const TextStyle(
               fontFamily: 'BalooBhaijaan2',
               fontSize: 14,
@@ -943,7 +960,7 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
                 MaterialPageRoute(
                   builder: (context) => FlightOverviewScreen(
                     flight: flight,
-                    passengers: widget.searchParams['passenger']?['adults'] ?? 1,
+                    passengers: _totalPassengers,
                     returnDate: null,
                   ),
                 ),
@@ -1130,7 +1147,7 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                // Footer with seats and select button
+                // Footer with seats, details, and select button
                 Row(
                   children: [
                     Text(
@@ -1142,6 +1159,48 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
                             ? Colors.green[600] 
                             : Colors.orange[600],
                         fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    // Details expand button
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          final flightKey = _getFlightKey(flight);
+                          _expandedStates[flightKey] = !(_expandedStates[flightKey] ?? false);
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: Colors.grey.shade300),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Chi tiết',
+                              style: TextStyle(
+                                fontFamily: 'BalooBhaijaan2',
+                                fontSize: 12,
+                                color: Colors.grey.shade700,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            AnimatedRotation(
+                              duration: const Duration(milliseconds: 200),
+                              turns: (_expandedStates[_getFlightKey(flight)] ?? false) ? 0.5 : 0,
+                              child: Icon(
+                                Icons.keyboard_arrow_down,
+                                size: 16,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     const Spacer(),
@@ -1178,6 +1237,15 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
                     ),
                   ],
                 ),
+                // Expandable details section
+                AnimatedCrossFade(
+                  duration: const Duration(milliseconds: 300),
+                  crossFadeState: (_expandedStates[_getFlightKey(flight)] ?? false) 
+                      ? CrossFadeState.showSecond 
+                      : CrossFadeState.showFirst,
+                  firstChild: const SizedBox.shrink(),
+                  secondChild: _buildFlightDetails(flight),
+                ),
               ],
             ),
           ),
@@ -1196,6 +1264,196 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
         return const Color(0xFF16A34A);
       default:
         return Colors.grey.shade600;
+    }
+  }
+
+  Widget _buildFlightDetails(Flight flight) {
+    return Container(
+      margin: const EdgeInsets.only(top: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildDetailRow('Ngày giờ khởi hành', '${DateFormat('dd/MM/yyyy - HH:mm').format(flight.departureTime)}'),
+          _buildDetailRow('Ngày giờ đến', '${DateFormat('dd/MM/yyyy - HH:mm').format(flight.arrivalTime)}'),
+          _buildDetailRow('Số chuyến bay', flight.flightNumber),
+          _buildDetailRow('Loại máy bay', flight.aircraft),
+          _buildDetailRow('Thời gian bay', flight.duration),
+          _buildDetailRow('Hạng vé', _getFlightClassDisplay(flight.flightClass)),
+          const Divider(height: 20),
+          _buildSectionTitle('Hành lý', Icons.luggage),
+          const SizedBox(height: 8),
+          _buildBaggageInfo(),
+          const SizedBox(height: 12),
+          _buildSectionTitle('Quy định vé', Icons.description),
+          const SizedBox(height: 8),
+          _buildTicketPolicy(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 120,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontFamily: 'BalooBhaijaan2',
+                fontSize: 13,
+                color: Colors.grey.shade600,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          const Text(': ', style: TextStyle(fontSize: 13)),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontFamily: 'BalooBhaijaan2',
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF1E293B),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title, IconData icon) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: AppColors.primaryBlue),
+        const SizedBox(width: 6),
+        Text(
+          title,
+          style: const TextStyle(
+            fontFamily: 'BalooBhaijaan2',
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            color: AppColors.primaryBlue,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBaggageInfo() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.blue.shade50,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.blue.shade200),
+      ),
+      child: Column(
+        children: [
+          _buildBaggageRow('Hành lý xách tay', '7kg (miễn phí)', Icons.backpack),
+          const SizedBox(height: 6),
+          _buildBaggageRow('Hành lý ký gửi', '20kg (miễn phí)', Icons.luggage),
+          const SizedBox(height: 6),
+          _buildBaggageRow('Hành lý thêm', 'Từ 200,000 VNĐ/kg', Icons.add_circle_outline),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBaggageRow(String title, String description, IconData icon) {
+    return Row(
+      children: [
+        Icon(icon, size: 14, color: Colors.blue.shade600),
+        const SizedBox(width: 8),
+        Text(
+          title,
+          style: TextStyle(
+            fontFamily: 'BalooBhaijaan2',
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Colors.blue.shade800,
+          ),
+        ),
+        const Spacer(),
+        Text(
+          description,
+          style: TextStyle(
+            fontFamily: 'BalooBhaijaan2',
+            fontSize: 12,
+            color: Colors.blue.shade700,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTicketPolicy() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.orange.shade50,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.orange.shade200),
+      ),
+      child: Column(
+        children: [
+          _buildPolicyRow('Đổi vé', 'Phí từ 500,000 VNĐ', Icons.swap_horiz),
+          const SizedBox(height: 6),
+          _buildPolicyRow('Hoàn vé', 'Phí từ 800,000 VNĐ', Icons.cancel),
+          const SizedBox(height: 6),
+          _buildPolicyRow('Chọn chỗ ngồi', 'Từ 50,000 VNĐ/ghế', Icons.airline_seat_recline_normal),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPolicyRow(String title, String description, IconData icon) {
+    return Row(
+      children: [
+        Icon(icon, size: 14, color: Colors.orange.shade600),
+        const SizedBox(width: 8),
+        Text(
+          title,
+          style: TextStyle(
+            fontFamily: 'BalooBhaijaan2',
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Colors.orange.shade800,
+          ),
+        ),
+        const Spacer(),
+        Text(
+          description,
+          style: TextStyle(
+            fontFamily: 'BalooBhaijaan2',
+            fontSize: 12,
+            color: Colors.orange.shade700,
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _getFlightClassDisplay(String flightClass) {
+    switch (flightClass.toLowerCase()) {
+      case 'economy':
+        return 'Phổ thông (Economy)';
+      case 'business':
+        return 'Thương gia (Business)';
+      case 'first':
+        return 'Hạng nhất (First Class)';
+      default:
+        return 'Phổ thông (Economy)';
     }
   }
 }
