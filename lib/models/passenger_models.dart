@@ -8,7 +8,7 @@ class PassengerInfo {
   String documentType = '';
   String documentNumber = '';
   DateTime? documentExpiry;
-  String extraBaggage = 'Không';
+  String extraBaggage = '';
   String passengerType = '';
   bool isBooker;
   

@@ -15,7 +15,8 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace = "com.mycompany.CounterApp"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    // Pin NDK to a stable installed version to avoid SDK mismatches
+    ndkVersion = "26.1.10909125"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
