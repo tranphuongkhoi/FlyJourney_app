@@ -3,6 +3,10 @@ import 'package:intl/intl.dart';
 import 'package:cnh_n/models/flight.dart';
 import 'package:cnh_n/constants/colors.dart';
 import 'package:cnh_n/models/passenger_models.dart';
+import 'package:cnh_n/models/booking.dart';
+import 'package:cnh_n/models/passenger.dart';
+import 'package:cnh_n/services/storage_service.dart';
+import 'package:cnh_n/screens/payment_success_screen.dart';
 
 class PaymentScreen extends StatefulWidget {
   final Flight outboundFlight;
@@ -1113,20 +1117,72 @@ class _PaymentScreenState extends State<PaymentScreen>
     // Simulate payment processing
     await Future.delayed(const Duration(seconds: 3));
     
+    // Calculate total amount
+    final totalAmount = _calculateTotalAmount();
+    
+    // Create booking object
+    final bookingId = 'FL${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
+    
+    // Convert PassengerInfo to Passenger objects
+    final passengers = widget.passengersList.map((passengerInfo) => Passenger(
+      firstName: passengerInfo.firstName,
+      lastName: passengerInfo.lastName,
+      idNumber: passengerInfo.documentNumber,
+      idType: passengerInfo.documentType,
+      dateOfBirth: passengerInfo.dateOfBirth ?? DateTime.now().subtract(const Duration(days: 365 * 25)), // Default age 25
+      gender: passengerInfo.gender,
+      email: widget.contactInfo.email, // Use contact email for all passengers
+      phone: passengerInfo.phoneNumber.isNotEmpty ? passengerInfo.phoneNumber : '', // Use passenger's phone or empty
+    )).toList();
+    
+    final booking = Booking(
+      bookingId: bookingId,
+      flight: widget.outboundFlight,
+      returnFlight: widget.returnFlight,
+      passengers: passengers,
+      bookingDate: DateTime.now(),
+      totalPrice: totalAmount,
+      status: BookingStatus.confirmed,
+      contactEmail: widget.contactInfo.email,
+      contactPhone: widget.passengersList.isNotEmpty ? widget.passengersList.first.phoneNumber : '',
+    );
+    
+    // Save booking to local storage
+    try {
+      await StorageService.saveBooking(booking);
+      print('✅ Booking saved successfully: $bookingId');
+    } catch (e) {
+      print('❌ Error saving booking: $e');
+    }
+    
     setState(() {
       _isProcessingPayment = false;
     });
     
-    // Show success message
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Thanh toán thành công! Vé đã được gửi về email.'),
-        backgroundColor: Colors.green,
-        duration: Duration(seconds: 3),
+    // Navigate to PaymentSuccessScreen
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PaymentSuccessScreen(
+          flight: widget.outboundFlight,
+          returnFlight: widget.returnFlight,
+          passengers: widget.passengersList,
+          contactInfo: widget.contactInfo,
+          totalPassengers: widget.passengers,
+          totalAmount: totalAmount,
+        ),
       ),
     );
+  }
+
+  double _calculateTotalAmount() {
+    // Calculate total based on outbound + return flight prices
+    double total = widget.outboundFlight.price.toDouble() * widget.passengers;
     
-    // Navigate to success screen or home
-    Navigator.popUntil(context, (route) => route.isFirst);
+    if (widget.returnFlight != null) {
+      total += widget.returnFlight!.price.toDouble() * widget.passengers;
+    }
+    
+    return total;
   }
 }

@@ -43,6 +43,28 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
     return adults + children + infants;
   }
 
+  // Helper function to get formatted return date from search params
+  String _getReturnDateString() {
+    final returnDateStr = widget.searchParams['return_date'] as String?;
+    if (returnDateStr != null && returnDateStr.isNotEmpty) {
+      try {
+        // Parse DD/MM/YYYY format
+        final parts = returnDateStr.split('/');
+        if (parts.length == 3) {
+          final day = int.parse(parts[0]);
+          final month = int.parse(parts[1]);
+          final year = int.parse(parts[2]);
+          final returnDate = DateTime(year, month, day);
+          return DateFormat('dd/MM').format(returnDate);
+        }
+      } catch (e) {
+        print('Error parsing return date: $e');
+      }
+    }
+    // Fallback to current dev date
+    return '27/08';
+  }
+
   // Helper function to get unique key for flight (handles nullable flightId)
   int _getFlightKey(Flight flight) {
     return flight.flightId ?? flight.hashCode;
@@ -73,7 +95,10 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
         // Check if search_results is a List or Map
         if (searchResults is List) {
           // Case 1: search_results is directly a list of flights (one-way)
-          print('🛫 Direct flights list with ${searchResults.length} flights');
+          print('🔍 ONE-WAY PARSING:');
+          print('  - widget.isRoundTrip: ${widget.isRoundTrip}');
+          print('  - searchResults is List: true');
+          print('  - flights count: ${searchResults.length}');
           _outboundFlights = searchResults.map((flightData) => _parseApiFlightToModel(flightData)).toList();
           _inboundFlights = [];
           allFlights.addAll(_outboundFlights);
@@ -82,9 +107,13 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
           final outboundFlights = (searchResults['outbound_flights'] as List?) ?? [];
           final inboundFlights = (searchResults['inbound_flights'] as List?) ?? [];
           
-          print('🛫 Outbound flights count: ${outboundFlights.length}');
-          print('🛬 Inbound flights count: ${inboundFlights.length}');
-          
+          // Debug: Check what we got
+          print('🔍 ROUNDTRIP PARSING:');
+          print('  - widget.isRoundTrip: ${widget.isRoundTrip}');
+          print('  - searchResults keys: ${searchResults.keys.toList()}');
+          print('  - outbound count: ${outboundFlights.length}');
+          print('  - inbound count: ${inboundFlights.length}');
+
           _outboundFlights = outboundFlights.map((flightData) => _parseApiFlightToModel(flightData)).toList();
           _inboundFlights = inboundFlights.map((flightData) => _parseApiFlightToModel(flightData)).toList();
           
@@ -99,76 +128,31 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
         _filteredFlights = List.from(_flights);
         
         if (_flights.isEmpty) {
-          _errorMessage = 'Không tìm thấy chuyến bay nào cho tuyến này. Hiển thị dữ liệu mẫu.';
-          // Fallback to sample data if no flights found
-          _flights = _createSampleFlights();
-          _filteredFlights = List.from(_flights);
-          
-          // For sample data, split into outbound/inbound based on flight logic
-          if (widget.isRoundTrip) {
-            // Sample data is already structured with outbound first, then inbound
-            _outboundFlights = _flights.where((flight) => 
-              flight.departureTime.difference(DateTime.now()).inDays <= 7
-            ).toList();
-            _inboundFlights = _flights.where((flight) => 
-              flight.departureTime.difference(DateTime.now()).inDays > 7
-            ).toList();
-          } else {
-            _outboundFlights = _flights;
-            _inboundFlights = [];
-          }
+          _errorMessage = 'Không tìm thấy chuyến bay nào cho tuyến này. Vui lòng thử lại với ngày khác hoặc bộ lọc khác.';
         }
         
         _sortFlights();
       } else {
-        // API error
-        _errorMessage = result['message'] ?? 'Có lỗi xảy ra khi tìm kiếm chuyến bay';
+        // API error - show error without fallback
+        _errorMessage = result['message'] ?? 'Có lỗi xảy ra khi tìm kiếm chuyến bay. Vui lòng thử lại.';
         print('API Error: ${result['error']} - ${result['message']}');
         
-        // Fallback to sample data for development
-        _flights = _createSampleFlights();
-        _filteredFlights = List.from(_flights);
-        
-        // For sample data, split into outbound/inbound based on flight logic
-        if (widget.isRoundTrip) {
-          // Sample data is already structured with outbound first, then inbound
-          _outboundFlights = _flights.where((flight) => 
-            flight.departureTime.difference(DateTime.now()).inDays <= 7
-          ).toList();
-          _inboundFlights = _flights.where((flight) => 
-            flight.departureTime.difference(DateTime.now()).inDays > 7
-          ).toList();
-        } else {
-          _outboundFlights = _flights;
-          _inboundFlights = [];
-        }
-        
-        _sortFlights();
-      }
-    } catch (e) {
-      // Network error
-      _errorMessage = 'Không thể kết nối đến server. Đang hiển thị dữ liệu mẫu.';
-      print('Network Error: $e');
-      
-      // Fallback to sample data
-      _flights = _createSampleFlights();
-      _filteredFlights = List.from(_flights);
-      
-      // For sample data, split into outbound/inbound based on flight logic
-      if (widget.isRoundTrip) {
-        // Sample data is already structured with outbound first, then inbound
-        _outboundFlights = _flights.where((flight) => 
-          flight.departureTime.difference(DateTime.now()).inDays <= 7
-        ).toList();
-        _inboundFlights = _flights.where((flight) => 
-          flight.departureTime.difference(DateTime.now()).inDays > 7
-        ).toList();
-      } else {
-        _outboundFlights = _flights;
+        // Clear flights data
+        _flights = [];
+        _filteredFlights = [];
+        _outboundFlights = [];
         _inboundFlights = [];
       }
+    } catch (e) {
+      // Network error - show error without fallback
+      _errorMessage = 'Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng và thử lại.';
+      print('Network Error: $e');
       
-      _sortFlights();
+      // Clear flights data  
+      _flights = [];
+      _filteredFlights = [];
+      _outboundFlights = [];
+      _inboundFlights = [];
     }
 
     setState(() {
@@ -185,196 +169,6 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
     final hours = minutes ~/ 60;
     final remainingMinutes = minutes % 60;
     return '${hours}h ${remainingMinutes}m';
-  }
-
-  List<Flight> _createSampleFlights() {
-    final departureCode = widget.searchParams['departure_airport_code'] ?? 'HAN';
-    final arrivalCode = widget.searchParams['arrival_airport_code'] ?? 'SGN';
-    final departureDate = DateTime.now().add(const Duration(days: 7));
-    final returnDate = widget.isRoundTrip 
-        ? DateTime.now().add(const Duration(days: 10))
-        : departureDate;
-    
-    final departure = Airport(
-      code: departureCode,
-      name: departureCode == 'HAN' ? 'Sân bay quốc tế Nội Bài' : 'Sân bay quốc tế Tân Sơn Nhất',
-      city: departureCode == 'HAN' ? 'Hà Nội' : 'TP.HCM',
-      country: 'Việt Nam',
-    );
-    
-    final arrival = Airport(
-      code: arrivalCode,
-      name: arrivalCode == 'SGN' ? 'Sân bay quốc tế Tân Sơn Nhất' : 'Sân bay quốc tế Nội Bài',
-      city: arrivalCode == 'SGN' ? 'TP.HCM' : 'Hà Nội',
-      country: 'Việt Nam',
-    );
-
-    // Outbound flights (chuyến bay đi)
-    List<Flight> outboundFlights = [
-      Flight(
-        flightId: 1,
-        flightClassId: 1,
-        flightNumber: 'VJ123',
-        airlineId: 2,
-        airline: 'VietJet Air',
-        airlineLogo: '',
-        departure: departure,
-        arrival: arrival,
-        departureTime: departureDate.add(const Duration(hours: 6)),
-        arrivalTime: departureDate.add(const Duration(hours: 8, minutes: 30)),
-        price: 1450000,
-        aircraft: 'Airbus A321',
-        availableSeats: 24,
-        duration: '2h 30m',
-        durationMinutes: 150,
-        stopsCount: 0,
-        distance: 1166,
-        flightClass: 'economy',
-        totalSeats: 180,
-        taxAndFees: 150000,
-      ),
-      Flight(
-        flightId: 2,
-        flightClassId: 2,
-        flightNumber: 'VN456',
-        airlineId: 1,
-        airline: 'Vietnam Airlines',
-        airlineLogo: '',
-        departure: departure,
-        arrival: arrival,
-        departureTime: departureDate.add(const Duration(hours: 8)),
-        arrivalTime: departureDate.add(const Duration(hours: 10, minutes: 45)),
-        price: 2100000,
-        aircraft: 'Boeing 787',
-        availableSeats: 12,
-        duration: '2h 45m',
-        durationMinutes: 165,
-        stopsCount: 0,
-        distance: 1166,
-        flightClass: 'business',
-        totalSeats: 180,
-        taxAndFees: 200000,
-      ),
-      Flight(
-        flightId: 3,
-        flightClassId: 1,
-        flightNumber: 'BL789',
-        airlineId: 3,
-        airline: 'Bamboo Airways',
-        airlineLogo: '',
-        departure: departure,
-        arrival: arrival,
-        departureTime: departureDate.add(const Duration(hours: 14)),
-        arrivalTime: departureDate.add(const Duration(hours: 16, minutes: 30)),
-        price: 1650000,
-        aircraft: 'Embraer E195',
-        availableSeats: 18,
-        duration: '2h 30m',
-        durationMinutes: 150,
-        stopsCount: 0,
-        distance: 1166,
-        flightClass: 'economy',
-        totalSeats: 180,
-        taxAndFees: 150000,
-      ),
-      Flight(
-        flightId: 4,
-        flightClassId: 1,
-        flightNumber: 'VJ234',
-        airlineId: 2,
-        airline: 'VietJet Air',
-        airlineLogo: '',
-        departure: departure,
-        arrival: arrival,
-        departureTime: departureDate.add(const Duration(hours: 18)),
-        arrivalTime: departureDate.add(const Duration(hours: 20, minutes: 30)),
-        price: 1350000,
-        aircraft: 'Airbus A320',
-        availableSeats: 30,
-        duration: '2h 30m',
-        durationMinutes: 150,
-        stopsCount: 0,
-        distance: 1166,
-        flightClass: 'economy',
-        totalSeats: 180,
-        taxAndFees: 150000,
-      ),
-    ];
-
-    // Inbound flights (chuyến bay về) - chỉ có khi khứ hồi
-    List<Flight> inboundFlights = [];
-    if (widget.isRoundTrip) {
-      inboundFlights = [
-        Flight(
-          flightId: 5,
-          flightClassId: 1,
-          flightNumber: 'VJ567',
-          airlineId: 2,
-          airline: 'VietJet Air',
-          airlineLogo: '',
-          departure: arrival, // Đổi ngược lại: từ điểm đến về điểm đi
-          arrival: departure, // Đổi ngược lại: từ điểm đến về điểm đi
-          departureTime: returnDate.add(const Duration(hours: 7)),
-          arrivalTime: returnDate.add(const Duration(hours: 9, minutes: 30)),
-          price: 1500000,
-          aircraft: 'Airbus A321',
-          availableSeats: 20,
-          duration: '2h 30m',
-          durationMinutes: 150,
-          stopsCount: 0,
-          distance: 1166,
-          flightClass: 'economy',
-          totalSeats: 180,
-          taxAndFees: 150000,
-        ),
-        Flight(
-          flightId: 6,
-          flightClassId: 2,
-          flightNumber: 'VN678',
-          airlineId: 1,
-          airline: 'Vietnam Airlines',
-          airlineLogo: '',
-          departure: arrival, // Đổi ngược lại
-          arrival: departure, // Đổi ngược lại
-          departureTime: returnDate.add(const Duration(hours: 11)),
-          arrivalTime: returnDate.add(const Duration(hours: 13, minutes: 45)),
-          price: 2200000,
-          aircraft: 'Boeing 787',
-          availableSeats: 15,
-          duration: '2h 45m',
-          durationMinutes: 165,
-          stopsCount: 0,
-          distance: 1166,
-          flightClass: 'business',
-          totalSeats: 180,
-          taxAndFees: 200000,
-        ),
-        Flight(
-          flightId: 7,
-          flightClassId: 1,
-          flightNumber: 'BL890',
-          airlineId: 3,
-          airline: 'Bamboo Airways',
-          airlineLogo: '',
-          departure: arrival, // Đổi ngược lại
-          arrival: departure, // Đổi ngược lại
-          departureTime: returnDate.add(const Duration(hours: 16)),
-          arrivalTime: returnDate.add(const Duration(hours: 18, minutes: 30)),
-          price: 1750000,
-          aircraft: 'Embraer E195',
-          availableSeats: 22,
-          duration: '2h 30m',
-          durationMinutes: 150,
-          stopsCount: 0,
-          distance: 1166,
-          flightClass: 'economy',
-          totalSeats: 180,
-          taxAndFees: 150000,
-        ),
-      ];
-    }
-
-    return [...outboundFlights, ...inboundFlights];
   }
 
   Widget _buildViewDetailsButton() {
@@ -746,7 +540,7 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              DateFormat('dd/MM').format(DateTime.now().add(const Duration(days: 10))),
+                              _getReturnDateString(),
                               style: TextStyle(
                                 fontFamily: 'BalooBhaijaan2',
                                 fontSize: 12,
@@ -805,7 +599,7 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
   }
 
   Widget _buildFlightsList() {
-    if (widget.isRoundTrip && _inboundFlights.isNotEmpty) {
+    if (widget.isRoundTrip) {
       // Roundtrip - show outbound and inbound separately
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -823,6 +617,33 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
             _buildSectionHeader('🛬 Chuyến bay về'),
             const SizedBox(height: 16),
             ..._inboundFlights.map((flight) => _buildFlightCard(flight, _inboundFlights.indexOf(flight), isOutbound: false)).toList(),
+          ] else ...[
+            // Show message when no inbound flights
+            Container(
+              padding: const EdgeInsets.all(20),
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              decoration: BoxDecoration(
+                color: Colors.orange.shade50,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.orange.shade200),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.info_outline, color: Colors.orange.shade600),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Không tìm thấy chuyến bay về cho ngày này. Vui lòng thử ngày khác.',
+                      style: TextStyle(
+                        fontFamily: 'BalooBhaijaan2',
+                        fontSize: 14,
+                        color: Colors.orange.shade800,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ],
       );
@@ -936,21 +757,26 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
         child: InkWell(
           borderRadius: BorderRadius.circular(8),
           onTap: () {
-            if (widget.isRoundTrip && _inboundFlights.isNotEmpty) {
-              // Roundtrip: Toggle selection for flights
+            if (widget.isRoundTrip) {
+              // Roundtrip: Always use selection logic
               setState(() {
                 if (isOutbound == true) {
+                  // Selecting outbound flight
                   if (_selectedOutboundFlight == flight) {
                     _selectedOutboundFlight = null; // Deselect if already selected
                   } else {
                     _selectedOutboundFlight = flight; // Select new flight
                   }
                 } else if (isOutbound == false) {
+                  // Selecting inbound flight
                   if (_selectedInboundFlight == flight) {
                     _selectedInboundFlight = null; // Deselect if already selected
                   } else {
                     _selectedInboundFlight = flight; // Select new flight
                   }
+                } else {
+                  // For one-way flights in roundtrip search (shouldn't happen normally)
+                  _selectedOutboundFlight = flight;
                 }
               });
             } else {

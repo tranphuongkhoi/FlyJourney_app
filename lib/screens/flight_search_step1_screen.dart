@@ -4,6 +4,7 @@ import 'package:cnh_n/constants/colors.dart';
 import 'package:cnh_n/models/search_data.dart';
 import 'package:cnh_n/screens/flight_search_step2_screen.dart';
 import 'package:cnh_n/widgets/search_app_bar.dart';
+import 'package:cnh_n/config/api_config.dart';
 
 class FlightSearchStep1Screen extends StatefulWidget {
   final SearchData? initialData;
@@ -388,6 +389,7 @@ class _FlightSearchStep1ScreenState extends State<FlightSearchStep1Screen> {
 
   Widget _buildFlightClassSelector() {
     final classes = [
+      {'value': 'all', 'label': 'Tất cả hạng vé', 'icon': Icons.flight_class},
       {'value': 'economy', 'label': 'Phổ thông', 'icon': Icons.airline_seat_recline_normal},
       {'value': 'premium_economy', 'label': 'Phổ thông đặc biệt', 'icon': Icons.airline_seat_recline_extra},
       {'value': 'business', 'label': 'Thương gia', 'icon': Icons.airline_seat_flat},
@@ -397,14 +399,20 @@ class _FlightSearchStep1ScreenState extends State<FlightSearchStep1Screen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Hạng vé',
-          style: TextStyle(
-            fontFamily: 'BalooBhaijaan2',
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF1E293B),
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Hạng vé',
+              style: TextStyle(
+                fontFamily: 'BalooBhaijaan2',
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF1E293B),
+              ),
+            ),
+            _buildSelectAllClassesButton(),
+          ],
         ),
         const SizedBox(height: 16),
         ...classes.map((cls) => Container(
@@ -466,6 +474,51 @@ class _FlightSearchStep1ScreenState extends State<FlightSearchStep1Screen> {
     );
   }
 
+  Widget _buildSelectAllClassesButton() {
+    final bool isAllSelected = _searchData.flightClass == 'all';
+    
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _searchData = _searchData.copyWith(
+            flightClass: isAllSelected ? 'economy' : 'all'
+          );
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: isAllSelected ? AppColors.primaryBlue : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: AppColors.primaryBlue,
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isAllSelected ? Icons.check : Icons.flight_class,
+              color: isAllSelected ? Colors.white : AppColors.primaryBlue,
+              size: 16,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              isAllSelected ? 'Đã chọn tất cả' : 'Chọn tất cả hạng',
+              style: TextStyle(
+                fontFamily: 'BalooBhaijaan2',
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: isAllSelected ? Colors.white : AppColors.primaryBlue,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildBottomSection() {
     return Container(
       padding: const EdgeInsets.all(24),
@@ -523,7 +576,7 @@ class _FlightSearchStep1ScreenState extends State<FlightSearchStep1Screen> {
   void _showDepartureDatePicker() async {
     final date = await showDatePicker(
       context: context,
-      initialDate: _searchData.departureDate ?? DateTime.now().add(const Duration(days: 1)),
+      initialDate: _searchData.departureDate ?? _parseDevDate(ApiConfig.currentDevDates[0]), // Dev mode date
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
@@ -537,8 +590,7 @@ class _FlightSearchStep1ScreenState extends State<FlightSearchStep1Screen> {
   void _showReturnDatePicker() async {
     final date = await showDatePicker(
       context: context,
-      initialDate: _searchData.returnDate ?? 
-          (_searchData.departureDate?.add(const Duration(days: 7)) ?? DateTime.now().add(const Duration(days: 8))),
+      initialDate: _searchData.returnDate ?? _parseDevDate(ApiConfig.currentDevDates[1]), // Dev mode return date
       firstDate: _searchData.departureDate ?? DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
@@ -547,6 +599,19 @@ class _FlightSearchStep1ScreenState extends State<FlightSearchStep1Screen> {
         _searchData = _searchData.copyWith(returnDate: date);
       });
     }
+  }
+
+  // Helper function to parse date from DD/MM/YYYY format (same as SearchData)
+  DateTime _parseDevDate(String dateStr) {
+    final parts = dateStr.split('/');
+    if (parts.length == 3) {
+      final day = int.parse(parts[0]);
+      final month = int.parse(parts[1]);
+      final year = int.parse(parts[2]);
+      return DateTime(year, month, day);
+    }
+    // Fallback to default dev date if parsing fails
+    return DateTime(2025, 8, 27);
   }
 
   void _showPassengerPicker() {

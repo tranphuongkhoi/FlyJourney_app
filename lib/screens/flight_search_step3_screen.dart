@@ -332,6 +332,10 @@ class _FlightSearchStep3ScreenState extends State<FlightSearchStep3Screen> {
         ),
         const SizedBox(height: 16),
         
+        // Select All Button
+        _buildSelectAllButton(),
+        const SizedBox(height: 16),
+        
         // Airlines grid 2x3
         GridView.builder(
           shrinkWrap: true,
@@ -532,6 +536,87 @@ class _FlightSearchStep3ScreenState extends State<FlightSearchStep3Screen> {
         ),
       ),
     );
+  }
+
+  Widget _buildSelectAllButton() {
+    final bool allSelected = _getAllAirlineIds().every(
+      (id) => _searchData.selectedAirlineIds.contains(id)
+    );
+    final bool anySelected = _searchData.selectedAirlineIds.isNotEmpty;
+    
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          if (allSelected) {
+            // Deselect all
+            _searchData = _searchData.copyWith(selectedAirlineIds: []);
+          } else {
+            // Select all
+            _searchData = _searchData.copyWith(selectedAirlineIds: _getAllAirlineIds());
+          }
+        });
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        decoration: BoxDecoration(
+          color: allSelected 
+              ? AppColors.primaryBlue.withOpacity(0.1)
+              : Colors.grey.shade50,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: allSelected 
+                ? AppColors.primaryBlue
+                : Colors.grey.shade300,
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              allSelected ? Icons.check_circle : Icons.circle_outlined,
+              color: allSelected ? AppColors.primaryBlue : Colors.grey.shade600,
+              size: 20,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              allSelected ? 'Bỏ chọn tất cả' : 'Chọn tất cả hãng bay',
+              style: TextStyle(
+                fontFamily: 'BalooBhaijaan2',
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: allSelected ? AppColors.primaryBlue : Colors.grey.shade700,
+              ),
+            ),
+            if (anySelected && !allSelected) ...[
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryBlue,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '${_searchData.selectedAirlineIds.length}/${_getAllAirlineIds().length}',
+                  style: const TextStyle(
+                    fontFamily: 'BalooBhaijaan2',
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Helper function to get all airline IDs
+  List<int> _getAllAirlineIds() {
+    return _airlines.map((airline) => airline['id'] as int).toList();
   }
 
   void _searchFlights() {

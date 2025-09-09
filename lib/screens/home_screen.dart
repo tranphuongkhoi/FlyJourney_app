@@ -3,6 +3,7 @@ import 'package:cnh_n/screens/flight_search_step1_screen.dart';
 import 'package:cnh_n/screens/notifications_screen.dart';
 import 'package:cnh_n/constants/colors.dart';
 import 'package:cnh_n/widgets/hero_slider.dart';
+import 'package:cnh_n/config/api_config.dart';
 
 class HomePage extends StatefulWidget {
   final Function(String)? onNavigateToExplore;
@@ -23,6 +24,8 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           children: [
             _buildTopBar(),
+            // Dev Mode Info Banner
+            if (ApiConfig.isDevMode) _buildDevInfoBanner(),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
@@ -442,6 +445,72 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
+      ),
+    );
+  }
+
+  Widget _buildDevInfoBanner() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      color: Colors.orange.shade100,
+      child: Row(
+        children: [
+          Icon(
+            Icons.developer_mode,
+            color: Colors.orange.shade800,
+            size: 20,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'DEV MODE: ${ApiConfig.currentDevPreset} | ${ApiConfig.currentDevInfo}',
+              style: TextStyle(
+                fontFamily: 'BalooBhaijaan2',
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: Colors.orange.shade800,
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Dev Mode Info'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Current Preset: ${ApiConfig.currentDevPreset}'),
+                      const SizedBox(height: 8),
+                      Text('Data Info: ${ApiConfig.currentDevInfo}'),
+                      const SizedBox(height: 8),
+                      Text('Dates: ${ApiConfig.currentDevDates.join(' → ')}'),
+                      const SizedBox(height: 8),
+                      const Text('Available Presets:'),
+                      ...ApiConfig.devDataDates.entries.map((entry) => 
+                        Text('• ${entry.key}: ${entry.value.join(' → ')}')
+                      ),
+                    ],
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('OK'),
+                    ),
+                  ],
+                ),
+              );
+            },
+            child: Icon(
+              Icons.info_outline,
+              color: Colors.orange.shade800,
+              size: 16,
+            ),
+          ),
+        ],
       ),
     );
   }

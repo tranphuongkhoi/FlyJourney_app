@@ -54,7 +54,10 @@ class FlightService {
       final bool isRoundTrip = apiParams['return_date'] != null;
       
       // Debug: Print the transformed params (remove in production)
-      print('🔥 API Request: ${jsonEncode(apiParams)}');
+      print('🔥 DEBUG - Flutter App Request:');
+      print('  Original params: ${jsonEncode(searchParams)}');
+      print('  Transformed params: ${jsonEncode(apiParams)}');
+      print('  Is Roundtrip: $isRoundTrip');
       
       // Prepare API endpoint - different for roundtrip
       final String endpoint = isRoundTrip 
@@ -86,15 +89,13 @@ class FlightService {
           // For roundtrip, handle different structure
           if (responseData['search_results'] is Map && 
               responseData['search_results']['outbound_flights'] != null) {
-            // Roundtrip response
+            // Roundtrip response - keep the roundtrip structure
             return {
               'success': true,
               'data': {
                 ...responseData,
                 'is_roundtrip': true,
-                'outbound_flights': responseData['search_results']['outbound_flights'],
-                'inbound_flights': responseData['search_results']['inbound_flights'],
-                'search_results': responseData['search_results']['outbound_flights'], // For compatibility
+                'search_results': responseData['search_results'], // Keep full roundtrip structure
               },
             };
           } else {
@@ -143,38 +144,21 @@ class FlightService {
   
   /// Transform app search params to API format
   static Map<String, dynamic> _transformSearchParams(Map<String, dynamic> appParams) {
-    final passengers = appParams['passengers'] ?? {'adults': 1, 'children': 0, 'infants': 0};
-    final bool isRoundTrip = appParams['return_date'] != null && appParams['return_date'].toString().isNotEmpty;
+    // SearchData.toApiParams() now sends correct format, so mostly pass through
+    Map<String, dynamic> apiParams = Map.from(appParams);
     
-    Map<String, dynamic> apiParams = {
-      'departure_airport_code': appParams['from_airport'] ?? appParams['departure_airport_code'] ?? 'HAN',
-      'arrival_airport_code': appParams['to_airport'] ?? appParams['arrival_airport_code'] ?? 'SGN',
-      'departure_date': appParams['departure_date'] ?? '01/08/2025',
-      'airline_ids': _convertToIntArray(appParams['airline_ids']),
-      'flight_class': appParams['flight_class'] ?? 'economy',
-      'page': appParams['page'] ?? 1,
-      'limit': appParams['limit'] ?? 50,
-      'sort_by': appParams['sort_by'] ?? 'price',
-      'sort_order': appParams['sort_order'] ?? 'asc',
-    };
+    // Ensure airline_ids is properly converted to int array
+    apiParams['airline_ids'] = _convertToIntArray(appParams['airline_ids']);
     
-    // Handle passengers - API expects different format for roundtrip
-    if (isRoundTrip) {
-      // Roundtrip uses 'passengers' object
-      apiParams['passengers'] = {
-        'adults': passengers['adults'] ?? 1,
-        'children': passengers['children'] ?? 0,
-        'infants': passengers['infants'] ?? 0,  // Note: 'infants' for roundtrip
-      };
-      apiParams['return_date'] = appParams['return_date'];
-    } else {
-      // One-way uses 'passenger' object with 'infant' (singular)
-      apiParams['passenger'] = {
-        'adults': passengers['adults'] ?? 1,
-        'children': passengers['children'] ?? 0,
-        'infant': passengers['infants'] ?? 0,  // Note: 'infant' (singular) for one-way
-      };
-    }
+    // Ensure required defaults
+    apiParams['departure_airport_code'] ??= 'HAN';
+    apiParams['arrival_airport_code'] ??= 'SGN';
+    apiParams['departure_date'] ??= '27/08/2025';
+    apiParams['flight_class'] ??= 'all';
+    apiParams['page'] ??= 1;
+    apiParams['limit'] ??= 50;
+    apiParams['sort_by'] ??= 'price';
+    apiParams['sort_order'] ??= 'asc';
     
     return apiParams;
   }
@@ -249,46 +233,4 @@ class FlightService {
       };
     }
   }
-  
-  /*
-  /// Generate mock data for development (remove when API is ready)
-  static Map<String, dynamic> _generateMockData(Map<String, dynamic> apiParams) {
-    final String departureDate = apiParams['departure_date'] ?? '01/08/2025';
-    final String? returnDate = apiParams['return_date'];
-    final String fromAirport = apiParams['departure_airport_code'] ?? 'HAN';
-    final String toAirport = apiParams['arrival_airport_code'] ?? 'SGN';
-    
-    // Check if this is a roundtrip search
-    if (returnDate != null) {
-      // Return roundtrip mock data
-      return SampleData.generateRoundtripSearchResponse(
-        fromAirport, 
-        toAirport, 
-        departureDate, 
-        returnDate
-      )['data'];
-    } else {
-      // Return one-way mock data
-      return SampleData.generateOneWaySearchResponse(
-        fromAirport, 
-        toAirport, 
-        departureDate
-      )['data'];
-    }
-  }
-
-  /// Mock search flights for development (remove when API is ready)
-  static Future<Map<String, dynamic>> mockSearchFlights(Map<String, dynamic> searchParams) async {
-    // Simulate API delay
-    await Future.delayed(const Duration(seconds: 2));
-    
-    // Transform params to API format for consistency
-    final apiParams = _transformSearchParams(searchParams);
-    
-    return {
-      'success': true,
-      'data': _generateMockData(apiParams),
-    };
-  }
-  */
 }

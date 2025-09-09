@@ -6,15 +6,23 @@ import 'package:cnh_n/screens/profile_screen.dart';
 import 'package:cnh_n/constants/colors.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+  final int initialIndex;
+  
+  const MainScreen({super.key, this.initialIndex = 0});
 
   @override
   State<MainScreen> createState() => _MainScreenState();
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _currentIndex = 0;
+  late int _currentIndex;
   String? _selectedDestination;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+  }
 
   List<Widget> get _screens => [
     HomePage(onNavigateToExplore: (destination) {
