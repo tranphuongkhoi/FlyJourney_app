@@ -31,7 +31,7 @@ class SearchData {
     this.passengers = 1,
     this.children = 0,
     this.infants = 0,
-    this.flightClass = 'all', // Change to 'all' to get more results
+    this.flightClass = 'economy', // Default to economy instead of 'all'
     this.departure,
     this.arrival,
     this.maxStops = 2,

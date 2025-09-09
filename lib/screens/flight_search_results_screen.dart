@@ -70,6 +70,45 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
     return flight.flightId ?? flight.hashCode;
   }
 
+  // Apply client-side filtering based on user selections
+  List<Flight> _applyClientSideFiltering(List<Flight> flights) {
+    List<Flight> filtered = List.from(flights);
+    
+    // Get user selections from search params
+    final flightClass = widget.searchParams['flight_class'] as String?;
+    final airlineIds = widget.searchParams['airline_ids'] as List?;
+    
+    print('🎯 CLIENT-SIDE FILTERING:');
+    print('  - Original flights: ${flights.length}');
+    print('  - User flight_class: $flightClass');
+    print('  - User airline_ids: $airlineIds');
+    
+    // Filter by flight class if user selected specific class (not "all")
+    if (flightClass != null && flightClass != 'all' && flightClass.isNotEmpty) {
+      final originalCount = filtered.length;
+      filtered = filtered.where((flight) {
+        // Match exact flight class
+        final matches = flight.flightClass.toLowerCase() == flightClass.toLowerCase();
+        return matches;
+      }).toList();
+      print('  - After flight_class filter: ${filtered.length} (removed ${originalCount - filtered.length})');
+    }
+    
+    // Filter by airline IDs if user selected specific airlines (not empty)
+    if (airlineIds != null && airlineIds.isNotEmpty) {
+      final originalCount = filtered.length;
+      final selectedIds = airlineIds.cast<int>(); // Convert to int list
+      filtered = filtered.where((flight) {
+        final matches = selectedIds.contains(flight.airlineId);
+        return matches;
+      }).toList();
+      print('  - After airline_ids filter: ${filtered.length} (removed ${originalCount - filtered.length})');
+    }
+    
+    print('  - Final filtered count: ${filtered.length}');
+    return filtered;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -117,11 +156,21 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
           _outboundFlights = outboundFlights.map((flightData) => _parseApiFlightToModel(flightData)).toList();
           _inboundFlights = inboundFlights.map((flightData) => _parseApiFlightToModel(flightData)).toList();
           
+          // Apply client-side filtering based on user selections
+          _outboundFlights = _applyClientSideFiltering(_outboundFlights);
+          _inboundFlights = _applyClientSideFiltering(_inboundFlights);
+          
           // For roundtrip, show outbound flights first, then inbound  
           allFlights.addAll(_outboundFlights);
           if (widget.isRoundTrip) {
             allFlights.addAll(_inboundFlights);
           }
+        }
+        
+        // Apply client-side filtering for one-way flights too
+        if (searchResults is List) {
+          _outboundFlights = _applyClientSideFiltering(_outboundFlights);
+          allFlights = _outboundFlights;
         }
         
         _flights = allFlights;

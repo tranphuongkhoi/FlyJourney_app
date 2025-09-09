@@ -58,6 +58,10 @@ class FlightService {
       print('  Original params: ${jsonEncode(searchParams)}');
       print('  Transformed params: ${jsonEncode(apiParams)}');
       print('  Is Roundtrip: $isRoundTrip');
+      print('🎯 FILTERING CHECK:');
+      print('  flight_class: ${apiParams['flight_class']} (should NOT be "all" if specific class chosen)');
+      print('  airline_ids: ${apiParams['airline_ids']} (should NOT be empty if specific airlines chosen)');
+      print('  airline_ids length: ${(apiParams['airline_ids'] as List?)?.length ?? 0}');
       
       // Prepare API endpoint - different for roundtrip
       final String endpoint = isRoundTrip 
@@ -150,11 +154,12 @@ class FlightService {
     // Ensure airline_ids is properly converted to int array
     apiParams['airline_ids'] = _convertToIntArray(appParams['airline_ids']);
     
-    // Ensure required defaults
+    // Ensure required defaults (but don't override user selections)
     apiParams['departure_airport_code'] ??= 'HAN';
     apiParams['arrival_airport_code'] ??= 'SGN';
     apiParams['departure_date'] ??= '27/08/2025';
-    apiParams['flight_class'] ??= 'all';
+    // DON'T override flight_class - keep user selection
+    // apiParams['flight_class'] ??= 'all'; // REMOVED - was overriding user choice
     apiParams['page'] ??= 1;
     apiParams['limit'] ??= 50;
     apiParams['sort_by'] ??= 'price';
