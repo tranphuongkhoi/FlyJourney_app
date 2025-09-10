@@ -1,11 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:fly_journey/src/features/search/domain/models/airport.dart';
 import 'package:fly_journey/src/features/search/domain/models/flight.dart';
 import 'package:fly_journey/src/features/booking/presentation/screens/flight_overview_screen.dart';
 import 'package:fly_journey/src/core/constants/colors.dart';
 import 'package:fly_journey/src/features/search/data/flight_repository.dart';
+import '../cubit/search_cubit.dart';
 
 class FlightSearchResultsScreen extends StatefulWidget {
   final Map<String, dynamic> searchParams;
@@ -29,8 +31,8 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
   Flight? _selectedOutboundFlight;
   Flight? _selectedInboundFlight;
   String _sortBy = 'price';
-  bool _isLoading = true;
   String? _errorMessage;
+  late final SearchCubit _searchCubit;
 
   // Track expanded states for flight cards
   Map<int, bool> _expandedStates = {};
@@ -71,148 +73,17 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
     return flight.flightId ?? flight.hashCode;
   }
 
-  // Apply client-side filtering based on user selections
-  List<Flight> _applyClientSideFiltering(List<Flight> flights) {
-    List<Flight> filtered = List.from(flights);
-    
-    // Get user selections from search params
-    final flightClass = widget.searchParams['flight_class'] as String?;
-    final airlineIds = widget.searchParams['airline_ids'] as List?;
-    
-    debugPrint('🎯 CLIENT-SIDE FILTERING:');
-    debugPrint('  - Original flights: ${flights.length}');
-    debugPrint('  - User flight_class: $flightClass');
-    debugPrint('  - User airline_ids: $airlineIds');
-    
-    // Filter by flight class if user selected specific class (not "all")
-    if (flightClass != null && flightClass != 'all' && flightClass.isNotEmpty) {
-      final originalCount = filtered.length;
-      filtered = filtered.where((flight) {
-        // Match exact flight class
-        final matches = flight.flightClass.toLowerCase() == flightClass.toLowerCase();
-        return matches;
-      }).toList();
-      debugPrint('  - After flight_class filter: ${filtered.length} (removed ${originalCount - filtered.length})');
-    }
-    
-    // Filter by airline IDs if user selected specific airlines (not empty)
-    if (airlineIds != null && airlineIds.isNotEmpty) {
-      final originalCount = filtered.length;
-      final selectedIds = airlineIds.cast<int>(); // Convert to int list
-      filtered = filtered.where((flight) {
-        final matches = selectedIds.contains(flight.airlineId);
-        return matches;
-      }).toList();
-      debugPrint('  - After airline_ids filter: ${filtered.length} (removed ${originalCount - filtered.length})');
-    }
-    
-    debugPrint('  - Final filtered count: ${filtered.length}');
-    return filtered;
-  }
-
   @override
   void initState() {
     super.initState();
-    _loadFlights();
+    _searchCubit = SearchCubit(searchFlightsFn: FlightRepository.searchFlights);
+    _searchCubit.search(widget.searchParams, widget.isRoundTrip);
   }
 
-  void _loadFlights() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    try {
-      // Call real API
-      final result = await FlightRepository.searchFlights(widget.searchParams);
-      
-      if (result['success'] == true) {
-        // Parse API response to Flight objects
-        final searchResults = result['data']['search_results'];
-        
-        List<Flight> allFlights = [];
-        
-        // Check if search_results is a List or Map
-        if (searchResults is List) {
-          // Case 1: search_results is directly a list of flights (one-way)
-          debugPrint('🔍 ONE-WAY PARSING:');
-          debugPrint('  - widget.isRoundTrip: ${widget.isRoundTrip}');
-          debugPrint('  - searchResults is List: true');
-          debugPrint('  - flights count: ${searchResults.length}');
-          _outboundFlights = searchResults.map((flightData) => _parseApiFlightToModel(flightData)).toList();
-          _inboundFlights = [];
-          allFlights.addAll(_outboundFlights);
-        } else if (searchResults is Map<String, dynamic>) {
-          // Case 2: search_results is an object with outbound_flights and inbound_flights (roundtrip)
-          final outboundFlights = (searchResults['outbound_flights'] as List?) ?? [];
-          final inboundFlights = (searchResults['inbound_flights'] as List?) ?? [];
-          
-          // Debug: Check what we got
-          debugPrint('🔍 ROUNDTRIP PARSING:');
-          debugPrint('  - widget.isRoundTrip: ${widget.isRoundTrip}');
-          debugPrint('  - searchResults keys: ${searchResults.keys.toList()}');
-          debugPrint('  - outbound count: ${outboundFlights.length}');
-          debugPrint('  - inbound count: ${inboundFlights.length}');
-
-          _outboundFlights = outboundFlights.map((flightData) => _parseApiFlightToModel(flightData)).toList();
-          _inboundFlights = inboundFlights.map((flightData) => _parseApiFlightToModel(flightData)).toList();
-          
-          // Apply client-side filtering based on user selections
-          _outboundFlights = _applyClientSideFiltering(_outboundFlights);
-          _inboundFlights = _applyClientSideFiltering(_inboundFlights);
-          
-          // For roundtrip, show outbound flights first, then inbound  
-          allFlights.addAll(_outboundFlights);
-          if (widget.isRoundTrip) {
-            allFlights.addAll(_inboundFlights);
-          }
-        }
-        
-        // Apply client-side filtering for one-way flights too
-        if (searchResults is List) {
-          _outboundFlights = _applyClientSideFiltering(_outboundFlights);
-          allFlights = _outboundFlights;
-        }
-        
-        _flights = allFlights;
-        _filteredFlights = List.from(_flights);
-        
-        if (_flights.isEmpty) {
-          _errorMessage = 'Không tìm thấy chuyến bay nào cho tuyến này. Vui lòng thử lại với ngày khác hoặc bộ lọc khác.';
-        }
-        
-        _sortFlights();
-      } else {
-        // API error - show error without fallback
-        _errorMessage = result['message'] ?? 'Có lỗi xảy ra khi tìm kiếm chuyến bay. Vui lòng thử lại.';
-        debugPrint('API Error: ${result['error']} - ${result['message']}');
-        
-        // Clear flights data
-        _flights = [];
-        _filteredFlights = [];
-        _outboundFlights = [];
-        _inboundFlights = [];
-      }
-    } catch (e) {
-      // Network error - show error without fallback
-      _errorMessage = 'Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng và thử lại.';
-      debugPrint('Network Error: $e');
-      
-      // Clear flights data  
-      _flights = [];
-      _filteredFlights = [];
-      _outboundFlights = [];
-      _inboundFlights = [];
-    }
-
-    setState(() {
-      _isLoading = false;
-    });
-  }
-
-  Flight _parseApiFlightToModel(Map<String, dynamic> apiData) {
-    // Use the updated Flight.fromJson method that handles all the new fields
-    return Flight.fromJson(apiData);
+  @override
+  void dispose() {
+    _searchCubit.close();
+    super.dispose();
   }
 
   String _formatDuration(int minutes) {
@@ -321,9 +192,40 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFE0F7FA), // Exact same as homepage
       body: SafeArea(
-        child: _isLoading ? _buildLoadingScreen() : _buildMainContent(),
+        child: BlocListener<SearchCubit, SearchState>(
+          bloc: _searchCubit,
+          listener: (context, state) {
+            if (state is SearchLoaded) {
+              setState(() {
+                _flights = state.flights;
+                _outboundFlights = state.outboundFlights;
+                _inboundFlights = state.inboundFlights;
+                _filteredFlights = List.from(_flights);
+                _errorMessage = state.message;
+                _sortFlights();
+              });
+            } else if (state is SearchError) {
+              setState(() {
+                _errorMessage = state.message;
+                _flights = [];
+                _filteredFlights = [];
+                _outboundFlights = [];
+                _inboundFlights = [];
+              });
+            }
+          },
+          child: BlocBuilder<SearchCubit, SearchState>(
+            bloc: _searchCubit,
+            builder: (context, state) {
+              if (state is SearchLoading || state is SearchInitial) {
+                return _buildLoadingScreen();
+              }
+              return _buildMainContent();
+            },
+          ),
+        ),
       ),
-      floatingActionButton: canProceedToOverview 
+      floatingActionButton: canProceedToOverview
           ? _buildViewDetailsButton()
           : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -419,7 +321,7 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
             ),
           ),
           GestureDetector(
-            onTap: _loadFlights,
+            onTap: () => _searchCubit.search(widget.searchParams, widget.isRoundTrip),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
