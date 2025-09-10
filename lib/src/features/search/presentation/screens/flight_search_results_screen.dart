@@ -220,6 +220,16 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
     return '${hours}h ${remainingMinutes}m';
   }
 
+  DateTime? _parseReturnDate() {
+    final returnDateStr = widget.searchParams['return_date'] as String?;
+    if (returnDateStr != null && returnDateStr.isNotEmpty) {
+      try {
+        return DateFormat('dd/MM/yyyy').parse(returnDateStr);
+      } catch (_) {}
+    }
+    return null;
+  }
+
   Widget _buildViewDetailsButton() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -234,7 +244,7 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
                     flight: _selectedOutboundFlight!,
                     returnFlight: _selectedInboundFlight!,
                     passengers: _totalPassengers,
-                    returnDate: DateTime.tryParse(widget.searchParams['return_date'] ?? ''),
+                    returnDate: _parseReturnDate(),
                   ),
                 ),
               );
