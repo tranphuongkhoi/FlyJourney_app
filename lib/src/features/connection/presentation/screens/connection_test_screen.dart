@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cnh_n/src/features/search/data/services/flight_service.dart';
+import 'package:cnh_n/src/features/search/data/flight_repository.dart';
 import 'package:cnh_n/src/core/config/api_config.dart';
 
 class ConnectionTestScreen extends StatefulWidget {
@@ -24,7 +24,7 @@ class _ConnectionTestScreenState extends State<ConnectionTestScreen> {
     });
 
     try {
-      final result = await FlightService.testConnection();
+      final result = await FlightRepository.testConnection();
       
       setState(() {
         _isLoading = false;
@@ -57,7 +57,7 @@ class _ConnectionTestScreenState extends State<ConnectionTestScreen> {
     });
 
     try {
-      final result = await FlightService.searchFlights({
+      final result = await FlightRepository.searchFlights({
         'departure_airport_code': 'HAN',
         'arrival_airport_code': 'SGN',
         'departure_date': '01/08/2025',

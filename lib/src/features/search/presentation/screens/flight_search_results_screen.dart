@@ -1,10 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cnh_n/src/features/search/domain/models/airport.dart';
 import 'package:cnh_n/src/features/search/domain/models/flight.dart';
 import 'package:cnh_n/src/features/booking/presentation/screens/flight_overview_screen.dart';
 import 'package:cnh_n/src/core/constants/colors.dart';
-import 'package:cnh_n/src/features/search/data/services/flight_service.dart';
+import 'package:cnh_n/src/features/search/data/flight_repository.dart';
 
 class FlightSearchResultsScreen extends StatefulWidget {
   final Map<String, dynamic> searchParams;
@@ -58,7 +59,7 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
           return DateFormat('dd/MM').format(returnDate);
         }
       } catch (e) {
-        print('Error parsing return date: $e');
+        debugPrint('Error parsing return date: $e');
       }
     }
     // Fallback to current dev date
@@ -78,10 +79,10 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
     final flightClass = widget.searchParams['flight_class'] as String?;
     final airlineIds = widget.searchParams['airline_ids'] as List?;
     
-    print('🎯 CLIENT-SIDE FILTERING:');
-    print('  - Original flights: ${flights.length}');
-    print('  - User flight_class: $flightClass');
-    print('  - User airline_ids: $airlineIds');
+    debugPrint('🎯 CLIENT-SIDE FILTERING:');
+    debugPrint('  - Original flights: ${flights.length}');
+    debugPrint('  - User flight_class: $flightClass');
+    debugPrint('  - User airline_ids: $airlineIds');
     
     // Filter by flight class if user selected specific class (not "all")
     if (flightClass != null && flightClass != 'all' && flightClass.isNotEmpty) {
@@ -91,7 +92,7 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
         final matches = flight.flightClass.toLowerCase() == flightClass.toLowerCase();
         return matches;
       }).toList();
-      print('  - After flight_class filter: ${filtered.length} (removed ${originalCount - filtered.length})');
+      debugPrint('  - After flight_class filter: ${filtered.length} (removed ${originalCount - filtered.length})');
     }
     
     // Filter by airline IDs if user selected specific airlines (not empty)
@@ -102,10 +103,10 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
         final matches = selectedIds.contains(flight.airlineId);
         return matches;
       }).toList();
-      print('  - After airline_ids filter: ${filtered.length} (removed ${originalCount - filtered.length})');
+      debugPrint('  - After airline_ids filter: ${filtered.length} (removed ${originalCount - filtered.length})');
     }
     
-    print('  - Final filtered count: ${filtered.length}');
+    debugPrint('  - Final filtered count: ${filtered.length}');
     return filtered;
   }
 
@@ -123,7 +124,7 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
 
     try {
       // Call real API
-      final result = await FlightService.searchFlights(widget.searchParams);
+      final result = await FlightRepository.searchFlights(widget.searchParams);
       
       if (result['success'] == true) {
         // Parse API response to Flight objects
@@ -134,10 +135,10 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
         // Check if search_results is a List or Map
         if (searchResults is List) {
           // Case 1: search_results is directly a list of flights (one-way)
-          print('🔍 ONE-WAY PARSING:');
-          print('  - widget.isRoundTrip: ${widget.isRoundTrip}');
-          print('  - searchResults is List: true');
-          print('  - flights count: ${searchResults.length}');
+          debugPrint('🔍 ONE-WAY PARSING:');
+          debugPrint('  - widget.isRoundTrip: ${widget.isRoundTrip}');
+          debugPrint('  - searchResults is List: true');
+          debugPrint('  - flights count: ${searchResults.length}');
           _outboundFlights = searchResults.map((flightData) => _parseApiFlightToModel(flightData)).toList();
           _inboundFlights = [];
           allFlights.addAll(_outboundFlights);
@@ -147,11 +148,11 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
           final inboundFlights = (searchResults['inbound_flights'] as List?) ?? [];
           
           // Debug: Check what we got
-          print('🔍 ROUNDTRIP PARSING:');
-          print('  - widget.isRoundTrip: ${widget.isRoundTrip}');
-          print('  - searchResults keys: ${searchResults.keys.toList()}');
-          print('  - outbound count: ${outboundFlights.length}');
-          print('  - inbound count: ${inboundFlights.length}');
+          debugPrint('🔍 ROUNDTRIP PARSING:');
+          debugPrint('  - widget.isRoundTrip: ${widget.isRoundTrip}');
+          debugPrint('  - searchResults keys: ${searchResults.keys.toList()}');
+          debugPrint('  - outbound count: ${outboundFlights.length}');
+          debugPrint('  - inbound count: ${inboundFlights.length}');
 
           _outboundFlights = outboundFlights.map((flightData) => _parseApiFlightToModel(flightData)).toList();
           _inboundFlights = inboundFlights.map((flightData) => _parseApiFlightToModel(flightData)).toList();
@@ -184,7 +185,7 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
       } else {
         // API error - show error without fallback
         _errorMessage = result['message'] ?? 'Có lỗi xảy ra khi tìm kiếm chuyến bay. Vui lòng thử lại.';
-        print('API Error: ${result['error']} - ${result['message']}');
+        debugPrint('API Error: ${result['error']} - ${result['message']}');
         
         // Clear flights data
         _flights = [];
@@ -195,7 +196,7 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
     } catch (e) {
       // Network error - show error without fallback
       _errorMessage = 'Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng và thử lại.';
-      print('Network Error: $e');
+      debugPrint('Network Error: $e');
       
       // Clear flights data  
       _flights = [];
