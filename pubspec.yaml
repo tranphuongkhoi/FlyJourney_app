@@ -26,30 +26,30 @@ flutter:
   uses-material-design: true
   
   assets:
-    - lib/assets/Nata_Sans/
-    - lib/assets/Baloo_Bhaijaan_2/
-    - lib/assets/Images/
+    - assets/Nata_Sans/
+    - assets/Baloo_Bhaijaan_2/
+    - assets/Images/
   
   fonts:
     - family: NataSans
       fonts:
-        - asset: lib/assets/Nata_Sans/static/NataSans-Regular.ttf
+        - asset: assets/Nata_Sans/static/NataSans-Regular.ttf
           weight: 400
-        - asset: lib/assets/Nata_Sans/static/NataSans-Medium.ttf
+        - asset: assets/Nata_Sans/static/NataSans-Medium.ttf
           weight: 500
-        - asset: lib/assets/Nata_Sans/static/NataSans-SemiBold.ttf
+        - asset: assets/Nata_Sans/static/NataSans-SemiBold.ttf
           weight: 600
-        - asset: lib/assets/Nata_Sans/static/NataSans-Bold.ttf
+        - asset: assets/Nata_Sans/static/NataSans-Bold.ttf
           weight: 700
     - family: BalooBhaijaan2
       fonts:
-        - asset: lib/assets/Baloo_Bhaijaan_2/static/BalooBhaijaan2-Regular.ttf
+        - asset: assets/Baloo_Bhaijaan_2/static/BalooBhaijaan2-Regular.ttf
           weight: 400
-        - asset: lib/assets/Baloo_Bhaijaan_2/static/BalooBhaijaan2-Medium.ttf
+        - asset: assets/Baloo_Bhaijaan_2/static/BalooBhaijaan2-Medium.ttf
           weight: 500
-        - asset: lib/assets/Baloo_Bhaijaan_2/static/BalooBhaijaan2-SemiBold.ttf
+        - asset: assets/Baloo_Bhaijaan_2/static/BalooBhaijaan2-SemiBold.ttf
           weight: 600
-        - asset: lib/assets/Baloo_Bhaijaan_2/static/BalooBhaijaan2-Bold.ttf
+        - asset: assets/Baloo_Bhaijaan_2/static/BalooBhaijaan2-Bold.ttf
           weight: 700
-        - asset: lib/assets/Baloo_Bhaijaan_2/static/BalooBhaijaan2-ExtraBold.ttf
+        - asset: assets/Baloo_Bhaijaan_2/static/BalooBhaijaan2-ExtraBold.ttf
           weight: 800
