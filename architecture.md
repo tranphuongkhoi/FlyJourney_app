@@ -19,26 +19,30 @@
 ```
 lib/
 ├── main.dart
-├── theme.dart
-├── models/
-│   ├── flight.dart
-│   ├── airport.dart
-│   ├── booking.dart
-│   └── passenger.dart
-├── screens/
-│   ├── home_screen.dart
-│   ├── search_results_screen.dart
-│   ├── flight_details_screen.dart
-│   ├── booking_screen.dart
-│   └── my_bookings_screen.dart
-├── widgets/
-│   ├── flight_card.dart
-│   ├── search_form.dart
-│   └── booking_summary.dart
-├── services/
-│   └── storage_service.dart
-└── data/
-    └── sample_data.dart
+└── src/
+    ├── core/
+    │   ├── config/
+    │   ├── constants/
+    │   ├── theme/
+    │   ├── utils/
+    │   └── widgets/
+    └── features/
+        ├── auth/
+        │   ├── data/
+        │   ├── domain/
+        │   └── presentation/
+        ├── booking/
+        │   ├── data/
+        │   ├── domain/
+        │   └── presentation/
+        ├── search/
+        │   ├── data/
+        │   ├── domain/
+        │   └── presentation/
+        ├── home/
+        ├── notifications/
+        ├── splash/
+        └── connection/
 ```
 
 ### Implementation Steps
