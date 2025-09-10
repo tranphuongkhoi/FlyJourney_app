@@ -45,9 +45,9 @@ class _FlightSearchScreenState extends State<FlightSearchScreen> {
 
   // Airline data
   final List<Map<String, dynamic>> _airlines = [
-    {'id': 1, 'name': 'Vietnam\nAirlines', 'imagePath': 'lib/assets/Images/VietnamAirlines.png'},
-    {'id': 2, 'name': 'VietJet\nAir', 'imagePath': 'lib/assets/Images/vietjetair.png'},
-    {'id': 3, 'name': 'Bamboo\nAirways', 'imagePath': 'lib/assets/Images/BambooAirways.png'},
+    {'id': 1, 'name': 'Vietnam\nAirlines', 'imagePath': 'assets/Images/VietnamAirlines.png'},
+    {'id': 2, 'name': 'VietJet\nAir', 'imagePath': 'assets/Images/vietjetair.png'},
+    {'id': 3, 'name': 'Bamboo\nAirways', 'imagePath': 'assets/Images/BambooAirways.png'},
   ];
 
   @override

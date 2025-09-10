@@ -420,7 +420,7 @@ class BookingConfirmationScreen extends StatelessWidget {
             child: Row(
               children: [
                 Image.asset(
-                  'lib/assets/Images/${_getAirlineImagePath(flight.airline)}',
+                  'assets/Images/${_getAirlineImagePath(flight.airline)}',
                   width: 24,
                   height: 24,
                   errorBuilder: (context, error, stackTrace) => const Icon(
