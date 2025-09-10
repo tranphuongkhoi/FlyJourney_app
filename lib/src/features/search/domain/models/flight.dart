@@ -1,6 +1,6 @@
-import 'package:cnh_n/src/features/search/domain/models/airport.dart';
-import 'package:cnh_n/src/features/search/domain/models/fare_class_details.dart';
-import 'package:cnh_n/src/features/search/domain/models/pricing.dart';
+import 'package:fly_journey/src/features/search/domain/models/airport.dart';
+import 'package:fly_journey/src/features/search/domain/models/fare_class_details.dart';
+import 'package:fly_journey/src/features/search/domain/models/pricing.dart';
 
 class Flight {
   final int? flightId;

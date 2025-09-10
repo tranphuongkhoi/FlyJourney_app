@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:cnh_n/src/core/config/api_config.dart';
+import 'package:fly_journey/src/core/config/api_config.dart';
 
 class FlightApiException implements Exception {
   final String message;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:cnh_n/src/features/search/data/flight_repository.dart';
-import 'package:cnh_n/src/core/config/api_config.dart';
+import 'package:fly_journey/src/features/search/data/flight_repository.dart';
+import 'package:fly_journey/src/core/config/api_config.dart';
 
 class ConnectionTestScreen extends StatefulWidget {
   const ConnectionTestScreen({super.key});

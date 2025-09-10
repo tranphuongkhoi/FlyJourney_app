@@ -1,5 +1,5 @@
-import 'package:cnh_n/src/features/search/domain/models/flight.dart';
-import 'package:cnh_n/src/features/booking/domain/models/passenger.dart';
+import 'package:fly_journey/src/features/search/domain/models/flight.dart';
+import 'package:fly_journey/src/features/booking/domain/models/passenger.dart';
 
 enum BookingStatus { confirmed, cancelled, completed }
 

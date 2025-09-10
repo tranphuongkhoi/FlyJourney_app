@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:cnh_n/src/features/splash/presentation/screens/splash_screen.dart';
-import 'package:cnh_n/src/features/home/presentation/screens/main_screen.dart';
-import 'package:cnh_n/src/features/auth/presentation/screens/login_screen.dart';
-import 'package:cnh_n/src/features/auth/presentation/screens/register_screen.dart';
-import 'package:cnh_n/src/features/auth/presentation/screens/otp_verification_screen.dart';
-import 'package:cnh_n/src/features/auth/data/services/auth_service.dart';
-import 'package:cnh_n/src/core/theme/app_theme.dart';
+import 'package:fly_journey/src/features/splash/presentation/screens/splash_screen.dart';
+import 'package:fly_journey/src/features/home/presentation/screens/main_screen.dart';
+import 'package:fly_journey/src/features/auth/presentation/screens/login_screen.dart';
+import 'package:fly_journey/src/features/auth/presentation/screens/register_screen.dart';
+import 'package:fly_journey/src/features/auth/presentation/screens/otp_verification_screen.dart';
+import 'package:fly_journey/src/features/auth/data/services/auth_service.dart';
+import 'package:fly_journey/src/core/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

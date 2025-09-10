@@ -1,4 +1,4 @@
-import 'package:cnh_n/src/features/search/domain/models/flight.dart';
+import 'package:fly_journey/src/features/search/domain/models/flight.dart';
 
 class RoundtripSearchResponse {
   final String arrivalAirport;

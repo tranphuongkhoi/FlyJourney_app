@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:cnh_n/src/features/splash/presentation/screens/splash_screen.dart';
+import 'package:fly_journey/src/features/splash/presentation/screens/splash_screen.dart';
 
 void main() {
   testWidgets('Splash screen shows app title', (WidgetTester tester) async {

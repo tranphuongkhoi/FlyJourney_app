@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:cnh_n/src/features/search/presentation/screens/flight_search_step1_screen.dart';
-import 'package:cnh_n/src/features/notifications/presentation/screens/notifications_screen.dart';
-import 'package:cnh_n/src/core/constants/colors.dart';
-import 'package:cnh_n/src/core/widgets/hero_slider.dart';
-import 'package:cnh_n/src/core/config/api_config.dart';
+import 'package:fly_journey/src/features/search/presentation/screens/flight_search_step1_screen.dart';
+import 'package:fly_journey/src/features/notifications/presentation/screens/notifications_screen.dart';
+import 'package:fly_journey/src/core/constants/colors.dart';
+import 'package:fly_journey/src/core/widgets/hero_slider.dart';
+import 'package:fly_journey/src/core/config/api_config.dart';
 
 class HomePage extends StatefulWidget {
   final Function(String)? onNavigateToExplore;

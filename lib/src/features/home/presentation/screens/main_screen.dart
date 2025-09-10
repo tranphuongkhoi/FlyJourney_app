@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:cnh_n/src/features/home/presentation/screens/home_screen.dart';
-import 'package:cnh_n/src/features/home/presentation/screens/explore_screen.dart';
-import 'package:cnh_n/src/features/booking/presentation/screens/my_bookings_screen.dart';
-import 'package:cnh_n/src/features/auth/presentation/screens/profile_screen.dart';
-import 'package:cnh_n/src/core/constants/colors.dart';
+import 'package:fly_journey/src/features/home/presentation/screens/home_screen.dart';
+import 'package:fly_journey/src/features/home/presentation/screens/explore_screen.dart';
+import 'package:fly_journey/src/features/booking/presentation/screens/my_bookings_screen.dart';
+import 'package:fly_journey/src/features/auth/presentation/screens/profile_screen.dart';
+import 'package:fly_journey/src/core/constants/colors.dart';
 
 class MainScreen extends StatefulWidget {
   final int initialIndex;

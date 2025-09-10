@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:cnh_n/src/core/config/api_config.dart';
+import 'package:fly_journey/src/core/config/api_config.dart';
 import 'flight_api_client.dart';
 
 class FlightRepository {

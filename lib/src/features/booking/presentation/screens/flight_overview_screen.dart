@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:cnh_n/src/features/search/domain/models/flight.dart';
-import 'package:cnh_n/src/features/booking/presentation/screens/booking_confirmation_screen.dart';
+import 'package:fly_journey/src/features/search/domain/models/flight.dart';
+import 'package:fly_journey/src/features/booking/presentation/screens/booking_confirmation_screen.dart';
 
 class FlightOverviewScreen extends StatelessWidget {
   final Flight flight;

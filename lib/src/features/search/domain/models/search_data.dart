@@ -1,5 +1,5 @@
-import 'package:cnh_n/src/features/search/domain/models/airport.dart';
-import 'package:cnh_n/src/core/config/api_config.dart';
+import 'package:fly_journey/src/features/search/domain/models/airport.dart';
+import 'package:fly_journey/src/core/config/api_config.dart';
 
 class SearchData {
   // Step 1 - Basic Info

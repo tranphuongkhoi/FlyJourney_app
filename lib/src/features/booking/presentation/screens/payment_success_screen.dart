@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:cnh_n/src/core/constants/colors.dart';
-import 'package:cnh_n/src/features/search/domain/models/flight.dart';
-import 'package:cnh_n/src/features/booking/domain/models/passenger_models.dart';
-import 'package:cnh_n/src/features/home/presentation/screens/main_screen.dart';
-import 'package:cnh_n/src/features/search/presentation/screens/flight_search_step1_screen.dart';
+import 'package:fly_journey/src/core/constants/colors.dart';
+import 'package:fly_journey/src/features/search/domain/models/flight.dart';
+import 'package:fly_journey/src/features/booking/domain/models/passenger_models.dart';
+import 'package:fly_journey/src/features/home/presentation/screens/main_screen.dart';
+import 'package:fly_journey/src/features/search/presentation/screens/flight_search_step1_screen.dart';
 
 class PaymentSuccessScreen extends StatelessWidget {
   final Flight flight;

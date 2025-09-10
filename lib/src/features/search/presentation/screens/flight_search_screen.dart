@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:cnh_n/src/features/search/domain/models/airport.dart';
-import 'package:cnh_n/src/features/search/presentation/screens/flight_search_results_screen.dart';
-import 'package:cnh_n/src/features/notifications/presentation/screens/notifications_screen.dart';
-import 'package:cnh_n/src/features/connection/presentation/screens/connection_test_screen.dart';
-import 'package:cnh_n/src/core/constants/colors.dart';
-import 'package:cnh_n/src/core/widgets/flight_filters.dart';
+import 'package:fly_journey/src/features/search/domain/models/airport.dart';
+import 'package:fly_journey/src/features/search/presentation/screens/flight_search_results_screen.dart';
+import 'package:fly_journey/src/features/notifications/presentation/screens/notifications_screen.dart';
+import 'package:fly_journey/src/features/connection/presentation/screens/connection_test_screen.dart';
+import 'package:fly_journey/src/core/constants/colors.dart';
+import 'package:fly_journey/src/core/widgets/flight_filters.dart';
 
 class FlightSearchScreen extends StatefulWidget {
   const FlightSearchScreen({super.key});

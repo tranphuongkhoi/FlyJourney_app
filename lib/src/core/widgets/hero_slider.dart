@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cnh_n/src/core/constants/colors.dart';
+import 'package:fly_journey/src/core/constants/colors.dart';
 
 class HeroSlider extends StatefulWidget {
   const HeroSlider({super.key});
