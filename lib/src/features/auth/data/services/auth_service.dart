@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fly_journey/src/core/config/api_config.dart';
@@ -87,24 +88,33 @@ class AuthService {
       print('🔐 Attempting login for: $email');
       
       final url = Uri.parse('${ApiConfig.baseUrl}${ApiConfig.login}');
-      final response = await http.post(
-        url,
-        headers: ApiConfig.headers,
-        body: json.encode({
-          'email': email,
-          'password': password,
-        }),
-      ).timeout(ApiConfig.requestTimeout);
+      // Send JSON consistently so backend (Gin) can bind JSON
+      final headers = ApiConfig.headers;
+      final body = json.encode({
+        'email': email,
+        'password': password,
+      });
 
+      final response = await http
+          .post(
+            url,
+            headers: headers,
+            body: body,
+          )
+          .timeout(ApiConfig.requestTimeout);
+
+      print('🌐 Login URL: $url');
+      print('🧾 Request headers: '+ headers.toString());
       print('🌐 Login response status: ${response.statusCode}');
       print('📦 Login response body: ${response.body}');
+      print('📬 Response headers: '+ response.headers.toString());
 
       // Check if response body is empty or null
-      if (response.body.isEmpty) {
+      if (response.statusCode == 204 || response.body.isEmpty) {
         return {
           'success': false,
-          'message': 'Server không trả về dữ liệu',
-          'error': 'Empty response body',
+          'message': 'Server trả về 204 No Content cho đăng nhập',
+          'error': 'Empty response body (204)',
         };
       }
 
@@ -190,24 +200,30 @@ class AuthService {
       print('📝 Attempting registration for: $email');
       
       final url = Uri.parse('${ApiConfig.baseUrl}${ApiConfig.register}');
-      final response = await http.post(
-        url,
-        headers: ApiConfig.headers,
-        body: json.encode({
-          'name': name,
-          'full_name': name, // Some APIs might expect full_name
-          'email': email,
-          'phone': phone,
-          'password': password,
-          'password_confirmation': password, // Some APIs require this
-        }),
-      ).timeout(ApiConfig.requestTimeout);
+      // Send JSON consistently so backend can bind JSON
+      final headers = ApiConfig.headers;
+      final body = json.encode({
+        'name': name,
+        'full_name': name, // Some APIs might expect full_name
+        'email': email,
+        'phone': phone,
+        'password': password,
+        'password_confirmation': password, // Some APIs require this
+      });
+
+      final response = await http
+          .post(
+            url,
+            headers: headers,
+            body: body,
+          )
+          .timeout(ApiConfig.requestTimeout);
 
       print('🌐 Register response status: ${response.statusCode}');
       print('📦 Register response body: ${response.body}');
 
       // Check if response body is empty or null
-      if (response.body.isEmpty) {
+      if (response.statusCode == 204 || response.body.isEmpty) {
         return {
           'success': false,
           'message': 'Server không trả về dữ liệu',
@@ -268,23 +284,41 @@ class AuthService {
       print('📝 Attempting OTP confirmation for: $email with OTP: $otp');
       
       final url = Uri.parse('${ApiConfig.baseUrl}${ApiConfig.confirmRegister}');
-      final response = await http.post(
-        url,
-        headers: ApiConfig.headers,
-        body: json.encode({
-          'name': name,
-          'email': email,
-          'otp': otp,
-          'phone': phone,
-          'password': password,
-        }),
-      ).timeout(ApiConfig.requestTimeout);
+      // On web, avoid preflight by using form-encoded simple request
+      final headers = kIsWeb
+          ? {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            }
+          : ApiConfig.headers;
+      final body = kIsWeb
+          ? Uri(queryParameters: {
+              'name': name,
+              'email': email,
+              'otp': otp,
+              'phone': phone,
+              'password': password,
+            }).query
+          : json.encode({
+              'name': name,
+              'email': email,
+              'otp': otp,
+              'phone': phone,
+              'password': password,
+            });
+
+      final response = await http
+          .post(
+            url,
+            headers: headers,
+            body: body,
+          )
+          .timeout(ApiConfig.requestTimeout);
 
       print('🌐 Confirm Register response status: ${response.statusCode}');
       print('📦 Confirm Register response body: ${response.body}');
 
       // Check if response body is empty or null
-      if (response.body.isEmpty) {
+      if (response.statusCode == 204 || response.body.isEmpty) {
         return {
           'success': false,
           'message': 'Server không trả về dữ liệu',
@@ -408,19 +442,33 @@ class AuthService {
       print('🔄 Requesting password reset for: $email');
       
       final url = Uri.parse('${ApiConfig.baseUrl}${ApiConfig.forgotPassword}');
-      final response = await http.post(
-        url,
-        headers: ApiConfig.headers,
-        body: json.encode({
-          'email': email,
-        }),
-      ).timeout(ApiConfig.requestTimeout);
+      // On web, avoid preflight by using form-encoded simple request
+      final headers = kIsWeb
+          ? {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            }
+          : ApiConfig.headers;
+      final body = kIsWeb
+          ? Uri(queryParameters: {
+              'email': email,
+            }).query
+          : json.encode({
+              'email': email,
+            });
+
+      final response = await http
+          .post(
+            url,
+            headers: headers,
+            body: body,
+          )
+          .timeout(ApiConfig.requestTimeout);
 
       print('🌐 Forgot password response status: ${response.statusCode}');
       print('📦 Forgot password response body: ${response.body}');
 
       // Check if response body is empty or null
-      if (response.body.isEmpty) {
+      if (response.statusCode == 204 || response.body.isEmpty) {
         return {
           'success': false,
           'message': 'Server không trả về dữ liệu',

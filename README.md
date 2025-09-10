@@ -1,16 +1,16 @@
-# yap
+# Fly Journey — Flutter App
 
-A new Flutter project.
+Feature-based Flutter application for flight search and booking.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+Install dependencies:
 
-A few resources to get you started if this is your first Flutter project:
+- `flutter pub get`
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Run on devices:
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- Mobile: `flutter run`
+- Web (Edge, fixed port 5555): `flutter run -d edge --web-hostname localhost --web-port 5555`
+
+VS Code users: you can also use the preset in `.vscode/launch.json` named “Flutter Web (Edge, 5555)”.
