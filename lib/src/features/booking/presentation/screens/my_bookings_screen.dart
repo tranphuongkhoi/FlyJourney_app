@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:cnh_n/src/features/booking/domain/models/booking.dart';
-import 'package:cnh_n/src/features/booking/data/services/storage_service.dart';
+import 'package:fly_journey/src/features/booking/domain/models/booking.dart';
+import 'package:fly_journey/src/features/booking/data/services/storage_service.dart';
 
 class MyBookingsScreen extends StatefulWidget {
   final VoidCallback? onNavigateToSearch;

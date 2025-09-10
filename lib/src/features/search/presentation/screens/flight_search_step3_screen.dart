@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:cnh_n/src/core/constants/colors.dart';
-import 'package:cnh_n/src/features/search/domain/models/search_data.dart';
-import 'package:cnh_n/src/features/search/presentation/screens/flight_search_results_screen.dart';
-import 'package:cnh_n/src/core/widgets/search_app_bar.dart';
+import 'package:fly_journey/src/core/constants/colors.dart';
+import 'package:fly_journey/src/features/search/domain/models/search_data.dart';
+import 'package:fly_journey/src/features/search/presentation/screens/flight_search_results_screen.dart';
+import 'package:fly_journey/src/core/widgets/search_app_bar.dart';
 
 class FlightSearchStep3Screen extends StatefulWidget {
   final SearchData searchData;

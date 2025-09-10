@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:cnh_n/src/core/widgets/header.dart';
-import 'package:cnh_n/src/core/widgets/footer.dart';
+import 'package:fly_journey/src/core/widgets/header.dart';
+import 'package:fly_journey/src/core/widgets/footer.dart';
 
 class NewsScreen extends StatelessWidget {
   const NewsScreen({super.key});

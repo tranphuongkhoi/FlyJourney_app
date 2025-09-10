@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:cnh_n/src/features/search/domain/models/flight.dart';
-import 'package:cnh_n/src/core/constants/colors.dart';
-import 'package:cnh_n/src/features/booking/presentation/screens/passenger_information_screen.dart';
+import 'package:fly_journey/src/features/search/domain/models/flight.dart';
+import 'package:fly_journey/src/core/constants/colors.dart';
+import 'package:fly_journey/src/features/booking/presentation/screens/passenger_information_screen.dart';
 
 class BookingConfirmationScreen extends StatelessWidget {
   final Flight outboundFlight;

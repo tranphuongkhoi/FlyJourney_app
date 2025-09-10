@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:cnh_n/src/features/auth/presentation/screens/register_screen.dart';
-import 'package:cnh_n/src/features/auth/presentation/screens/forgot_password_screen.dart';
-import 'package:cnh_n/src/features/auth/data/services/auth_service.dart';
-import 'package:cnh_n/src/core/constants/colors.dart';
+import 'package:fly_journey/src/features/auth/presentation/screens/register_screen.dart';
+import 'package:fly_journey/src/features/auth/presentation/screens/forgot_password_screen.dart';
+import 'package:fly_journey/src/features/auth/data/services/auth_service.dart';
+import 'package:fly_journey/src/core/constants/colors.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

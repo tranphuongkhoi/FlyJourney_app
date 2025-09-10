@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cnh_n/src/core/config/api_config.dart';
+import 'package:fly_journey/src/core/config/api_config.dart';
 
 class User {
   final String id;

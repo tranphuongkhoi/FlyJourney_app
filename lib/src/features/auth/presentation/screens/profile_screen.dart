@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:cnh_n/src/features/auth/data/services/auth_service.dart';
-import 'package:cnh_n/src/features/auth/presentation/screens/login_screen.dart';
-import 'package:cnh_n/src/core/constants/colors.dart';
+import 'package:fly_journey/src/features/auth/data/services/auth_service.dart';
+import 'package:fly_journey/src/features/auth/presentation/screens/login_screen.dart';
+import 'package:fly_journey/src/core/constants/colors.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});

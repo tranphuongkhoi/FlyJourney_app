@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cnh_n/src/core/widgets/expandable_destination_card.dart';
+import 'package:fly_journey/src/core/widgets/expandable_destination_card.dart';
 
 class ExploreScreen extends StatelessWidget {
   const ExploreScreen({super.key});

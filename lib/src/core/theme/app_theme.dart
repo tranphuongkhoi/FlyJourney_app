@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:cnh_n/src/core/constants/colors.dart';
+import 'package:fly_journey/src/core/constants/colors.dart';
 
 // Function to create a new TextTheme with scaled font sizes
 TextTheme _buildTextTheme(TextTheme base) {

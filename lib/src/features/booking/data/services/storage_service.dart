@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cnh_n/src/features/booking/domain/models/booking.dart';
+import 'package:fly_journey/src/features/booking/domain/models/booking.dart';
 
 class StorageService {
   static const String _bookingsKey = 'bookings';
