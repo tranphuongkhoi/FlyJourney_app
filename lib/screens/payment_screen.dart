@@ -264,8 +264,9 @@ class _PaymentScreenState extends State<PaymentScreen>
     final double returnPrice = widget.returnFlight?.price ?? 0;
     final double basePrice = outboundPrice + returnPrice;
     final double totalPassengerPrice = basePrice * widget.passengers;
+    final double baggageCost = _calculateExtraBaggageCost();
     final double taxes = totalPassengerPrice * 0.1;
-    final double totalPrice = totalPassengerPrice + taxes;
+    final double totalPrice = totalPassengerPrice + taxes + baggageCost;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -327,6 +328,9 @@ class _PaymentScreenState extends State<PaymentScreen>
             NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(totalPassengerPrice)),
           _buildPriceRow('Thuế và phí', 
             NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(taxes)),
+          if (baggageCost > 0)
+            _buildPriceRow('Hành lý ký gửi thêm', 
+              NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(baggageCost)),
           
           const Divider(height: 16),
           
@@ -1182,7 +1186,25 @@ class _PaymentScreenState extends State<PaymentScreen>
     if (widget.returnFlight != null) {
       total += widget.returnFlight!.price.toDouble() * widget.passengers;
     }
+    total += _calculateExtraBaggageCost();
     
     return total;
+  }
+
+  double _calculateExtraBaggageCost() {
+    const Map<String, double> optionToPrice = {
+      '+5kg (+200.000đ)': 200000,
+      '+10kg (+350.000đ)': 350000,
+      '+15kg (+500.000đ)': 500000,
+    };
+
+    double sum = 0;
+    for (final p in widget.passengersList) {
+      final key = p.extraBaggage.trim();
+      if (optionToPrice.containsKey(key)) {
+        sum += optionToPrice[key]!;
+      }
+    }
+    return sum;
   }
 }

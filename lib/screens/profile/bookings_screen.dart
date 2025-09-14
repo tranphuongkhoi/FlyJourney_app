@@ -26,9 +26,9 @@ class _BookingsScreenState extends State<BookingsScreen> with SingleTickerProvid
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE0F7FA),
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFE0F7FA),
+        backgroundColor: Colors.white,
         elevation: 0,
         toolbarHeight: 80,
         title: const Text(

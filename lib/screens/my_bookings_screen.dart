@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cnh_n/models/booking.dart';
 import 'package:cnh_n/services/storage_service.dart';
+import 'package:cnh_n/constants/colors.dart';
 
 class MyBookingsScreen extends StatefulWidget {
   final VoidCallback? onNavigateToSearch;
@@ -45,9 +46,9 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE0F7FA), // Homepage background color
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFE0F7FA), // Homepage background color
+        backgroundColor: Colors.white,
         elevation: 0,
         toolbarHeight: 80, // Increased height to match explore screen spacing
         title: const Text(
@@ -70,8 +71,9 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               ? _buildEmptyState()
               : RefreshIndicator(
                   onRefresh: _loadBookings,
+                  color: AppColors.primaryBlue,
                   child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
                     itemCount: _bookings.length,
                     itemBuilder: (context, index) {
                       final booking = _bookings[index];
@@ -120,13 +122,17 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
   Widget _buildBookingCard(Booking booking) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 2,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: AppColors.primaryBlue.withOpacity(0.15), width: 1),
+      ),
+      elevation: 0,
       child: InkWell(
         onTap: () => _showBookingDetails(booking),
         borderRadius: BorderRadius.circular(16),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -145,15 +151,13 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
   Widget _buildBookingHeader(Booking booking) {
     return Row(
       children: [
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            image: DecorationImage(
-              image: NetworkImage(booking.flight.airlineLogo),
-              fit: BoxFit.cover,
-            ),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.network(
+            booking.flight.airlineLogo,
+            width: 40,
+            height: 40,
+            fit: BoxFit.cover,
           ),
         ),
         const SizedBox(width: 12),
@@ -164,8 +168,8 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               Text(
                 booking.bookingId,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.primaryBlue,
                     ),
               ),
               Text(
@@ -298,10 +302,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Theme.of(context)
-            .colorScheme
-            .primaryContainer
-            .withValues(alpha: 0.3),
+        color: AppColors.primaryBlue.withOpacity(0.05),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -409,57 +410,93 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      builder: (context) => SafeArea(
+        child: SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Chi tiết đặt vé',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
                       ),
+                      child: Icon(
+                        Icons.receipt_long,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Chi tiết đặt vé',
+                        style: const TextStyle(
+                          fontFamily: 'BalooBhaijaan2',
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF1E293B),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.close),
+                    ),
+                  ],
                 ),
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close),
-                ),
+                const SizedBox(height: 16),
+                _buildDetailRow('Mã đặt chỗ', booking.bookingId),
+                _buildDetailRow('Chuyến bay',
+                    '${booking.flight.airline} ${booking.flight.flightNumber}'),
+                _buildDetailRow('Tuyến đường',
+                    '${booking.flight.departure.city} → ${booking.flight.arrival.city}'),
+                _buildDetailRow(
+                    'Ngày bay',
+                    DateFormat('dd/MM/yyyy HH:mm')
+                        .format(booking.flight.departureTime)),
+                _buildDetailRow('Hành khách',
+                    booking.passengers.map((p) => p.fullName).join(', ')),
+                _buildDetailRow('Email liên hệ', booking.contactEmail),
+                _buildDetailRow('SĐT liên hệ', booking.contactPhone),
+                _buildDetailRow('Tổng giá',
+                    '${NumberFormat('#,###', 'vi').format(booking.totalPrice)} ₫'),
+                const SizedBox(height: 20),
+                if (booking.status == BookingStatus.confirmed)
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () => _cancelBooking(booking),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: const Text(
+                        'Hủy vé',
+                        style: TextStyle(
+                          fontFamily: 'BalooBhaijaan2',
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
               ],
             ),
-            const SizedBox(height: 16),
-            _buildDetailRow('Mã đặt chỗ', booking.bookingId),
-            _buildDetailRow('Chuyến bay',
-                '${booking.flight.airline} ${booking.flight.flightNumber}'),
-            _buildDetailRow('Tuyến đường',
-                '${booking.flight.departure.city} → ${booking.flight.arrival.city}'),
-            _buildDetailRow(
-                'Ngày bay',
-                DateFormat('dd/MM/yyyy HH:mm')
-                    .format(booking.flight.departureTime)),
-            _buildDetailRow('Hành khách',
-                booking.passengers.map((p) => p.fullName).join(', ')),
-            _buildDetailRow('Email liên hệ', booking.contactEmail),
-            _buildDetailRow('SĐT liên hệ', booking.contactPhone),
-            _buildDetailRow('Tổng giá',
-                '${NumberFormat('#,###', 'vi').format(booking.totalPrice)} ₫'),
-            const SizedBox(height: 16),
-            if (booking.status == BookingStatus.confirmed)
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => _cancelBooking(booking),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                  ),
-                  child: const Text('Hủy vé'),
-                ),
-              ),
-          ],
+          ),
         ),
       ),
     );
