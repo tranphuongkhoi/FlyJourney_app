@@ -53,48 +53,61 @@ class Flight {
     this.taxAndFees = 0.0,
   });
 
-  factory Flight.fromJson(Map<String, dynamic> json) => Flight(
-        flightId: json['flight_id'],
-        flightClassId: json['flight_class_id'],
-        flightNumber: json['flight_number'] ?? json['flightNumber'] ?? '',
-        airlineId: json['airline_id'],
-        airline: json['airline_name'] ?? json['airline'] ?? '',
-        airlineLogo: json['logo_url'] ?? json['airlineLogo'] ?? '',
-        departure: json['departure'] != null 
-            ? Airport.fromJson(json['departure'])
-            : Airport(
-                code: json['departure_airport_code'] ?? '',
-                name: json['departure_airport'] ?? '',
-                city: json['departure_airport'] ?? '',
-                country: 'Việt Nam',
-              ),
-        arrival: json['arrival'] != null 
-            ? Airport.fromJson(json['arrival'])
-            : Airport(
-                code: json['arrival_airport_code'] ?? '',
-                name: json['arrival_airport'] ?? '',
-                city: json['arrival_airport'] ?? '',
-                country: 'Việt Nam',
-              ),
-        departureTime: DateTime.tryParse(json['departure_time'] ?? json['departureTime'] ?? '') ?? DateTime.now(),
-        arrivalTime: DateTime.tryParse(json['arrival_time'] ?? json['arrivalTime'] ?? '') ?? DateTime.now(),
-        price: (json['pricing']?['grand_total'] ?? json['price'] ?? 0).toDouble(),
-        aircraft: json['aircraft'] ?? 'Aircraft',
-        availableSeats: json['availableSeats'] ?? json['total_seats'] ?? 0,
-        duration: json['duration'] ?? _formatDuration(json['duration_minutes'] ?? 0),
-        durationMinutes: json['duration_minutes'] ?? 0,
-        stopsCount: json['stops_count'] ?? 0,
-        distance: (json['distance'] ?? 0).toDouble(),
-        flightClass: json['flight_class'] ?? 'economy',
-        totalSeats: json['total_seats'] ?? 0,
-        fareClassDetails: json['fare_class_details'] != null 
-            ? FareClassDetails.fromJson(json['fare_class_details'])
-            : null,
-        pricing: json['pricing'] != null 
-            ? Pricing.fromJson(json['pricing'])
-            : null,
-        taxAndFees: (json['tax_and_fees'] ?? 0).toDouble(),
-      );
+  factory Flight.fromJson(Map<String, dynamic> json) {
+    final int durationMins = (json['duration_minutes'] is int)
+        ? json['duration_minutes'] as int
+        : (json['duration'] is int)
+            ? json['duration'] as int
+            : 0;
+
+    final String durationStr = (json['duration'] is String)
+        ? json['duration'] as String
+        : _formatDuration(durationMins);
+
+    return Flight(
+      flightId: json['flight_id'],
+      flightClassId: json['flight_class_id'],
+      flightNumber: (json['flight_number'] ?? json['flightNumber'] ?? '').toString(),
+      airlineId: json['airline_id'],
+      airline: (json['airline_name'] ?? json['airline'] ?? '').toString(),
+      airlineLogo: (json['logo_url'] ?? json['airlineLogo'] ?? '').toString(),
+      departure: json['departure'] != null
+          ? Airport.fromJson(json['departure'])
+          : Airport(
+              code: (json['departure_airport_code'] ?? '').toString(),
+              name: (json['departure_airport'] ?? '').toString(),
+              city: (json['departure_airport'] ?? '').toString(),
+              country: 'Việt Nam',
+            ),
+      arrival: json['arrival'] != null
+          ? Airport.fromJson(json['arrival'])
+          : Airport(
+              code: (json['arrival_airport_code'] ?? '').toString(),
+              name: (json['arrival_airport'] ?? '').toString(),
+              city: (json['arrival_airport'] ?? '').toString(),
+              country: 'Việt Nam',
+            ),
+      departureTime: DateTime.tryParse((json['departure_time'] ?? json['departureTime'] ?? '').toString()) ??
+          DateTime.now(),
+      arrivalTime: DateTime.tryParse((json['arrival_time'] ?? json['arrivalTime'] ?? '').toString()) ??
+          DateTime.now(),
+      price: _toDouble(json['pricing']?['grand_total'] ?? json['price'] ?? 0),
+      aircraft: (json['aircraft'] ?? 'Aircraft').toString(),
+      availableSeats: json['availableSeats'] is int
+          ? json['availableSeats'] as int
+          : (json['total_seats'] is int ? json['total_seats'] as int : 0),
+      duration: durationStr,
+      durationMinutes: durationMins,
+      stopsCount: json['stops_count'] is int ? json['stops_count'] as int : 0,
+      distance: _toDouble(json['distance'] ?? 0),
+      flightClass: (json['flight_class'] ?? 'economy').toString(),
+      totalSeats: json['total_seats'] is int ? json['total_seats'] as int : 0,
+      fareClassDetails:
+          json['fare_class_details'] != null ? FareClassDetails.fromJson(json['fare_class_details']) : null,
+      pricing: json['pricing'] != null ? Pricing.fromJson(json['pricing']) : null,
+      taxAndFees: _toDouble(json['tax_and_fees'] ?? 0),
+    );
+  }
 
   static String _formatDuration(int minutes) {
     final hours = minutes ~/ 60;
@@ -131,4 +144,10 @@ class Flight {
         'availableSeats': availableSeats,
         'duration': duration,
       };
+
+  static double _toDouble(dynamic value) {
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value.replaceAll(',', '')) ?? 0;
+    return 0;
+  }
 }

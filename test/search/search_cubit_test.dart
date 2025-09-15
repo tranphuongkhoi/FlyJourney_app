@@ -1,6 +1,6 @@
 import 'package:fly_journey/src/features/search/presentation/cubit/search_cubit.dart';
 import 'package:fly_journey/src/features/search/presentation/cubit/search_state.dart';
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('SearchCubit', () {
@@ -39,15 +39,12 @@ void main() {
         };
       });
 
-      final states = <SearchState>[];
-      final subscription = cubit.stream.listen(states.add);
+      expectLater(
+        cubit.stream,
+        emitsInOrder([isA<SearchLoading>(), isA<SearchLoaded>()]),
+      );
 
       await cubit.search({}, false);
-      await Future<void>.delayed(const Duration(milliseconds: 10));
-
-      expect(states[0], isA<SearchLoading>());
-      expect(states[1], isA<SearchLoaded>());
-      await subscription.cancel();
       await cubit.close();
     });
 
@@ -56,15 +53,12 @@ void main() {
         return {'success': false, 'message': 'error'};
       });
 
-      final states = <SearchState>[];
-      final subscription = cubit.stream.listen(states.add);
+      expectLater(
+        cubit.stream,
+        emitsInOrder([isA<SearchLoading>(), isA<SearchError>()]),
+      );
 
       await cubit.search({}, false);
-      await Future<void>.delayed(const Duration(milliseconds: 10));
-
-      expect(states[0], isA<SearchLoading>());
-      expect(states[1], isA<SearchError>());
-      await subscription.cancel();
       await cubit.close();
     });
   });

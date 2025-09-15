@@ -1,13 +1,12 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:fly_journey/src/features/search/domain/models/airport.dart';
 import 'package:fly_journey/src/features/search/domain/models/flight.dart';
 import 'package:fly_journey/src/features/booking/presentation/screens/flight_overview_screen.dart';
 import 'package:fly_journey/src/core/constants/colors.dart';
 import 'package:fly_journey/src/features/search/data/flight_repository.dart';
 import '../cubit/search_cubit.dart';
+import '../cubit/search_state.dart';
 
 class FlightSearchResultsScreen extends StatefulWidget {
   final Map<String, dynamic> searchParams;
@@ -1245,3 +1244,4 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
     }
   }
 }
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables

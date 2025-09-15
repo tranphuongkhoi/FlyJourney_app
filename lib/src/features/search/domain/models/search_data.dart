@@ -31,7 +31,7 @@ class SearchData {
     this.passengers = 1,
     this.children = 0,
     this.infants = 0,
-    this.flightClass = 'economy', // Default to economy instead of 'all'
+    this.flightClass = 'all', // Default to select all classes
     this.departure,
     this.arrival,
     this.maxStops = 2,
@@ -66,7 +66,6 @@ class SearchData {
       "departure_date": "${departureDate.day.toString().padLeft(2, '0')}/${departureDate.month.toString().padLeft(2, '0')}/${departureDate.year}",
       "flight_class": flightClass,
       "airline_ids": selectedAirlineIds,
-      "max_stops": maxStops,
       "page": 1,
       "limit": 50,
       "sort_by": sortBy,

@@ -1,7 +1,7 @@
 import 'package:fly_journey/src/features/search/domain/models/flight.dart';
 import 'package:fly_journey/src/features/booking/domain/models/passenger.dart';
 
-enum BookingStatus { confirmed, cancelled, completed }
+enum BookingStatus { confirmed, pendingPayment, cancelled, completed }
 
 class Booking {
   final String bookingId;
@@ -13,6 +13,7 @@ class Booking {
   final BookingStatus status;
   final String contactEmail;
   final String contactPhone;
+  final bool roundTripHint;
 
   const Booking({
     required this.bookingId,
@@ -24,9 +25,10 @@ class Booking {
     required this.status,
     required this.contactEmail,
     required this.contactPhone,
+    this.roundTripHint = false,
   });
 
-  bool get isRoundTrip => returnFlight != null;
+  bool get isRoundTrip => returnFlight != null || roundTripHint;
 
   factory Booking.fromJson(Map<String, dynamic> json) => Booking(
         bookingId: json['bookingId'],
@@ -39,9 +41,7 @@ class Booking {
             .toList(),
         bookingDate: DateTime.parse(json['bookingDate']),
         totalPrice: json['totalPrice'].toDouble(),
-        status: BookingStatus.values.firstWhere(
-          (s) => s.name == json['status'],
-        ),
+        status: _statusFromString(json['status'] ?? 'confirmed'),
         contactEmail: json['contactEmail'],
         contactPhone: json['contactPhone'],
       );
@@ -56,5 +56,14 @@ class Booking {
         'status': status.name,
         'contactEmail': contactEmail,
         'contactPhone': contactPhone,
+        'roundTripHint': roundTripHint,
       };
+
+  static BookingStatus _statusFromString(String value) {
+    final v = value.toString().toLowerCase();
+    if (v.contains('pending')) return BookingStatus.pendingPayment;
+    if (v.contains('cancel')) return BookingStatus.cancelled;
+    if (v.contains('complete')) return BookingStatus.completed;
+    return BookingStatus.confirmed;
+  }
 }

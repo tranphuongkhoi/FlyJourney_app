@@ -1,4 +1,4 @@
-import 'package:bloc/bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/models/flight.dart';
 import 'search_state.dart';
 
@@ -48,7 +48,7 @@ class SearchCubit extends Cubit<SearchState> {
       } else {
         emit(SearchError(result['message'] ?? 'Có lỗi xảy ra khi tìm kiếm chuyến bay. Vui lòng thử lại.'));
       }
-    } catch (_) {
+    } catch (e) {
       emit(SearchError('Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng và thử lại.'));
     }
   }

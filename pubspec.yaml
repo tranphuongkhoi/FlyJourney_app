@@ -17,6 +17,7 @@ dependencies:
   dio: ^5.9.0
   flutter_secure_storage: ^9.2.4
   flutter_bloc: ^8.1.4
+  url_launcher: ^6.3.0
 
 dev_dependencies:
   flutter_test:
@@ -30,6 +31,7 @@ flutter:
     - assets/Nata_Sans/
     - assets/Baloo_Bhaijaan_2/
     - assets/Images/
+    - assets/airlines/
   
   fonts:
     - family: NataSans

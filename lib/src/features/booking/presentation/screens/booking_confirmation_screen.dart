@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:fly_journey/src/features/search/domain/models/flight.dart';
+import 'package:fly_journey/src/core/constants/airlines.dart';
 import 'package:fly_journey/src/core/constants/colors.dart';
 import 'package:fly_journey/src/features/booking/presentation/screens/passenger_information_screen.dart';
 
@@ -18,15 +19,8 @@ class BookingConfirmationScreen extends StatelessWidget {
     this.returnDate,
   });
 
-  String _getAirlineImagePath(String airlineName) {
-    // Map airline names to actual file names
-    final Map<String, String> airlineImageMap = {
-      'Vietnam Airlines': 'VietnamAirlines.png',
-      'VietJet Air': 'vietjetair.png',
-      'Bamboo Airways': 'BambooAirways.png',
-    };
-    
-    return airlineImageMap[airlineName] ?? 'VietnamAirlines.png'; // Default fallback
+  String _getAirlineAssetPath(String airlineName) {
+    return findAirlineByName(airlineName)?.logo ?? kAirlines.first.logo;
   }
 
   @override
@@ -420,7 +414,7 @@ class BookingConfirmationScreen extends StatelessWidget {
             child: Row(
               children: [
                 Image.asset(
-                  'assets/Images/${_getAirlineImagePath(flight.airline)}',
+                  _getAirlineAssetPath(flight.airline),
                   width: 24,
                   height: 24,
                   errorBuilder: (context, error, stackTrace) => const Icon(

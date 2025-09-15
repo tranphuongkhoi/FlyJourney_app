@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fly_journey/src/features/search/presentation/screens/flight_search_step1_screen.dart';
+import 'package:fly_journey/src/features/search/presentation/screens/flight_search_screen.dart';
 import 'package:fly_journey/src/features/notifications/presentation/screens/notifications_screen.dart';
 import 'package:fly_journey/src/core/constants/colors.dart';
 import 'package:fly_journey/src/core/widgets/hero_slider.dart';
@@ -181,7 +181,7 @@ class _HomePageState extends State<HomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const FlightSearchStep1Screen(),
+                    builder: (context) => const FlightSearchScreen(),
                   ),
                 );
               },

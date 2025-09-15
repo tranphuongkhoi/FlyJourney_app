@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:fly_journey/src/features/booking/domain/models/booking.dart';
-import 'package:fly_journey/src/features/booking/data/services/storage_service.dart';
+// Local storage removed for bookings – using real API only
+import 'package:fly_journey/src/features/auth/data/services/auth_service.dart';
+import 'package:fly_journey/src/features/booking/data/booking_repository.dart';
+import 'package:fly_journey/src/features/booking/presentation/screens/booking_detail_screen.dart';
+import 'package:fly_journey/src/features/payment/presentation/payment_flow_screen.dart';
 
 class MyBookingsScreen extends StatefulWidget {
   final VoidCallback? onNavigateToSearch;
@@ -15,6 +19,12 @@ class MyBookingsScreen extends StatefulWidget {
 class _MyBookingsScreenState extends State<MyBookingsScreen> {
   List<Booking> _bookings = [];
   bool _isLoading = true;
+  final AuthService _authService = AuthService();
+  BookingStatus? _filterStatus; // null = all
+  TripTypeFilter _tripType = TripTypeFilter.all;
+  SortOption _sort = SortOption.bookingIdDesc;
+  String _search = '';
+  final TextEditingController _searchCtrl = TextEditingController();
 
   @override
   void initState() {
@@ -24,7 +34,15 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
 
   Future<void> _loadBookings() async {
     try {
-      final bookings = await StorageService.getBookings();
+      if (!_authService.isLoggedIn) {
+        setState(() {
+          _bookings = [];
+          _isLoading = false;
+        });
+        return;
+      }
+
+      final bookings = await BookingRepository.fetchMyBookings();
       setState(() {
         _bookings = bookings;
         _isLoading = false;
@@ -66,19 +84,44 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : _bookings.isEmpty
-              ? _buildEmptyState()
-              : RefreshIndicator(
-                  onRefresh: _loadBookings,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _bookings.length,
-                    itemBuilder: (context, index) {
-                      final booking = _bookings[index];
-                      return _buildBookingCard(booking);
-                    },
-                  ),
+          : !_authService.isLoggedIn
+              ? _buildLoginRequired()
+              : _buildBookingsList(),
+    );
+  }
+
+  Widget _buildLoginRequired() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.lock_outline,
+            size: 64,
+            color: Colors.grey.shade400,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Vui lòng đăng nhập',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w500,
                 ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Đăng nhập để xem các vé đã đặt của bạn',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Colors.grey.shade600,
+                ),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: () => Navigator.of(context).pushNamed('/login'),
+            icon: const Icon(Icons.login),
+            label: const Text('Đến màn đăng nhập'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -123,7 +166,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 2,
       child: InkWell(
-        onTap: () => _showBookingDetails(booking),
+        onTap: () => _openBookingDetails(booking),
         borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -135,6 +178,8 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               _buildFlightInfo(booking),
               const SizedBox(height: 16),
               _buildBookingFooter(booking),
+              const SizedBox(height: 12),
+              _buildActions(booking),
             ],
           ),
         ),
@@ -145,17 +190,23 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
   Widget _buildBookingHeader(Booking booking) {
     return Row(
       children: [
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            image: DecorationImage(
-              image: NetworkImage(booking.flight.airlineLogo),
-              fit: BoxFit.cover,
-            ),
-          ),
-        ),
+        (booking.flight.airlineLogo.isNotEmpty)
+            ? Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: DecorationImage(
+                    image: NetworkImage(booking.flight.airlineLogo),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              )
+            : CircleAvatar(
+                radius: 20,
+                backgroundColor: Colors.grey.shade200,
+                child: const Icon(Icons.flight, color: Colors.blue),
+              ),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -169,7 +220,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                     ),
               ),
               Text(
-                '${booking.flight.airline} ${booking.flight.flightNumber}',
+                '${booking.flight.airline.isNotEmpty ? booking.flight.airline : 'Chuyến bay'} ${booking.flight.flightNumber}'.trim(),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.w500,
                     ),
@@ -178,6 +229,181 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
           ),
         ),
         _buildStatusChip(booking.status),
+      ],
+    );
+  }
+
+  Widget _buildBookingsList() {
+    final visible = _filteredBookings();
+
+    return RefreshIndicator(
+      onRefresh: _loadBookings,
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: 1 + visible.length,
+        itemBuilder: (context, index) {
+          if (index == 0) return _buildFilters();
+          final booking = visible[index - 1];
+          return _buildBookingCard(booking);
+        },
+      ),
+    );
+  }
+
+  Widget _buildFilters() {
+    final total = _bookings.length;
+    final confirmed = _countByStatus(BookingStatus.confirmed);
+    final pending = _countByStatus(BookingStatus.pendingPayment);
+    final cancelled = _countByStatus(BookingStatus.cancelled);
+    final completed = _countByStatus(BookingStatus.completed);
+    final oneWay = _bookings.where((b) => !b.isRoundTrip).length;
+    final roundTrip = _bookings.where((b) => b.isRoundTrip).length;
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+        ],
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth > 700;
+          final children = <Widget>[
+            _filterColumn(
+              icon: Icons.tag,
+              label: '# Trạng thái',
+              child: DropdownButton<BookingStatus?>(
+                isExpanded: true,
+                value: _filterStatus,
+                items: [
+                  DropdownMenuItem(
+                    value: null,
+                    child: Text('Tất cả ($total)'),
+                  ),
+                  DropdownMenuItem(
+                    value: BookingStatus.confirmed,
+                    child: Text('Đã xác nhận ($confirmed)'),
+                  ),
+                  DropdownMenuItem(
+                    value: BookingStatus.pendingPayment,
+                    child: Text('Chờ xử lý ($pending)'),
+                  ),
+                  DropdownMenuItem(
+                    value: BookingStatus.cancelled,
+                    child: Text('Đã hủy ($cancelled)'),
+                  ),
+                ],
+                onChanged: (v) => setState(() => _filterStatus = v),
+              ),
+            ),
+            _filterColumn(
+              icon: Icons.flight_class,
+              label: '✈ Loại chuyến',
+              child: DropdownButton<TripTypeFilter>(
+                isExpanded: true,
+                value: _tripType,
+                items: [
+                  DropdownMenuItem(
+                    value: TripTypeFilter.all,
+                    child: Text('Tất cả ($total)'),
+                  ),
+                  DropdownMenuItem(
+                    value: TripTypeFilter.oneway,
+                    child: Text('Một chiều ($oneWay)'),
+                  ),
+                  DropdownMenuItem(
+                    value: TripTypeFilter.roundtrip,
+                    child: Text('Khứ hồi ($roundTrip)'),
+                  ),
+                ],
+                onChanged: (v) => setState(() => _tripType = v ?? TripTypeFilter.all),
+              ),
+            ),
+            _filterColumn(
+              icon: Icons.calendar_month,
+              label: '📅 Sắp xếp',
+              child: DropdownButton<SortOption>(
+                isExpanded: true,
+                value: _sort,
+                items: const [
+                  DropdownMenuItem(value: SortOption.bookingIdDesc, child: Text('Mã booking giảm dần')),
+                  DropdownMenuItem(value: SortOption.bookingIdAsc, child: Text('Mã booking tăng dần')),
+                  DropdownMenuItem(value: SortOption.dateNearest, child: Text('Ngày gần nhất')),
+                  DropdownMenuItem(value: SortOption.dateFarthest, child: Text('Ngày xa nhất')),
+                ],
+                onChanged: (v) => setState(() => _sort = v ?? SortOption.bookingIdDesc),
+              ),
+            ),
+            _filterColumn(
+              icon: Icons.search,
+              label: '🔍 Tìm kiếm',
+              child: TextField(
+                controller: _searchCtrl,
+                decoration: InputDecoration(
+                  hintText: 'Nhập mã booking...',
+                  isDense: true,
+                  suffixIcon: _search.isEmpty
+                      ? null
+                      : IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () => setState(() {
+                            _search = '';
+                            _searchCtrl.clear();
+                          }),
+                        ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                onChanged: (v) => setState(() => _search = v.trim()),
+              ),
+            ),
+          ];
+
+          if (isWide) {
+            return Row(
+              children: [
+                Expanded(child: children[0]),
+                const SizedBox(width: 12),
+                Expanded(child: children[1]),
+                const SizedBox(width: 12),
+                Expanded(child: children[2]),
+                const SizedBox(width: 12),
+                Expanded(child: children[3]),
+              ],
+            );
+          }
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              children[0],
+              const SizedBox(height: 12),
+              children[1],
+              const SizedBox(height: 12),
+              children[2],
+              const SizedBox(height: 12),
+              children[3],
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _filterColumn({required IconData icon, required String label, required Widget child}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, size: 16, color: const Color(0xFF64748B)),
+            const SizedBox(width: 6),
+            Text(label, style: const TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF0F172A))),
+          ],
+        ),
+        const SizedBox(height: 6),
+        child,
       ],
     );
   }
@@ -375,6 +601,11 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
         textColor = Colors.green.shade700;
         text = 'Đã xác nhận';
         break;
+      case BookingStatus.pendingPayment:
+        backgroundColor = Colors.orange.shade100;
+        textColor = Colors.orange.shade700;
+        text = 'Chờ xử lý';
+        break;
       case BookingStatus.cancelled:
         backgroundColor = Colors.red.shade100;
         textColor = Colors.red.shade700;
@@ -403,63 +634,89 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
     );
   }
 
-  void _showBookingDetails(Booking booking) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+  void _openBookingDetails(Booking booking) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => BookingDetailScreen(bookingId: booking.bookingId),
       ),
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Chi tiết đặt vé',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            _buildDetailRow('Mã đặt chỗ', booking.bookingId),
-            _buildDetailRow('Chuyến bay',
-                '${booking.flight.airline} ${booking.flight.flightNumber}'),
-            _buildDetailRow('Tuyến đường',
-                '${booking.flight.departure.city} → ${booking.flight.arrival.city}'),
-            _buildDetailRow(
-                'Ngày bay',
-                DateFormat('dd/MM/yyyy HH:mm')
-                    .format(booking.flight.departureTime)),
-            _buildDetailRow('Hành khách',
-                booking.passengers.map((p) => p.fullName).join(', ')),
-            _buildDetailRow('Email liên hệ', booking.contactEmail),
-            _buildDetailRow('SĐT liên hệ', booking.contactPhone),
-            _buildDetailRow('Tổng giá',
-                '${NumberFormat('#,###', 'vi').format(booking.totalPrice)} ₫'),
-            const SizedBox(height: 16),
-            if (booking.status == BookingStatus.confirmed)
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => _cancelBooking(booking),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                  ),
-                  child: const Text('Hủy vé'),
-                ),
-              ),
-          ],
+    );
+  }
+
+  int _countByStatus(BookingStatus s) => _bookings.where((b) => b.status == s).length;
+
+  List<Booking> _filteredBookings() {
+    List<Booking> list = List.of(_bookings);
+    // search by booking id
+    if (_search.isNotEmpty) {
+      list = list.where((b) => b.bookingId.toLowerCase().contains(_search.toLowerCase())).toList();
+    }
+    // status filter
+    if (_filterStatus != null) {
+      list = list.where((b) => b.status == _filterStatus).toList();
+    }
+    // trip type
+    switch (_tripType) {
+      case TripTypeFilter.oneway:
+        list = list.where((b) => !b.isRoundTrip).toList();
+        break;
+      case TripTypeFilter.roundtrip:
+        list = list.where((b) => b.isRoundTrip).toList();
+        break;
+      case TripTypeFilter.all:
+        break;
+    }
+    // sort
+    int asInt(String s) => int.tryParse(s.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+    list.sort((a, b) {
+      switch (_sort) {
+        case SortOption.bookingIdDesc:
+          return asInt(b.bookingId).compareTo(asInt(a.bookingId));
+        case SortOption.bookingIdAsc:
+          return asInt(a.bookingId).compareTo(asInt(b.bookingId));
+        case SortOption.dateNearest:
+          final now = DateTime.now();
+          final da = (a.bookingDate.difference(now)).abs();
+          final db = (b.bookingDate.difference(now)).abs();
+          return da.compareTo(db);
+        case SortOption.dateFarthest:
+          final now = DateTime.now();
+          final da = (a.bookingDate.difference(now)).abs();
+          final db = (b.bookingDate.difference(now)).abs();
+          return db.compareTo(da);
+      }
+    });
+    return list;
+  }
+
+  Widget _buildActions(Booking booking) {
+    final canPay = booking.status == BookingStatus.pendingPayment;
+    return Row(
+      children: [
+        Expanded(
+          child: ElevatedButton.icon(
+            onPressed: canPay ? () => _openPayment(booking) : null,
+            icon: const Icon(Icons.payments),
+            label: const Text('Thanh toán'),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: OutlinedButton.icon(
+            onPressed: () => _openBookingDetails(booking),
+            icon: const Icon(Icons.receipt_long),
+            label: const Text('Xem chi tiết'),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _openPayment(Booking booking) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => PaymentFlowScreen(
+          bookingId: booking.bookingId,
+          amount: booking.totalPrice,
         ),
       ),
     );
@@ -493,37 +750,9 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
     );
   }
 
-  void _cancelBooking(Booking booking) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Xác nhận hủy vé'),
-        content: const Text(
-            'Bạn có chắc chắn muốn hủy vé này không? Hành động này không thể hoàn tác.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Không'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              Navigator.pop(context);
-              await StorageService.removeBooking(booking.bookingId);
-              _loadBookings();
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Đã hủy vé thành công'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-              }
-            },
-            child: const Text('Có'),
-          ),
-        ],
-      ),
-    );
-  }
+// Hủy vé bằng API không khả dụng trong tài liệu hiện tại
 }
+
+enum TripTypeFilter { all, oneway, roundtrip }
+
+enum SortOption { bookingIdDesc, bookingIdAsc, dateNearest, dateFarthest }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fly_journey/src/core/config/dev_config.dart';
 
 class SearchForm extends StatefulWidget {
   const SearchForm({super.key});
@@ -63,11 +64,18 @@ class _SearchFormState extends State<SearchForm> {
                     child: OutlinedButton(
                       onPressed: () async {
                         final now = DateTime.now();
+                        final firstDate = DevConfig.allowPastDates
+                            ? DevConfig.earliestDate
+                            : DateTime(now.year, now.month, now.day);
+                        final lastDate = DateTime(now.year + 2);
+                        final initial = _date ?? now;
+                        final safeInitial = initial.isBefore(firstDate) ? firstDate : initial;
+
                         final picked = await showDatePicker(
                           context: context,
-                          firstDate: DateTime(now.year, now.month, now.day),
-                          lastDate: DateTime(now.year + 2),
-                          initialDate: _date ?? now,
+                          firstDate: firstDate,
+                          lastDate: lastDate,
+                          initialDate: safeInitial,
                         );
                         if (picked != null) setState(() => _date = picked);
                       },

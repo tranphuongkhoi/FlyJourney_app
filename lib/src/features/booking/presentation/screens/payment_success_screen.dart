@@ -4,7 +4,7 @@ import 'package:fly_journey/src/core/constants/colors.dart';
 import 'package:fly_journey/src/features/search/domain/models/flight.dart';
 import 'package:fly_journey/src/features/booking/domain/models/passenger_models.dart';
 import 'package:fly_journey/src/features/home/presentation/screens/main_screen.dart';
-import 'package:fly_journey/src/features/search/presentation/screens/flight_search_step1_screen.dart';
+import 'package:fly_journey/src/features/search/presentation/screens/flight_search_screen.dart';
 
 class PaymentSuccessScreen extends StatelessWidget {
   final Flight flight;
@@ -318,7 +318,7 @@ class PaymentSuccessScreen extends StatelessWidget {
             child: OutlinedButton(
               onPressed: () => _bookMoreTickets(context),
               style: OutlinedButton.styleFrom(
-                side: BorderSide(color: AppColors.primaryBlue, width: 2),
+                side: const BorderSide(color: AppColors.primaryBlue, width: 2),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -392,11 +392,11 @@ class PaymentSuccessScreen extends StatelessWidget {
   }
 
   void _bookMoreTickets(BuildContext context) {
-    // Navigate to FlightSearchStep1Screen
+    // Navigate to single-step FlightSearchScreen
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
-        builder: (context) => const FlightSearchStep1Screen(),
+        builder: (context) => const FlightSearchScreen(),
       ),
       (route) => false, // Remove all previous routes
     );

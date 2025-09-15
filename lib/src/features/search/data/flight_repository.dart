@@ -71,14 +71,14 @@ class FlightRepository {
         };
       }
     } on FlightApiException catch (e) {
-      debugPrint('searchFlights error: ' + e.toString());
+      debugPrint('searchFlights error: $e');
       return {
         'success': false,
         'error': 'Network Error',
         'message': e.message,
       };
     } catch (e) {
-      debugPrint('searchFlights unknown error: ' + e.toString());
+      debugPrint('searchFlights unknown error: $e');
       return {
         'success': false,
         'error': 'Unknown',
@@ -93,14 +93,14 @@ class FlightRepository {
       final data = await _apiClient.get(path);
       return data;
     } on FlightApiException catch (e) {
-      debugPrint('getFlightDetails error: ' + e.toString());
+      debugPrint('getFlightDetails error: $e');
       return {
         'success': false,
         'error': 'Network Error',
         'message': e.message,
       };
     } catch (e) {
-      debugPrint('getFlightDetails unknown error: ' + e.toString());
+      debugPrint('getFlightDetails unknown error: $e');
       return {
         'success': false,
         'error': 'Unknown',

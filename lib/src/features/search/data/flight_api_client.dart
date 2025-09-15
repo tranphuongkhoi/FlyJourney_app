@@ -11,7 +11,7 @@ class FlightApiException implements Exception {
 
   @override
   String toString() =>
-      'FlightApiException: ' + message + (statusCode != null ? ' (HTTP ' + statusCode.toString() + ')' : '');
+      'FlightApiException: $message${statusCode != null ? ' (HTTP ${statusCode.toString()})' : ''}';
 }
 
 class FlightApiClient {
@@ -23,14 +23,14 @@ class FlightApiClient {
   Future<Map<String, dynamic>> get(String path) async {
     try {
       final response = await _httpClient
-          .get(Uri.parse('${ApiConfig.baseUrl}' + path), headers: ApiConfig.headers)
+          .get(Uri.parse('${ApiConfig.baseUrl}$path'), headers: ApiConfig.headers)
           .timeout(ApiConfig.requestTimeout);
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;
       }
       throw FlightApiException('Request failed', statusCode: response.statusCode);
     } catch (e) {
-      debugPrint('GET ' + path + ' error: ' + e.toString());
+      debugPrint('GET $path error: $e');
       throw FlightApiException(e.toString());
     }
   }
@@ -39,7 +39,7 @@ class FlightApiClient {
     try {
       final response = await _httpClient
           .post(
-            Uri.parse('${ApiConfig.baseUrl}' + path),
+            Uri.parse('${ApiConfig.baseUrl}$path'),
             headers: ApiConfig.headers,
             body: jsonEncode(body),
           )
@@ -49,7 +49,7 @@ class FlightApiClient {
       }
       throw FlightApiException('Request failed', statusCode: response.statusCode);
     } catch (e) {
-      debugPrint('POST ' + path + ' error: ' + e.toString());
+      debugPrint('POST $path error: $e');
       throw FlightApiException(e.toString());
     }
   }

@@ -11,7 +11,10 @@ class ApiConfig {
   static const String searchRoundtripFlights = '/flights/search/roundtrip';
   static const String flightDetails = '/flights/{id}';
   static const String bookFlight = '/flights/book';
-  static const String getBookings = '/bookings';
+  // Booking endpoints (aligned with api-contract.md)
+  static const String bookingRoot = '/booking';
+  static const String bookingById = '/booking/{id}';
+  static const String bookingByUser = '/booking/user/{userId}';
   
   // Auth endpoints
   static const String login = '/auth/login';
@@ -22,6 +25,9 @@ class ApiConfig {
   static const String refreshToken = '/auth/refresh';
   static const String forgotPassword = '/auth/forgot-password';
   static const String resetPassword = '/auth/reset-password';
+  
+  // Payment endpoints
+  static const String paymentMomo = '/payment/momo';
   
   // Request timeout
   static const Duration requestTimeout = Duration(seconds: 30);
@@ -62,87 +68,4 @@ class ApiConfig {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   };
-  
-  // API Response Structure Expected
-  /*
-  Search Flights Response:
-  {
-    "data": {
-      "arrival_airport": "string",
-      "arrival_date": "string",
-      "departure_airport": "string", 
-      "departure_date": "string",
-      "flight_class": "string",
-      "limit": number,
-      "page": number,
-      "passengers": {
-        "adults": number,
-        "children": number,
-        "infants": number
-      },
-      "search_results": [
-        {
-          "flight_id": number,
-          "flight_class_id": number,
-          "flight_number": "string",
-          "airline_id": number,
-          "airline_name": "string",
-          "logo_url": "string",
-          "departure_airport_code": "string",
-          "arrival_airport_code": "string",
-          "departure_airport": "string",
-          "arrival_airport": "string",
-          "departure_time": "ISO string",
-          "arrival_time": "ISO string",
-          "duration_minutes": number,
-          "stops_count": number,
-          "distance": number,
-          "flight_class": "string",
-          "total_seats": number,
-          "fare_class_details": {
-            "fare_class_code": "string",
-            "cabin_class": "string",
-            "refundable": boolean,
-            "changeable": boolean,
-            "baggage_kg": "string",
-            "description": "string",
-            "refund_change_policy": "string"
-          },
-          "pricing": {
-            "base_prices": {
-              "adult": number,
-              "child": number,
-              "infant": number
-            },
-            "total_prices": {
-              "adult": number,
-              "child": number,
-              "infant": number
-            },
-            "taxes": {
-              "adult": number
-            },
-            "grand_total": number,
-            "currency": "string"
-          },
-          "tax_and_fees": number
-        }
-      ],
-      "sort_by": "string",
-      "sort_order": "string", 
-      "total_count": number,
-      "total_pages": number
-    },
-    "status": boolean,
-    "errorCode": "string",
-    "errorMessage": "string"
-  }
-  
-  Error Response:
-  {
-    "status": false,
-    "errorCode": "string",
-    "errorMessage": "string"
-  }
-  */
 }

@@ -104,10 +104,10 @@ class AuthService {
           .timeout(ApiConfig.requestTimeout);
 
       print('🌐 Login URL: $url');
-      print('🧾 Request headers: '+ headers.toString());
+      print('🧾 Request headers: $headers');
       print('🌐 Login response status: ${response.statusCode}');
       print('📦 Login response body: ${response.body}');
-      print('📬 Response headers: '+ response.headers.toString());
+      print('📬 Response headers: ${response.headers}');
 
       // Check if response body is empty or null
       if (response.statusCode == 204 || response.body.isEmpty) {
