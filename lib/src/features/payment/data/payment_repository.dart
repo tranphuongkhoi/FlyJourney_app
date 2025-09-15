@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter/foundation.dart';
 
 import 'package:fly_journey/src/core/config/api_config.dart';
 import 'package:fly_journey/src/features/auth/data/services/auth_service.dart';
@@ -70,7 +69,6 @@ class PaymentRepository {
       final data = jsonBody['data'] as Map<String, dynamic>?;
       return data ?? <String, dynamic>{};
     } catch (e) {
-      debugPrint('payWithMomo error: $e');
       if (e is PaymentApiException) rethrow;
       throw PaymentApiException(e.toString());
     }

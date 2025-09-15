@@ -1164,9 +1164,9 @@ class _PaymentScreenState extends State<PaymentScreen>
     // Save booking to local storage
     try {
       await StorageService.saveBooking(booking);
-      print('✅ Booking saved successfully: $bookingId');
+      // Booking saved successfully
     } catch (e) {
-      print('❌ Error saving booking: $e');
+      // Swallow save error; consider showing a SnackBar if needed
     }
     
     setState(() {

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:fly_journey/src/core/config/api_config.dart';
 
@@ -30,7 +29,6 @@ class FlightApiClient {
       }
       throw FlightApiException('Request failed', statusCode: response.statusCode);
     } catch (e) {
-      debugPrint('GET $path error: $e');
       throw FlightApiException(e.toString());
     }
   }
@@ -49,7 +47,6 @@ class FlightApiClient {
       }
       throw FlightApiException('Request failed', statusCode: response.statusCode);
     } catch (e) {
-      debugPrint('POST $path error: $e');
       throw FlightApiException(e.toString());
     }
   }

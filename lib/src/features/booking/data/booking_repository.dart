@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter/foundation.dart';
 
 import 'package:fly_journey/src/core/config/api_config.dart';
 import 'package:fly_journey/src/features/auth/data/services/auth_service.dart';
@@ -65,7 +64,6 @@ class BookingRepository {
           .map(_bookingFromApi)
           .toList();
     } catch (e) {
-      debugPrint('fetchMyBookings error: $e');
       if (e is BookingApiException) rethrow;
       throw BookingApiException(e.toString());
     }

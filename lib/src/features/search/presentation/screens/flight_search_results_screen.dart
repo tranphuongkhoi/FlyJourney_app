@@ -60,7 +60,7 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
           return DateFormat('dd/MM').format(returnDate);
         }
       } catch (e) {
-        debugPrint('Error parsing return date: $e');
+        // Intentionally ignore parse errors; fallback used below.
       }
     }
     // Fallback to current dev date

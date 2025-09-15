@@ -54,10 +54,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
           );
           
-          // Log OTP if available for debugging
-          if (result['otp'] != null) {
-            print('🔢 DEBUG - OTP Code: ${result['otp']}');
-          }
+          // If needed, show OTP via UI only (no console output)
           
           // Navigate to OTP verification screen with registration data
           Navigator.pushNamed(

@@ -85,7 +85,6 @@ class AuthService {
 
   Future<Map<String, dynamic>> login(String email, String password) async {
     try {
-      print('🔐 Attempting login for: $email');
       
       final url = Uri.parse('${ApiConfig.baseUrl}${ApiConfig.login}');
       // Send JSON consistently so backend (Gin) can bind JSON
@@ -103,11 +102,7 @@ class AuthService {
           )
           .timeout(ApiConfig.requestTimeout);
 
-      print('🌐 Login URL: $url');
-      print('🧾 Request headers: $headers');
-      print('🌐 Login response status: ${response.statusCode}');
-      print('📦 Login response body: ${response.body}');
-      print('📬 Response headers: ${response.headers}');
+      
 
       // Check if response body is empty or null
       if (response.statusCode == 204 || response.body.isEmpty) {
@@ -122,7 +117,6 @@ class AuthService {
       try {
         responseData = json.decode(response.body) as Map<String, dynamic>;
       } catch (e) {
-        print('❌ JSON parsing error: $e');
         return {
           'success': false,
           'message': 'Lỗi định dạng dữ liệu từ server',
@@ -186,7 +180,6 @@ class AuthService {
         };
       }
     } catch (e) {
-      print('❌ Login error: $e');
       return {
         'success': false,
         'message': 'Không thể kết nối đến server. Vui lòng thử lại.',
@@ -197,7 +190,6 @@ class AuthService {
 
   Future<Map<String, dynamic>> register(String name, String email, String phone, String password) async {
     try {
-      print('📝 Attempting registration for: $email');
       
       final url = Uri.parse('${ApiConfig.baseUrl}${ApiConfig.register}');
       // Send JSON consistently so backend can bind JSON
@@ -219,8 +211,7 @@ class AuthService {
           )
           .timeout(ApiConfig.requestTimeout);
 
-      print('🌐 Register response status: ${response.statusCode}');
-      print('📦 Register response body: ${response.body}');
+      
 
       // Check if response body is empty or null
       if (response.statusCode == 204 || response.body.isEmpty) {
@@ -235,7 +226,6 @@ class AuthService {
       try {
         responseData = json.decode(response.body) as Map<String, dynamic>;
       } catch (e) {
-        print('❌ JSON parsing error: $e');
         return {
           'success': false,
           'message': 'Lỗi định dạng dữ liệu từ server',
@@ -245,14 +235,7 @@ class AuthService {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         // Log OTP if it's included in the response
-        if (responseData['otp'] != null) {
-          print('🔢 OTP CODE: ${responseData['otp']}');
-          print('📧 OTP sent to: ${email}');
-        }
-        if (responseData['data'] != null && responseData['data']['otp'] != null) {
-          print('🔢 OTP CODE: ${responseData['data']['otp']}');
-          print('📧 OTP sent to: ${email}');
-        }
+        
         
         // For OTP flow, don't auto-login - just return success
         return {
@@ -270,7 +253,6 @@ class AuthService {
         'error': responseData['error'] ?? responseData['errorCode'],
       };
     } catch (e) {
-      print('❌ Registration error: $e');
       return {
         'success': false,
         'message': 'Không thể kết nối đến server. Vui lòng thử lại.',
@@ -281,7 +263,6 @@ class AuthService {
 
   Future<Map<String, dynamic>> confirmRegister(String name, String email, String otp, String phone, String password) async {
     try {
-      print('📝 Attempting OTP confirmation for: $email with OTP: $otp');
       
       final url = Uri.parse('${ApiConfig.baseUrl}${ApiConfig.confirmRegister}');
       // On web, avoid preflight by using form-encoded simple request
@@ -314,8 +295,7 @@ class AuthService {
           )
           .timeout(ApiConfig.requestTimeout);
 
-      print('🌐 Confirm Register response status: ${response.statusCode}');
-      print('📦 Confirm Register response body: ${response.body}');
+      
 
       // Check if response body is empty or null
       if (response.statusCode == 204 || response.body.isEmpty) {
@@ -330,7 +310,6 @@ class AuthService {
       try {
         responseData = json.decode(response.body) as Map<String, dynamic>;
       } catch (e) {
-        print('❌ JSON parsing error: $e');
         return {
           'success': false,
           'message': 'Lỗi định dạng dữ liệu từ server',
@@ -375,8 +354,6 @@ class AuthService {
             }
           }
           
-          print('✅ Registration confirmed successfully for: ${_currentUser?.email}');
-          
           return {
             'success': true,
             'message': responseData['message'] ?? responseData['errorMessage'] ?? 'Đăng ký thành công!',
@@ -392,7 +369,6 @@ class AuthService {
         'error': responseData['error'] ?? responseData['errorCode'],
       };
     } catch (e) {
-      print('💥 Registration confirmation error: $e');
       
       String errorMessage = 'Có lỗi xảy ra khi xác thực OTP';
       if (e.toString().contains('TimeoutException')) {
@@ -412,10 +388,9 @@ class AuthService {
   Future<void> logout() async {
     try {
       if (_accessToken != null) {
-        print('🚪 Attempting logout...');
         
         final url = Uri.parse('${ApiConfig.baseUrl}${ApiConfig.logout}');
-        final response = await http.post(
+        await http.post(
           url,
           headers: {
             ...ApiConfig.headers,
@@ -423,10 +398,9 @@ class AuthService {
           },
         ).timeout(ApiConfig.requestTimeout);
 
-        print('🌐 Logout response status: ${response.statusCode}');
+        
       }
     } catch (e) {
-      print('⚠️ Logout API error: $e');
       // Continue with local logout even if API fails
     }
     
@@ -439,7 +413,6 @@ class AuthService {
 
   Future<Map<String, dynamic>> forgotPassword(String email) async {
     try {
-      print('🔄 Requesting password reset for: $email');
       
       final url = Uri.parse('${ApiConfig.baseUrl}${ApiConfig.forgotPassword}');
       // On web, avoid preflight by using form-encoded simple request
@@ -464,8 +437,7 @@ class AuthService {
           )
           .timeout(ApiConfig.requestTimeout);
 
-      print('🌐 Forgot password response status: ${response.statusCode}');
-      print('📦 Forgot password response body: ${response.body}');
+      
 
       // Check if response body is empty or null
       if (response.statusCode == 204 || response.body.isEmpty) {
@@ -480,7 +452,6 @@ class AuthService {
       try {
         responseData = json.decode(response.body) as Map<String, dynamic>;
       } catch (e) {
-        print('❌ JSON parsing error: $e');
         return {
           'success': false,
           'message': 'Lỗi định dạng dữ liệu từ server',
@@ -501,7 +472,6 @@ class AuthService {
         };
       }
     } catch (e) {
-      print('❌ Forgot password error: $e');
       return {
         'success': false,
         'message': 'Không thể kết nối đến server. Vui lòng thử lại.',

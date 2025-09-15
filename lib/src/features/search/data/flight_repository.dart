@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:fly_journey/src/core/config/api_config.dart';
 import 'flight_api_client.dart';
 
@@ -71,14 +70,12 @@ class FlightRepository {
         };
       }
     } on FlightApiException catch (e) {
-      debugPrint('searchFlights error: $e');
       return {
         'success': false,
         'error': 'Network Error',
         'message': e.message,
       };
     } catch (e) {
-      debugPrint('searchFlights unknown error: $e');
       return {
         'success': false,
         'error': 'Unknown',
@@ -93,14 +90,12 @@ class FlightRepository {
       final data = await _apiClient.get(path);
       return data;
     } on FlightApiException catch (e) {
-      debugPrint('getFlightDetails error: $e');
       return {
         'success': false,
         'error': 'Network Error',
         'message': e.message,
       };
     } catch (e) {
-      debugPrint('getFlightDetails unknown error: $e');
       return {
         'success': false,
         'error': 'Unknown',
