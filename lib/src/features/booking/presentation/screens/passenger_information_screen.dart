@@ -3,7 +3,11 @@ import 'package:intl/intl.dart';
 import 'package:fly_journey/src/features/search/domain/models/flight.dart';
 import 'package:fly_journey/src/core/constants/colors.dart';
 import 'package:fly_journey/src/features/booking/presentation/screens/payment_screen.dart';
+import 'package:fly_journey/src/features/booking/presentation/screens/booking_summary_screen.dart';
 import 'package:fly_journey/src/features/booking/domain/models/passenger_models.dart';
+import 'package:fly_journey/src/core/config/dev_config.dart';
+import 'package:fly_journey/src/core/constants/baggage_options.dart';
+import 'package:fly_journey/src/core/constants/services_mapping.dart';
 
 class PassengerInformationScreen extends StatefulWidget {
   final Flight outboundFlight;
@@ -35,6 +39,7 @@ class _PassengerInformationScreenState extends State<PassengerInformationScreen>
   List<PassengerInfo> passengersList = [];
   ContactInfo contactInfo = ContactInfo();
   String specialRequests = '';
+  final Set<String> _selectedServices = {}; // step 2 additional services (applies to all passengers)
   
   // UI state
   int currentPassengerIndex = 0;
@@ -73,7 +78,11 @@ class _PassengerInformationScreenState extends State<PassengerInformationScreen>
   void _initializePassengers() {
     passengersList = List.generate(
       widget.passengers,
-      (index) => PassengerInfo(isBooker: index == 0),
+      (index) {
+        final p = PassengerInfo(isBooker: index == 0);
+        p.extraBaggage = 'none';
+        return p;
+      },
     );
   }
   
@@ -134,6 +143,12 @@ class _PassengerInformationScreenState extends State<PassengerInformationScreen>
             ),
           ),
           const Spacer(),
+          if (DevConfig.showDevTestUI)
+            TextButton(
+              onPressed: _devAutofill,
+              child: const Text('Dev Test'),
+            ),
+          const SizedBox(width: 8),
           const Text(
             'Bước 2 / 3',
             style: TextStyle(
@@ -573,14 +588,16 @@ class _PassengerInformationScreenState extends State<PassengerInformationScreen>
           ),
         ),
         const SizedBox(height: 12),
-        ...['Không', '+5kg (+200.000đ)', '+10kg (+350.000đ)', '+15kg (+500.000đ)'].map((option) {
-          final isSelected = passenger.extraBaggage == option;
+        ...BaggageOptions.all.map((opt) {
+          final isSelected = passenger.extraBaggage == opt.id;
+          final priceStr = NumberFormat('#,###', 'vi').format(opt.price);
+          final label = opt.price == 0 ? opt.label : '${opt.label} (+$priceStr ₫)';
           return Container(
             margin: const EdgeInsets.only(bottom: 8),
             child: GestureDetector(
               onTap: () {
                 setState(() {
-                  passenger.extraBaggage = option;
+                  passenger.extraBaggage = opt.id;
                 });
               },
               child: Container(
@@ -601,13 +618,15 @@ class _PassengerInformationScreenState extends State<PassengerInformationScreen>
                       size: 20,
                     ),
                     const SizedBox(width: 12),
-                    Text(
-                      option,
-                      style: TextStyle(
-                        fontFamily: 'BalooBhaijaan2',
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: isSelected ? AppColors.primaryBlue : const Color(0xFF1E293B),
+                    Expanded(
+                      child: Text(
+                        label,
+                        style: TextStyle(
+                          fontFamily: 'BalooBhaijaan2',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: isSelected ? AppColors.primaryBlue : const Color(0xFF1E293B),
+                        ),
                       ),
                     ),
                   ],
@@ -630,6 +649,10 @@ class _PassengerInformationScreenState extends State<PassengerInformationScreen>
           const SizedBox(height: 16),
           _buildContactSection(),
           const SizedBox(height: 24),
+          _buildSectionHeader('Dịch vụ bổ sung', Icons.miscellaneous_services),
+          const SizedBox(height: 16),
+          _buildAdditionalServicesSection(),
+          const SizedBox(height: 24),
           _buildSectionHeader('Yêu cầu đặc biệt', Icons.note_add),
           const SizedBox(height: 16),
           _buildSpecialRequestsSection(),
@@ -638,6 +661,56 @@ class _PassengerInformationScreenState extends State<PassengerInformationScreen>
           const SizedBox(height: 16),
           _buildValidationSection(),
           const SizedBox(height: 100),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAdditionalServicesSection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Áp dụng cho toàn bộ ${widget.passengers} hành khách',
+            style: TextStyle(
+              fontFamily: 'BalooBhaijaan2',
+              fontSize: 12,
+              color: Colors.grey.shade600,
+            ),
+          ),
+          const SizedBox(height: 12),
+          ...ServiceMapping.all.map((s) {
+            final selected = _selectedServices.contains(s.id);
+            final perPax = NumberFormat('#,###', 'vi').format(s.price);
+            final total = NumberFormat('#,###', 'vi').format(s.price * widget.passengers);
+            return CheckboxListTile(
+              value: selected,
+              onChanged: (val) {
+                setState(() {
+                  if (val == true) {
+                    _selectedServices.add(s.id);
+                  } else {
+                    _selectedServices.remove(s.id);
+                  }
+                });
+              },
+              title: Text(s.label),
+              subtitle: Text(
+                s.desc != null && s.desc!.isNotEmpty
+                    ? '${s.desc} • $perPax ₫/khách • Tổng $total ₫'
+                    : '$perPax ₫/khách • Tổng $total ₫',
+              ),
+              controlAffinity: ListTileControlAffinity.leading,
+              contentPadding: EdgeInsets.zero,
+            );
+          }).toList(),
         ],
       ),
     );
@@ -892,6 +965,7 @@ class _PassengerInformationScreenState extends State<PassengerInformationScreen>
         ),
         const SizedBox(height: 8),
         TextFormField(
+          key: ValueKey('$label|$value|$maxLines'),
           initialValue: value,
           onChanged: onChanged,
           keyboardType: keyboardType,
@@ -1061,21 +1135,17 @@ class _PassengerInformationScreenState extends State<PassengerInformationScreen>
     final isLastPassenger = currentPassengerIndex >= widget.passengers;
     final canProceed = _canProceedToNext();
     
-    // Logic for button text:
-    // - < 2 passengers (1 passenger): Always "Tiếp tục thanh toán"
-    // - ≥ 2 passengers: "Hành khách tiếp theo" until final passenger, then "Tiếp tục thanh toán"
+    // Logic for button text across PageView pages:
+    // Pages: [PAX 1, PAX 2, ..., PAX N, Final Contact+Services]
+    // For >=2 pax:
+    //  - index < N-1  => 'Hành khách tiếp theo'
+    //  - index == N-1 => 'Thông tin liên hệ'
+    //  - index == N   => 'Xem tóm tắt'
     String getButtonText() {
-      if (widget.passengers < 2) {
-        return 'Tiếp tục thanh toán';  // Always for single passenger
-      } else {
-        // For multiple passengers
-        final isFinalPassenger = currentPassengerIndex == widget.passengers - 1;
-        if (isFinalPassenger || isLastPassenger) {
-          return 'Tiếp tục thanh toán';
-        } else {
-          return 'Hành khách tiếp theo';
-        }
-      }
+      final lastPassengerIndex = widget.passengers - 1;
+      if (currentPassengerIndex < lastPassengerIndex) return 'Hành khách tiếp theo';
+      if (currentPassengerIndex == lastPassengerIndex) return 'Thông tin liên hệ';
+      return 'Xem tóm tắt';
     }
     
     return Container(
@@ -1127,49 +1197,32 @@ class _PassengerInformationScreenState extends State<PassengerInformationScreen>
             Expanded(
               child: ElevatedButton(
                 onPressed: canProceed ? () {
-                  if (widget.passengers < 2) {
-                    // Single passenger: always navigate to payment
+                  if (currentPassengerIndex < widget.passengers) {
+                    // Move to next page (either next passenger or final contact/services page)
+                    _pageController.nextPage(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
+                    _animationController
+                      ..reset()
+                      ..forward();
+                  } else {
+                    // On final contact/services page -> go to summary
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => PaymentScreen(
+                        builder: (context) => BookingSummaryScreen(
                           outboundFlight: widget.outboundFlight,
                           returnFlight: widget.returnFlight,
                           passengers: widget.passengers,
                           returnDate: widget.returnDate,
                           passengersList: passengersList,
                           contactInfo: contactInfo,
+                          baggageSelections: passengersList.map((p) => p.extraBaggage).toList(),
+                          selectedServices: _selectedServices.toList(),
                         ),
                       ),
                     );
-                  } else {
-                    // Multiple passengers logic
-                    final isFinalPassenger = currentPassengerIndex == widget.passengers - 1;
-                    if (isFinalPassenger || isLastPassenger) {
-                      // Final passenger or contact form: navigate to payment
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PaymentScreen(
-                            outboundFlight: widget.outboundFlight,
-                            returnFlight: widget.returnFlight,
-                            passengers: widget.passengers,
-                            returnDate: widget.returnDate,
-                            passengersList: passengersList,
-                            contactInfo: contactInfo,
-                          ),
-                        ),
-                      );
-                    } else {
-                      // Continue to next passenger
-                      _pageController.nextPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      );
-                      // Trigger smooth animation
-                      _animationController.reset();
-                      _animationController.forward();
-                    }
                   }
                 } : null,
                 style: ElevatedButton.styleFrom(
@@ -1238,6 +1291,38 @@ class _PassengerInformationScreenState extends State<PassengerInformationScreen>
     }
     
     setState(() {});
+  }
+
+  void _devAutofill() {
+    // Simple deterministic data for quick testing
+    final first = ['An', 'Bình', 'Chi', 'Dung', 'Em'];
+    final last = ['Nguyễn', 'Trần', 'Lê', 'Phạm', 'Hoàng'];
+
+    for (int i = 0; i < passengersList.length; i++) {
+      final p = passengersList[i];
+      p.firstName = first[i % first.length];
+      p.lastName = last[i % last.length];
+      p.gender = 'Nam';
+      p.nationality = 'Việt Nam';
+      p.documentType = 'CCCD/CMND';
+      p.documentNumber = '0123456${100 + i}';
+      p.phoneNumber = '09000000${i + 1}';
+      p.dateOfBirth = DateTime(1995, 1, 1).add(Duration(days: i * 400));
+      p.extraBaggage = i == 0 ? 'bg15' : 'none';
+      _updatePassengerType(p);
+    }
+
+    contactInfo.email = 'contact@example.com';
+    contactInfo.address = '123 Đường ABC, Quận 1, TP.HCM';
+
+    _selectedServices
+      ..add('seat_selection')
+      ..add('wifi');
+
+    setState(() {});
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Đã autofill dữ liệu Dev Test')),
+    );
   }
 
 }

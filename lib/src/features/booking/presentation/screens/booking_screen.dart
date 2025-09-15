@@ -4,6 +4,9 @@ import 'package:fly_journey/src/features/search/domain/models/flight.dart';
 import 'package:fly_journey/src/features/booking/domain/models/passenger.dart';
 import 'package:fly_journey/src/features/booking/domain/models/booking.dart';
 import 'package:fly_journey/src/features/booking/data/services/storage_service.dart';
+import 'package:fly_journey/src/core/config/dev_config.dart';
+import 'package:fly_journey/src/core/constants/baggage_options.dart';
+import 'package:fly_journey/src/core/constants/services_mapping.dart';
 
 class BookingScreen extends StatefulWidget {
   final Flight flight;
@@ -28,6 +31,10 @@ class _BookingScreenState extends State<BookingScreen> {
   final _contactPhoneController = TextEditingController();
   bool _isLoading = false;
 
+  // Step 2 extras
+  late List<String> _selectedBaggage; // per passenger baggage option id
+  final Set<String> _selectedServices = {}; // booking-wide services applied to all passengers
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +51,7 @@ class _BookingScreenState extends State<BookingScreen> {
         'phone': TextEditingController(),
       });
     }
+    _selectedBaggage = List.filled(widget.passengers, 'none');
   }
 
   @override
@@ -71,6 +79,16 @@ class _BookingScreenState extends State<BookingScreen> {
         iconTheme: IconThemeData(
           color: Theme.of(context).colorScheme.onPrimaryContainer,
         ),
+        actions: [
+          if (DevConfig.showDevTestUI)
+            TextButton(
+              onPressed: _autofillDevTestData,
+              child: const Text(
+                'Dev Test',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+        ],
       ),
       body: Form(
         key: _formKey,
@@ -82,6 +100,10 @@ class _BookingScreenState extends State<BookingScreen> {
               _buildFlightSummary(),
               const SizedBox(height: 24),
               _buildPassengerForms(),
+              const SizedBox(height: 24),
+              _buildBaggageSelection(),
+              const SizedBox(height: 24),
+              _buildAdditionalServices(),
               const SizedBox(height: 24),
               _buildContactInfo(),
               const SizedBox(height: 24),
@@ -290,6 +312,116 @@ class _BookingScreenState extends State<BookingScreen> {
     );
   }
 
+  Widget _buildBaggageSelection() {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.luggage, color: Theme.of(context).colorScheme.primary),
+                const SizedBox(width: 8),
+                Text(
+                  'Hành lý ký gửi (mua thêm)',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            ...List.generate(widget.passengers, (index) {
+              return Padding(
+                padding: EdgeInsets.only(bottom: index == widget.passengers - 1 ? 0 : 12),
+                child: DropdownButtonFormField<String>(
+                  value: _selectedBaggage[index],
+                  onChanged: (val) {
+                    if (val == null) return;
+                    setState(() => _selectedBaggage[index] = val);
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Hành khách ${index + 1}',
+                    border: const OutlineInputBorder(),
+                  ),
+                  items: BaggageOptions.all.map((opt) {
+                    final priceStr = NumberFormat('#,###', 'vi').format(opt.price);
+                    final label = opt.price == 0
+                        ? opt.label
+                        : '${opt.label} (+$priceStr ₫)';
+                    return DropdownMenuItem<String>(
+                      value: opt.id,
+                      child: Text(label),
+                    );
+                  }).toList(),
+                ),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAdditionalServices() {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.miscellaneous_services, color: Theme.of(context).colorScheme.primary),
+                const SizedBox(width: 8),
+                Text(
+                  'Dịch vụ bổ sung',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Áp dụng cho toàn bộ ${widget.passengers} hành khách',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
+            ),
+            const SizedBox(height: 12),
+            ...ServiceMapping.all.map((s) {
+              final selected = _selectedServices.contains(s.id);
+              final perPax = NumberFormat('#,###', 'vi').format(s.price);
+              final total = NumberFormat('#,###', 'vi').format(s.price * widget.passengers);
+              return CheckboxListTile(
+                value: selected,
+                onChanged: (val) {
+                  setState(() {
+                    if (val == true) {
+                      _selectedServices.add(s.id);
+                    } else {
+                      _selectedServices.remove(s.id);
+                    }
+                  });
+                },
+                title: Text(s.label),
+                subtitle: Text(
+                  s.desc != null && s.desc!.isNotEmpty
+                      ? '${s.desc} • $perPax ₫/khách • Tổng $total ₫'
+                      : '$perPax ₫/khách • Tổng $total ₫',
+                ),
+                controlAffinity: ListTileControlAffinity.leading,
+                contentPadding: EdgeInsets.zero,
+              );
+            }).toList(),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildContactInfo() {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -355,7 +487,10 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   Widget _buildPriceBreakdown() {
-    final totalPrice = widget.flight.price * widget.passengers;
+    final base = widget.flight.price * widget.passengers;
+    final baggageTotal = _calcBaggageTotal();
+    final servicesTotal = _calcServicesTotal();
+    final totalPrice = base + baggageTotal + servicesTotal;
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
@@ -387,11 +522,37 @@ class _BookingScreenState extends State<BookingScreen> {
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 Text(
-                  '${NumberFormat('#,###', 'vi').format(totalPrice)} ₫',
+                  '${NumberFormat('#,###', 'vi').format(base)} ₫',
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ],
             ),
+            if (baggageTotal > 0) ...[
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Hành lý ký gửi thêm', style: Theme.of(context).textTheme.bodyMedium),
+                  Text(
+                    '+${NumberFormat('#,###', 'vi').format(baggageTotal)} ₫',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ],
+              ),
+            ],
+            if (servicesTotal > 0) ...[
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Dịch vụ bổ sung', style: Theme.of(context).textTheme.bodyMedium),
+                  Text(
+                    '+${NumberFormat('#,###', 'vi').format(servicesTotal)} ₫',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ],
+              ),
+            ],
             const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -434,7 +595,7 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   Widget _buildBottomBar() {
-    final totalPrice = widget.flight.price * widget.passengers;
+    final totalPrice = widget.flight.price * widget.passengers + _calcBaggageTotal() + _calcServicesTotal();
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -526,7 +687,7 @@ class _BookingScreenState extends State<BookingScreen> {
         flight: widget.flight,
         passengers: passengers,
         bookingDate: DateTime.now(),
-        totalPrice: widget.flight.price * widget.passengers,
+        totalPrice: widget.flight.price * widget.passengers + _calcBaggageTotal() + _calcServicesTotal(),
         status: BookingStatus.confirmed,
         contactEmail: _contactEmailController.text,
         contactPhone: _contactPhoneController.text,
@@ -587,6 +748,53 @@ class _BookingScreenState extends State<BookingScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  int _calcBaggageTotal() {
+    int total = 0;
+    for (final id in _selectedBaggage) {
+      total += BaggageOptions.byId(id).price;
+    }
+    return total;
+  }
+
+  int _calcServicesTotal() {
+    int total = 0;
+    for (final id in _selectedServices) {
+      final item = ServiceMapping.byId(id);
+      total += item.price * widget.passengers;
+    }
+    return total;
+  }
+
+  void _autofillDevTestData() {
+    // Simple deterministic test data
+    final sampleFirst = ['An', 'Bình', 'Chi', 'Dung', 'Em'];
+    final sampleLast = ['Nguyễn', 'Trần', 'Lê', 'Phạm', 'Hoàng'];
+
+    for (int i = 0; i < widget.passengers; i++) {
+      final c = _passengerControllers[i];
+      c['firstName']!.text = sampleFirst[i % sampleFirst.length];
+      c['lastName']!.text = sampleLast[i % sampleLast.length];
+      c['idNumber']!.text = '0123456${(100 + i)}';
+      c['email']!.text = 'user${i + 1}@example.com';
+      c['phone']!.text = '09000000${i + 1}';
+      // Preselect medium baggage for first pax
+      if (i == 0) {
+        _selectedBaggage[i] = 'bg15';
+      }
+    }
+    _contactEmailController.text = 'contact@example.com';
+    _contactPhoneController.text = '0909000900';
+    // Toggle a couple of services
+    _selectedServices
+      ..add('seat_selection')
+      ..add('wifi');
+
+    setState(() {});
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Đã autofill dữ liệu Dev Test')),
     );
   }
 }

@@ -5,7 +5,8 @@ import 'package:fly_journey/src/features/auth/data/services/auth_service.dart';
 import 'package:fly_journey/src/core/constants/colors.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final VoidCallback? onSuccess; // Optional: return to previous flow
+  const LoginScreen({super.key, this.onSuccess});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -36,8 +37,15 @@ class _LoginScreenState extends State<LoginScreen> {
         final result = await _authService.login(_emailController.text, _passwordController.text);
         
         if (result['success'] == true) {
-          // Success - navigate back to main screen by restarting the app
-          Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+          if (widget.onSuccess != null) {
+            final callback = widget.onSuccess!;
+            // Pop this screen first, then trigger callback to resume flow
+            Navigator.pop(context);
+            WidgetsBinding.instance.addPostFrameCallback((_) => callback());
+          } else {
+            // Default flow: back to home
+            Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+          }
         } else {
           // Error
           ScaffoldMessenger.of(context).showSnackBar(
@@ -115,6 +123,18 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
         centerTitle: true,
+        actions: [
+          TextButton(
+            onPressed: () {
+              _emailController.text = 'devtest01@mailnesia.com';
+              _passwordController.text = 'hello1234';
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Đã autofill Dev Test credentials')),
+              );
+            },
+            child: const Text('Dev Test'),
+          ),
+        ],
       ),
       body: SafeArea(
         child: Center(

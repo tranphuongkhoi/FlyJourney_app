@@ -12,10 +12,10 @@ import 'package:fly_journey/src/core/theme/app_theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('vi_VN', null);
-  
+
   // Load user data from SharedPreferences
   await AuthService().loadUserData();
-  
+
   runApp(const MyApp());
 }
 
@@ -63,16 +63,16 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'CNH Airlines - Đặt vé máy bay',
+      title: 'Fly Journey',
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
       themeMode: ThemeMode.system,
-      home: _showSplash 
-        ? SplashScreen(
-            onFinished: _hideSplash,
-            isFirstLaunch: _isFirstLaunch,
-          )
-        : const MainScreen(),
+      home: _showSplash
+          ? SplashScreen(
+              onFinished: _hideSplash,
+              isFirstLaunch: _isFirstLaunch,
+            )
+          : const MainScreen(),
       routes: {
         '/main': (context) => const MainScreen(),
         '/login': (context) => const LoginScreen(),

@@ -7,6 +7,8 @@ import 'package:fly_journey/src/features/booking/domain/models/booking.dart';
 import 'package:fly_journey/src/features/booking/domain/models/passenger.dart';
 import 'package:fly_journey/src/features/booking/data/services/storage_service.dart';
 import 'package:fly_journey/src/features/booking/presentation/screens/payment_success_screen.dart';
+import 'package:fly_journey/src/core/constants/baggage_options.dart';
+import 'package:fly_journey/src/core/constants/services_mapping.dart';
 
 class PaymentScreen extends StatefulWidget {
   final Flight outboundFlight;
@@ -15,6 +17,8 @@ class PaymentScreen extends StatefulWidget {
   final DateTime? returnDate;
   final List<PassengerInfo> passengersList;
   final ContactInfo contactInfo;
+  final List<String> baggageSelections; // per passenger baggage id
+  final List<String> selectedServices;  // service ids applied to all passengers
 
   const PaymentScreen({
     super.key,
@@ -24,6 +28,8 @@ class PaymentScreen extends StatefulWidget {
     this.returnDate,
     required this.passengersList,
     required this.contactInfo,
+    required this.baggageSelections,
+    required this.selectedServices,
   });
 
   @override
@@ -264,8 +270,10 @@ class _PaymentScreenState extends State<PaymentScreen>
     final double returnPrice = widget.returnFlight?.price ?? 0;
     final double basePrice = outboundPrice + returnPrice;
     final double totalPassengerPrice = basePrice * widget.passengers;
-    final double taxes = totalPassengerPrice * 0.1;
-    final double totalPrice = totalPassengerPrice + taxes;
+    final int baggageTotal = _calcBaggageTotal();
+    final int servicesTotal = _calcServicesTotal();
+    final double taxes = totalPassengerPrice * 0.1; // sample tax calc
+    final double totalPrice = totalPassengerPrice + taxes + baggageTotal + servicesTotal;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -327,16 +335,22 @@ class _PaymentScreenState extends State<PaymentScreen>
             NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(totalPassengerPrice)),
           _buildPriceRow('Thuế và phí', 
             NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(taxes)),
+          if (baggageTotal > 0)
+            _buildPriceRow('Hành lý ký gửi thêm', 
+              NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(baggageTotal)),
+          if (servicesTotal > 0)
+            _buildPriceRow('Dịch vụ bổ sung', 
+              NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(servicesTotal)),
           
           const Divider(height: 16),
           
           _buildPriceRow('Tổng cộng', 
             NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(totalPrice),
             isTotal: true),
-        ],
-      ),
-    );
-  }
+      ],
+    ),
+  );
+}
 
   Widget _buildFlightSummaryRow(String title, String route, String price) {
     return Padding(
@@ -1182,7 +1196,26 @@ class _PaymentScreenState extends State<PaymentScreen>
     if (widget.returnFlight != null) {
       total += widget.returnFlight!.price.toDouble() * widget.passengers;
     }
-    
+    // Add extras
+    total += _calcBaggageTotal();
+    total += _calcServicesTotal();
+    return total;
+  }
+
+  int _calcBaggageTotal() {
+    int total = 0;
+    for (final id in widget.baggageSelections) {
+      total += BaggageOptions.byId(id).price;
+    }
+    return total;
+  }
+
+  int _calcServicesTotal() {
+    int total = 0;
+    for (final id in widget.selectedServices) {
+      final item = ServiceMapping.byId(id);
+      total += item.price * widget.passengers;
+    }
     return total;
   }
 }

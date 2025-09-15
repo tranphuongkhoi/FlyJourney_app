@@ -30,7 +30,6 @@ flutter:
   assets:
     - assets/Nata_Sans/
     - assets/Baloo_Bhaijaan_2/
-    - assets/Images/
     - assets/airlines/
   
   fonts:

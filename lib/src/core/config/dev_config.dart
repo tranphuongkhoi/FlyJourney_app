@@ -10,5 +10,7 @@ class DevConfig {
 
   // Passenger constraints
   static const int maxTotalPassengers = 8; // adults + children + infants
-}
 
+  // Show Dev Test helpers in UI (autofill, etc.)
+  static const bool showDevTestUI = true;
+}

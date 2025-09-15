@@ -8,7 +8,8 @@ class PassengerInfo {
   String documentType = '';
   String documentNumber = '';
   DateTime? documentExpiry;
-  String extraBaggage = '';
+  // Store baggage option id (e.g., 'none', 'bg10')
+  String extraBaggage = 'none';
   String passengerType = '';
   bool isBooker;
   
