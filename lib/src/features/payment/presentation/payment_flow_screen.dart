@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:intl/intl.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:fly_journey/src/features/payment/data/payment_repository.dart';
 
@@ -279,24 +278,24 @@ class _PaymentFlowScreenState extends State<PaymentFlowScreen> {
 
     if (kIsWeb || preferWebHttp) {
       // Trên web ưu tiên http(s)
-      final httpCandidates = [qrCodeUrl, payUrl, deeplinkWeb, shortLink];
-      final http = httpCandidates.firstWhere(
-        (e) => e != null && e.toString().startsWith('http'),
+      final List<String?> httpCandidates = [qrCodeUrl, payUrl, deeplinkWeb, shortLink];
+      final String? http = httpCandidates.firstWhere(
+        (e) => e != null && e.startsWith('http'),
         orElse: () => null,
       );
-      if (http != null) return http as String;
+      if (http != null) return http;
       // Nếu không có http, trả về deeplink để app mobile có thể dùng
       if (!kIsWeb && deeplink != null && deeplink.isNotEmpty) return deeplink;
       return null;
     }
 
     // Mặc định trên mobile: ưu tiên deeplink app
-    final mobileCandidates = [deeplink, payUrl, deeplinkWeb, shortLink];
-    final chosen = mobileCandidates.firstWhere(
-      (e) => e != null && e.toString().isNotEmpty,
+    final List<String?> mobileCandidates = [deeplink, payUrl, deeplinkWeb, shortLink];
+    final String? chosen = mobileCandidates.firstWhere(
+      (e) => e != null && e.isNotEmpty,
       orElse: () => null,
     );
-    return chosen as String?;
+    return chosen;
   }
 
   String _methodLabel(_PayMethod method) {

@@ -9,8 +9,9 @@ import 'package:fly_journey/src/features/payment/presentation/payment_flow_scree
 
 class MyBookingsScreen extends StatefulWidget {
   final VoidCallback? onNavigateToSearch;
+  final String? initialOpenBookingId; // optional: deep-open one booking
   
-  const MyBookingsScreen({super.key, this.onNavigateToSearch});
+  const MyBookingsScreen({super.key, this.onNavigateToSearch, this.initialOpenBookingId});
 
   @override
   State<MyBookingsScreen> createState() => _MyBookingsScreenState();
@@ -25,6 +26,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
   SortOption _sort = SortOption.bookingIdDesc;
   String _search = '';
   final TextEditingController _searchCtrl = TextEditingController();
+  bool _didOpenInitial = false;
 
   @override
   void initState() {
@@ -47,6 +49,22 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
         _bookings = bookings;
         _isLoading = false;
       });
+
+      // Deep open a specific booking once
+      if (!_didOpenInitial && (widget.initialOpenBookingId?.isNotEmpty ?? false)) {
+        _didOpenInitial = true;
+        final id = widget.initialOpenBookingId!;
+        final local = _bookings.where((b) => b.bookingId == id).toList();
+        if (local.isNotEmpty) {
+          _openBookingDetails(local.first);
+        } else {
+          // Fallback: fetch detail by id then open
+          try {
+            final detail = await BookingRepository.fetchBookingById(id);
+            if (mounted) _openBookingDetails(detail);
+          } catch (_) {}
+        }
+      }
     } catch (e) {
       setState(() => _isLoading = false);
       if (mounted) {
@@ -255,7 +273,6 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
     final confirmed = _countByStatus(BookingStatus.confirmed);
     final pending = _countByStatus(BookingStatus.pendingPayment);
     final cancelled = _countByStatus(BookingStatus.cancelled);
-    final completed = _countByStatus(BookingStatus.completed);
     final oneWay = _bookings.where((b) => !b.isRoundTrip).length;
     final roundTrip = _bookings.where((b) => b.isRoundTrip).length;
 

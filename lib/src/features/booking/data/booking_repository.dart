@@ -114,45 +114,13 @@ class BookingRepository {
       });
     }
 
-    String _fmtDmy(DateTime? d) {
-      if (d == null) return '';
-      return DateFormat('dd/MM/yyyy').format(d);
-    }
-
-    String _mapGender(String g) {
-      final s = g.toLowerCase();
-      if (s.startsWith('nữ') || s.contains('female')) return 'female';
-      return 'male';
-    }
-
-    String _mapIdType(String t) {
-      final s = t.toLowerCase();
-      if (s.contains('hộ chiếu') || s.contains('passport')) return 'passport';
-      return 'id_card';
-    }
-
-    String _mapCountry(String nat) {
-      final s = nat.toLowerCase();
-      if (s.contains('vi') || s.contains('viet')) return 'VN';
-      return 'VN';
-    }
-
-    int _calcAge(DateTime? dob) {
-      if (dob == null) return 25;
-      final now = DateTime.now();
-      int age = now.year - dob.year;
-      if (now.month < dob.month || (now.month == dob.month && now.day < dob.day)) {
-        age--;
-      }
-      return age;
-    }
+    // Use class helpers below.
 
     // Per passenger price (base only), distribute evenly
     final baseTotal = (outboundFlight.price + (returnFlight?.price ?? 0)) * passengers.length;
     final perPaxPrice = (baseTotal / (passengers.isEmpty ? 1 : passengers.length)).round();
 
     final details = passengers.asMap().entries.map((entry) {
-      final i = entry.key;
       final p = entry.value;
       final map = <String, dynamic>{
         'passenger_age': _calcAge(p.dateOfBirth),
@@ -393,5 +361,39 @@ class BookingRepository {
       }
     } catch (_) {}
     return null;
+  }
+
+  // Helpers used by createBooking payload mapping
+  static String _fmtDmy(DateTime? d) {
+    if (d == null) return '';
+    return DateFormat('dd/MM/yyyy').format(d);
+  }
+
+  static String _mapGender(String g) {
+    final s = g.toLowerCase();
+    if (s.startsWith('nữ') || s.contains('female')) return 'female';
+    return 'male';
+  }
+
+  static String _mapIdType(String t) {
+    final s = t.toLowerCase();
+    if (s.contains('hộ chiếu') || s.contains('passport')) return 'passport';
+    return 'id_card';
+  }
+
+  static String _mapCountry(String nat) {
+    final s = nat.toLowerCase();
+    if (s.contains('vi') || s.contains('viet')) return 'VN';
+    return 'VN';
+  }
+
+  static int _calcAge(DateTime? dob) {
+    if (dob == null) return 25;
+    final now = DateTime.now();
+    int age = now.year - dob.year;
+    if (now.month < dob.month || (now.month == dob.month && now.day < dob.day)) {
+      age--;
+    }
+    return age;
   }
 }

@@ -7,8 +7,9 @@ import 'package:fly_journey/src/core/constants/colors.dart';
 
 class MainScreen extends StatefulWidget {
   final int initialIndex;
+  final String? initialBookingId; // optional: open specific booking in MyBookings
   
-  const MainScreen({super.key, this.initialIndex = 0});
+  const MainScreen({super.key, this.initialIndex = 0, this.initialBookingId});
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -32,7 +33,9 @@ class _MainScreenState extends State<MainScreen> {
       });
     }),
     ExploreScreen(selectedDestination: _selectedDestination),
-    MyBookingsScreen(onNavigateToSearch: () {
+    MyBookingsScreen(
+      initialOpenBookingId: widget.initialBookingId,
+      onNavigateToSearch: () {
       setState(() {
         _currentIndex = 0; // Navigate to Home tab
         _selectedDestination = null; // Reset selected destination

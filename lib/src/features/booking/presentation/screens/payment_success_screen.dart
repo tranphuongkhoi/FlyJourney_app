@@ -13,6 +13,7 @@ class PaymentSuccessScreen extends StatelessWidget {
   final ContactInfo contactInfo;
   final int totalPassengers;
   final double totalAmount;
+  final String? bookingId; // optional: allow deep-opening the created ticket
 
   const PaymentSuccessScreen({
     super.key,
@@ -22,6 +23,7 @@ class PaymentSuccessScreen extends StatelessWidget {
     required this.contactInfo,
     required this.totalPassengers,
     required this.totalAmount,
+    this.bookingId,
   });
 
   @override
@@ -382,9 +384,9 @@ class PaymentSuccessScreen extends StatelessWidget {
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
-        builder: (context) => const MainScreen(
+        builder: (context) => MainScreen(
           initialIndex: 2, // MyBookings tab index
-          // TODO: Pass ticket ID to auto-open specific ticket
+          initialBookingId: bookingId,
         ),
       ),
       (route) => false, // Remove all previous routes

@@ -1132,7 +1132,6 @@ class _PassengerInformationScreenState extends State<PassengerInformationScreen>
   }
   
   Widget _buildBottomButtons() {
-    final isLastPassenger = currentPassengerIndex >= widget.passengers;
     final canProceed = _canProceedToNext();
     
     // Logic for button text across PageView pages:

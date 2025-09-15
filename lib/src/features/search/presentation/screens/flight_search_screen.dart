@@ -1316,8 +1316,9 @@ class _FlightSearchScreenState extends State<FlightSearchScreen> {
                   (value) {
                     setModalState(() {
                       _adults = value;
-                      if (_infants > _adults)
+                      if (_infants > _adults) {
                         _infants = _adults; // infants <= adults
+                      }
                     });
                     setState(() {});
                   },

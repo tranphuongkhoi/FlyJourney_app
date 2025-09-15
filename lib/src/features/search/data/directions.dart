@@ -44,10 +44,10 @@ class Direction {
   // Chuyển đổi Direction sang Airport để tương thích với code hiện có
   Airport toAirport() {
     return Airport(
-      code: this.code,
-      name: this.name,
-      city: this.city,
-      country: this.country,
+      code: code,
+      name: name,
+      city: city,
+      country: country,
     );
   }
 
