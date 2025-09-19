@@ -76,7 +76,7 @@ class _HeroSliderState extends State<HeroSlider> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 500,
+      height: 380,
       child: Stack(
         children: [
           // Slider Pages
@@ -95,7 +95,7 @@ class _HeroSliderState extends State<HeroSlider> {
 
           // Dots Indicator
           Positioned(
-            bottom: 30,
+            bottom: 20,
             left: 0,
             right: 0,
             child: Row(
@@ -151,7 +151,7 @@ class _HeroSliderState extends State<HeroSlider> {
           Positioned.fill(
             child: SafeArea(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -162,7 +162,7 @@ class _HeroSliderState extends State<HeroSlider> {
                       slide.title,
                       style: const TextStyle(
                         fontFamily: 'BalooBhaijaan2',
-                        fontSize: 36,
+                        fontSize: 30,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
                         height: 1.1,
@@ -177,7 +177,7 @@ class _HeroSliderState extends State<HeroSlider> {
                             text: slide.subtitle.split('\n')[0],
                             style: const TextStyle(
                               fontFamily: 'BalooBhaijaan2',
-                              fontSize: 32,
+                              fontSize: 26,
                               fontWeight: FontWeight.w700,
                               color: Color(0xFFFBBF24), // Yellow highlight
                               height: 1.1,
@@ -187,7 +187,7 @@ class _HeroSliderState extends State<HeroSlider> {
                             text: '\n${slide.subtitle.split('\n')[1]}',
                             style: const TextStyle(
                               fontFamily: 'BalooBhaijaan2',
-                              fontSize: 32,
+                              fontSize: 26,
                               fontWeight: FontWeight.w700,
                               color: Color(0xFFFBBF24), // Yellow highlight
                               height: 1.1,
@@ -201,12 +201,12 @@ class _HeroSliderState extends State<HeroSlider> {
                     
                     // Description
                     Container(
-                      constraints: const BoxConstraints(maxWidth: 400),
+                      constraints: const BoxConstraints(maxWidth: 360),
                       child: Text(
                         slide.description,
                         style: const TextStyle(
                           fontFamily: 'BalooBhaijaan2',
-                          fontSize: 16,
+                          fontSize: 14,
                           fontWeight: FontWeight.w400,
                           color: Colors.white,
                           height: 1.5,

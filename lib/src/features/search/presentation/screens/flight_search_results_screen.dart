@@ -30,6 +30,7 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
   Flight? _selectedOutboundFlight;
   Flight? _selectedInboundFlight;
   String _sortBy = 'price';
+  String _sortOrder = 'asc';
   String? _errorMessage;
   late final SearchCubit _searchCubit;
 
@@ -180,6 +181,59 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
           return 0;
       }
     });
+    if (_sortOrder == 'desc') {
+      _filteredFlights = _filteredFlights.reversed.toList();
+    }
+  }
+
+  bool _matchesTimeFilters(Flight f, List filters) {
+    if (filters.isEmpty) return true;
+    final hour = f.departureTime.hour;
+    bool ok = false;
+    for (final raw in filters) {
+      final s = raw.toString().toLowerCase();
+      if (s.contains('sáng') || s == 'morning') {
+        if (hour >= 5 && hour < 11) ok = true;
+      } else if (s.contains('trưa') || s == 'noon' || s == 'midday') {
+        if (hour >= 11 && hour < 14) ok = true;
+      } else if (s.contains('chiều') || s == 'afternoon') {
+        if (hour >= 14 && hour < 18) ok = true;
+      } else if (s.contains('tối') || s == 'evening' || s == 'night') {
+        if (hour >= 18 || hour < 5) ok = true;
+      }
+    }
+    return ok;
+  }
+
+  bool _matchesFilters(Flight f, Map<String, dynamic> p) {
+    final double? minPrice = (p['min_price'] is num) ? (p['min_price'] as num).toDouble() : null;
+    final double? maxPrice = (p['max_price'] is num) ? (p['max_price'] as num).toDouble() : null;
+    final int? maxStops = p['max_stops'] is int ? p['max_stops'] as int : (p['maxStops'] as int?);
+    final List airlineIds = (p['airline_ids'] as List?) ?? [];
+    final String? flightClass = p['flight_class'] as String?;
+    final List departureTimeFilters = (p['departure_time_filters'] as List?) ?? [];
+
+    if (minPrice != null && f.price < minPrice) return false;
+    if (maxPrice != null && f.price > maxPrice) return false;
+    if (maxStops != null && maxStops >= 0 && f.stopsCount > maxStops) return false;
+    if (airlineIds.isNotEmpty && f.airlineId != null && !airlineIds.contains(f.airlineId)) return false;
+    if (flightClass != null && flightClass != 'all' && f.flightClass.toLowerCase() != flightClass.toLowerCase()) return false;
+    if (!_matchesTimeFilters(f, departureTimeFilters)) return false;
+    return true;
+  }
+
+  void _applyFiltersFromParams() {
+    final p = widget.searchParams;
+    _sortBy = (p['sort_by'] as String?) ?? _sortBy;
+    _sortOrder = (p['sort_order'] as String?) ?? _sortOrder;
+
+    if (widget.isRoundTrip && _outboundFlights.isNotEmpty) {
+      _outboundFlights = _outboundFlights.where((f) => _matchesFilters(f, p)).toList();
+      _inboundFlights = _inboundFlights.where((f) => _matchesFilters(f, p)).toList();
+    }
+
+    _filteredFlights = _flights.where((f) => _matchesFilters(f, p)).toList();
+    _sortFlights();
   }
 
   @override
@@ -201,7 +255,7 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
                 _inboundFlights = state.inboundFlights;
                 _filteredFlights = List.from(_flights);
                 _errorMessage = state.message;
-                _sortFlights();
+                _applyFiltersFromParams();
               });
             } else if (state is SearchError) {
               setState(() {

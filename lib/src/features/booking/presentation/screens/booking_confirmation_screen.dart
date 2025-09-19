@@ -152,7 +152,6 @@ class BookingConfirmationScreen extends StatelessWidget {
   }) {
     final isCompleted = stepNumber < currentStep; 
     final isActive = stepNumber <= currentStep;   
-    final showLabel = stepNumber == currentStep;  
     
     return Column(
       children: [
@@ -192,18 +191,14 @@ class BookingConfirmationScreen extends StatelessWidget {
         
         const SizedBox(height: 8),
         
-        // Simple label
-        AnimatedOpacity(
-          duration: const Duration(milliseconds: 300),
-          opacity: showLabel ? 1.0 : 0.0,
-          child: Text(
-            label,
-            style: TextStyle(
-              fontFamily: 'BalooBhaijaan2',
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: showLabel ? AppColors.primaryBlue : Colors.transparent,
-            ),
+        // Label for all steps
+        Text(
+          label,
+          style: TextStyle(
+            fontFamily: 'BalooBhaijaan2',
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: isActive ? AppColors.primaryBlue : Colors.grey.shade600,
           ),
         ),
       ],

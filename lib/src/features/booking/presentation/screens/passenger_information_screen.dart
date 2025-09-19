@@ -90,6 +90,7 @@ class _PassengerInformationScreenState extends State<PassengerInformationScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: Column(
           children: [
@@ -103,6 +104,11 @@ class _PassengerInformationScreenState extends State<PassengerInformationScreen>
         ),
       ),
     );
+  }
+
+  bool _isCompact(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    return width < 380; // Stack fields vertically on very small devices
   }
   
   Widget _buildTopBar() {
@@ -206,7 +212,6 @@ class _PassengerInformationScreenState extends State<PassengerInformationScreen>
   }) {
     final isCompleted = stepNumber < currentStep; 
     final isActive = stepNumber <= currentStep;   
-    final showLabel = stepNumber == currentStep;  
     
     return Column(
       children: [
@@ -246,18 +251,14 @@ class _PassengerInformationScreenState extends State<PassengerInformationScreen>
         
         const SizedBox(height: 8),
         
-        // Simple label
-        AnimatedOpacity(
-          duration: const Duration(milliseconds: 300),
-          opacity: showLabel ? 1.0 : 0.0,
-          child: Text(
-            label,
-            style: TextStyle(
-              fontFamily: 'BalooBhaijaan2',
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: showLabel ? AppColors.primaryBlue : Colors.transparent,
-            ),
+        // Label for all steps
+        Text(
+          label,
+          style: TextStyle(
+            fontFamily: 'BalooBhaijaan2',
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: isActive ? AppColors.primaryBlue : Colors.grey.shade600,
           ),
         ),
       ],
@@ -307,6 +308,7 @@ class _PassengerInformationScreenState extends State<PassengerInformationScreen>
     final passenger = passengersList[passengerIndex];
     
     return SingleChildScrollView(
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       padding: const EdgeInsets.all(20),
       child: Form(
         child: Column(
@@ -400,7 +402,23 @@ class _PassengerInformationScreenState extends State<PassengerInformationScreen>
       title: 'Thông tin cá nhân',
       icon: Icons.person,
       children: [
-        Row(
+        if (_isCompact(context)) ...[
+          _buildTextField(
+            label: 'Họ và tên đệm',
+            value: passenger.lastName,
+            onChanged: (value) => passenger.lastName = value,
+            isRequired: true,
+            hint: 'VD: Nguyễn Văn',
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Tên',
+            value: passenger.firstName,
+            onChanged: (value) => passenger.firstName = value,
+            isRequired: true,
+            hint: 'VD: An',
+          ),
+        ] else Row(
           children: [
             Expanded(
               flex: 2,
@@ -425,7 +443,25 @@ class _PassengerInformationScreenState extends State<PassengerInformationScreen>
           ],
         ),
         const SizedBox(height: 16),
-        Row(
+        if (_isCompact(context)) ...[
+          _buildDateField(
+            label: 'Ngày sinh',
+            value: passenger.dateOfBirth,
+            onChanged: (date) {
+              passenger.dateOfBirth = date;
+              _updatePassengerType(passenger);
+            },
+            isRequired: true,
+          ),
+          const SizedBox(height: 12),
+          _buildDropdownField(
+            label: 'Giới tính',
+            value: passenger.gender,
+            items: const ['Nam', 'Nữ', 'Khác'],
+            onChanged: (value) => passenger.gender = value!,
+            isRequired: true,
+          ),
+        ] else Row(
           children: [
             Expanded(
               child: _buildDateField(
@@ -451,7 +487,24 @@ class _PassengerInformationScreenState extends State<PassengerInformationScreen>
           ],
         ),
         const SizedBox(height: 16),
-        Row(
+        if (_isCompact(context)) ...[
+          _buildDropdownField(
+            label: 'Quốc tịch',
+            value: passenger.nationality,
+            items: const ['Việt Nam', 'Hoa Kỳ', 'Nhật Bản', 'Hàn Quốc', 'Khác'],
+            onChanged: (value) => passenger.nationality = value!,
+            isRequired: true,
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: passenger.isBooker ? 'Số điện thoại' : 'Số điện thoại (tùy chọn)',
+            value: passenger.phoneNumber,
+            onChanged: (value) => passenger.phoneNumber = value,
+            isRequired: passenger.isBooker,
+            hint: 'VD: 0901234567',
+            keyboardType: TextInputType.phone,
+          ),
+        ] else Row(
           children: [
             Expanded(
               child: _buildDropdownField(

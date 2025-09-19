@@ -266,12 +266,16 @@ class _HomePageState extends State<HomePage> {
   Widget _buildQuickActionCard(IconData icon, String title, String subtitle, Color color) {
     return Container(
       padding: const EdgeInsets.all(16),
+      constraints: const BoxConstraints(minHeight: 180, maxHeight: 180),
+      alignment: Alignment.center,
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: color.withOpacity(0.2)),
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
             padding: const EdgeInsets.all(12),
@@ -300,6 +304,8 @@ class _HomePageState extends State<HomePage> {
           Text(
             subtitle,
             textAlign: TextAlign.center,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontFamily: 'BalooBhaijaan2',
               fontSize: 10,
