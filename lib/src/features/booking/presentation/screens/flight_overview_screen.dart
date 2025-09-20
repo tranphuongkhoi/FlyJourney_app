@@ -63,7 +63,11 @@ class FlightOverviewScreen extends StatelessWidget {
                   const SizedBox(height: 24),
                   _buildPricingDetails(),
                   const SizedBox(height: 24),
-                  _buildPassengerInfo(),
+                  _buildPassengerInfoForFlight('🛫 Chuyến bay đi', flight, passengers),
+                  if (returnFlight != null) ...[
+                    const SizedBox(height: 16),
+                    _buildPassengerInfoForFlight('🛬 Chuyến bay về', returnFlight!, passengers),
+                  ],
                   const SizedBox(height: 24),
                   _buildPolicies(),
                   const SizedBox(height: 100), // Space for bottom buttons
@@ -86,39 +90,48 @@ class FlightOverviewScreen extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            primaryColor.withOpacity(0.08),
-            primaryColor.withOpacity(0.12),
+            primaryColor.withOpacity(0.15),
+            primaryColor.withOpacity(0.25),
           ],
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         ),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: primaryColor.withOpacity(0.15)),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: primaryColor.withOpacity(0.3), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: primaryColor.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: primaryColor.withOpacity(0.15),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Row(
         children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontFamily: 'BalooBhaijaan2',
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: primaryColor.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              isOutbound ? Icons.flight_takeoff : Icons.flight_land,
               color: primaryColor,
-              letterSpacing: 0.5,
+              size: 24,
             ),
           ),
-          const Spacer(),
-          Icon(
-            isOutbound ? Icons.flight_takeoff : Icons.flight_land,
-            color: primaryColor,
-            size: 24,
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              title,
+              style: TextStyle(
+                fontFamily: 'BalooBhaijaan2',
+                fontSize: 24,
+                fontWeight: FontWeight.w800,
+                color: primaryColor,
+                letterSpacing: 0.8,
+              ),
+            ),
           ),
         ],
       ),
@@ -129,17 +142,14 @@ class FlightOverviewScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.blue.shade600, Colors.blue.shade800],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF3B82F6).withOpacity(0.15), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.blue.withValues(alpha: 0.3),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: const Color(0xFF3B82F6).withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -151,12 +161,13 @@ class FlightOverviewScreen extends StatelessWidget {
                 width: 50,
                 height: 50,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Colors.blue.shade50,
                   borderRadius: BorderRadius.circular(25),
+                  border: Border.all(color: Colors.blue.shade200),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.flight,
-                  color: Colors.blue,
+                  color: Colors.blue.shade600,
                   size: 30,
                 ),
               ),
@@ -167,16 +178,16 @@ class FlightOverviewScreen extends StatelessWidget {
                   children: [
                     Text(
                       flightData.airline,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: Colors.blue.shade800,
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
                       'Chuyến bay ${flightData.flightNumber}',
-                      style: const TextStyle(
-                        color: Colors.white70,
+                      style: TextStyle(
+                        color: Colors.blue.shade600,
                         fontSize: 16,
                       ),
                     ),
@@ -189,13 +200,14 @@ class FlightOverviewScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
+              color: Colors.blue.shade50,
               borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.blue.shade200),
             ),
             child: Text(
               flightData.aircraft,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: Colors.blue.shade700,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
@@ -210,9 +222,16 @@ class FlightOverviewScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: const Color(0xFF3B82F6).withOpacity(0.15), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF3B82F6).withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -341,7 +360,14 @@ class FlightOverviewScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: const Color(0xFF3B82F6).withOpacity(0.15), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF3B82F6).withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -406,9 +432,16 @@ class FlightOverviewScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.blue.shade50,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.blue.shade200),
+        border: Border.all(color: const Color(0xFF3B82F6).withOpacity(0.15), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF3B82F6).withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -480,35 +513,58 @@ class FlightOverviewScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPassengerInfo() {
+  Widget _buildPassengerInfoForFlight(String title, Flight flightData, int passengerCount) {
+    final Color primaryColor = title.contains('đi') ? Colors.blue[600]! : Colors.green[600]!;
+    
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.green.shade50,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.green.shade200),
+        border: Border.all(color: const Color(0xFF3B82F6).withOpacity(0.15), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF3B82F6).withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.people, color: Colors.green.shade700),
-              const SizedBox(width: 8),
-              const Text(
-                'Thông tin hành khách',
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: primaryColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  title.contains('đi') ? Icons.flight_takeoff : Icons.flight_land,
+                  color: primaryColor,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                title,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
+                  color: primaryColor,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          _buildDetailRow('Số hành khách', '$passengers người'),
+          _buildDetailRow('Số hành khách', '$passengerCount người'),
           _buildDetailRow('Loại vé', 'Người lớn'),
-          if (returnDate != null)
-            _buildDetailRow('Ngày về', DateFormat('dd/MM/yyyy').format(returnDate!)),
+          _buildDetailRow('Hãng bay', flightData.airline),
+          _buildDetailRow('Số chuyến bay', flightData.flightNumber),
+          _buildDetailRow('Ngày bay', DateFormat('dd/MM/yyyy').format(flightData.departureTime)),
+          _buildDetailRow('Giờ khởi hành', DateFormat('HH:mm').format(flightData.departureTime)),
         ],
       ),
     );
@@ -518,9 +574,16 @@ class FlightOverviewScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.green.shade50,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.green.shade200),
+        border: Border.all(color: const Color(0xFF3B82F6).withOpacity(0.15), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF3B82F6).withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -721,47 +721,159 @@ class _PassengerInformationScreenState extends State<PassengerInformationScreen>
 
   Widget _buildAdditionalServicesSection() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF3B82F6).withOpacity(0.15), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF3B82F6).withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Áp dụng cho toàn bộ ${widget.passengers} hành khách',
-            style: TextStyle(
-              fontFamily: 'BalooBhaijaan2',
-              fontSize: 12,
-              color: Colors.grey.shade600,
-            ),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF3B82F6).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.miscellaneous_services,
+                  color: Color(0xFF3B82F6),
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Áp dụng cho toàn bộ ${widget.passengers} hành khách',
+                style: const TextStyle(
+                  fontFamily: 'BalooBhaijaan2',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF1E293B),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           ...ServiceMapping.all.map((s) {
             final selected = _selectedServices.contains(s.id);
             final perPax = NumberFormat('#,###', 'vi').format(s.price);
             final total = NumberFormat('#,###', 'vi').format(s.price * widget.passengers);
-            return CheckboxListTile(
-              value: selected,
-              onChanged: (val) {
-                setState(() {
-                  if (val == true) {
-                    _selectedServices.add(s.id);
-                  } else {
-                    _selectedServices.remove(s.id);
-                  }
-                });
-              },
-              title: Text(s.label),
-              subtitle: Text(
-                s.desc != null && s.desc!.isNotEmpty
-                    ? '${s.desc} • $perPax ₫/khách • Tổng $total ₫'
-                    : '$perPax ₫/khách • Tổng $total ₫',
+            return Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    if (selected) {
+                      _selectedServices.remove(s.id);
+                    } else {
+                      _selectedServices.add(s.id);
+                    }
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: selected ? const Color(0xFF3B82F6).withOpacity(0.1) : Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: selected ? const Color(0xFF3B82F6) : Colors.grey.shade300,
+                      width: selected ? 2 : 1,
+                    ),
+                    boxShadow: selected ? [
+                      BoxShadow(
+                        color: const Color(0xFF3B82F6).withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ] : null,
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        selected ? Icons.check_box : Icons.check_box_outline_blank,
+                        color: selected ? const Color(0xFF3B82F6) : Colors.grey.shade400,
+                        size: 24,
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              s.label,
+                              style: TextStyle(
+                                fontFamily: 'BalooBhaijaan2',
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: selected ? const Color(0xFF3B82F6) : const Color(0xFF1E293B),
+                              ),
+                            ),
+                            if (s.desc != null && s.desc!.isNotEmpty) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                s.desc!,
+                                style: TextStyle(
+                                  fontFamily: 'BalooBhaijaan2',
+                                  fontSize: 13,
+                                  color: selected ? const Color(0xFF3B82F6).withOpacity(0.8) : Colors.grey.shade600,
+                                ),
+                              ),
+                            ],
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: selected ? const Color(0xFF3B82F6).withOpacity(0.1) : Colors.grey.shade100,
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    '$perPax ₫/khách',
+                                    style: TextStyle(
+                                      fontFamily: 'BalooBhaijaan2',
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: selected ? const Color(0xFF3B82F6) : Colors.grey.shade700,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: selected ? const Color(0xFF3B82F6).withOpacity(0.2) : Colors.blue.shade50,
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    'Tổng $total ₫',
+                                    style: TextStyle(
+                                      fontFamily: 'BalooBhaijaan2',
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                      color: selected ? const Color(0xFF3B82F6) : Colors.blue.shade700,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              controlAffinity: ListTileControlAffinity.leading,
-              contentPadding: EdgeInsets.zero,
             );
           }).toList(),
         ],
