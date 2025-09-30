@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 
 import 'package:fly_journey/src/features/booking/data/booking_repository.dart';
 import 'package:fly_journey/src/features/payment/presentation/payment_flow_screen.dart';
+import 'package:fly_journey/src/core/constants/colors.dart';
+import 'package:fly_journey/src/features/booking/presentation/screens/my_bookings_screen.dart';
 
 class BookingDetailScreen extends StatefulWidget {
   final String bookingId;
@@ -25,11 +27,11 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFEFF6FF),
+      backgroundColor: const Color(0xFFE0F7FA), // Match với các trang khác
       appBar: AppBar(
         title: Text('Chi tiết vé #${widget.bookingId}'),
         centerTitle: true,
-        backgroundColor: const Color(0xFFEFF6FF),
+        backgroundColor: const Color(0xFFE0F7FA), // Match với các trang khác
         foregroundColor: Colors.black,
         elevation: 0,
       ),
@@ -83,7 +85,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
     final arrCode = (data['arrival_airport_code'] ?? '').toString();
 
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 100), // Bottom padding để tránh overlap với bottom actions
       children: [
         // Tổng quan đặt chỗ
         _section(
@@ -248,47 +250,375 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
   Widget _bottomActions(BuildContext context, Map<String, dynamic> data) {
     final status = (data['status'] ?? '').toString().toLowerCase();
     final canPay = status.contains('pending');
+    final canCancel = status.contains('pending') || status.contains('waiting');
     final bookingId = (data['booking_id'] ?? data['id'] ?? '').toString();
     final amountDynamic = data['total_price'] ?? 0;
     final amount = amountDynamic is num
-        ? amountDynamic
-        : num.tryParse(amountDynamic.toString().replaceAll(',', '').replaceAll(' ', '')) ?? 0;
+        ? amountDynamic.toDouble()
+        : double.tryParse(amountDynamic.toString().replaceAll(',', '').replaceAll(' ', '')) ?? 0.0;
 
-    return SafeArea(
-      child: Container(
+    return Container(
+      decoration: BoxDecoration(
         color: Colors.white,
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-        child: Row(
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+            child: canCancel ? _buildThreeButtons(context, bookingId, canPay, amount) : _buildTwoButtons(context, canPay, bookingId, amount),
+          ),
+      ),
+    );
+  }
+
+  Widget _buildTwoButtons(BuildContext context, bool canPay, String bookingId, double amount) {
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            height: 52,
+            child: OutlinedButton(
+              onPressed: () => _navigateBackToBookings(context),
+              child: const Text(
+                'Quay lại danh sách',
+                style: TextStyle(
+                  fontFamily: 'BalooBhaijaan2',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.primaryBlue,
+                side: BorderSide(
+                  color: AppColors.primaryBlue.withOpacity(0.3),
+                  width: 1.5,
+                ),
+                backgroundColor: AppColors.primaryBlue.withOpacity(0.05),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                elevation: 0,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Container(
+            height: 52,
+            child: ElevatedButton.icon(
+              onPressed: canPay
+                  ? () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => PaymentFlowScreen(
+                            bookingId: bookingId,
+                            amount: amount,
+                          ),
+                        ),
+                      );
+                    }
+                  : null,
+              icon: const Icon(
+                Icons.payments_rounded,
+                size: 18,
+              ),
+              label: const Text(
+                'Thanh toán',
+                style: TextStyle(
+                  fontFamily: 'BalooBhaijaan2',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: canPay ? AppColors.primaryBlue : const Color(0xFF94A3B8),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                elevation: canPay ? 2 : 0,
+                shadowColor: canPay ? AppColors.primaryBlue.withOpacity(0.3) : Colors.transparent,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildThreeButtons(BuildContext context, String bookingId, bool canPay, double amount) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
           children: [
             Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back),
-                label: const Text('Quay lại danh sách'),
+              child: Container(
+                height: 52,
+                child: OutlinedButton(
+                  onPressed: () => _navigateBackToBookings(context),
+                  child: const Text(
+                    'Quay lại danh sách',
+                    style: TextStyle(
+                      fontFamily: 'BalooBhaijaan2',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primaryBlue,
+                    side: BorderSide(
+                      color: AppColors.primaryBlue.withOpacity(0.3),
+                      width: 1.5,
+                    ),
+                    backgroundColor: AppColors.primaryBlue.withOpacity(0.05),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 0,
+                  ),
+                ),
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: ElevatedButton.icon(
-                onPressed: canPay
-                    ? () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => PaymentFlowScreen(
-                              bookingId: bookingId,
-                              amount: amount,
+              child: Container(
+                height: 52,
+                child: ElevatedButton.icon(
+                  onPressed: canPay
+                      ? () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => PaymentFlowScreen(
+                                bookingId: bookingId,
+                                amount: amount,
+                              ),
                             ),
-                          ),
-                        );
-                      }
-                    : null,
-                icon: const Icon(Icons.payments),
-                label: const Text('Thanh toán'),
+                          );
+                        }
+                      : null,
+                  icon: const Icon(
+                    Icons.payments_rounded,
+                    size: 18,
+                  ),
+                  label: const Text(
+                    'Thanh toán',
+                    style: TextStyle(
+                      fontFamily: 'BalooBhaijaan2',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: canPay ? AppColors.primaryBlue : const Color(0xFF94A3B8),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: canPay ? 2 : 0,
+                    shadowColor: canPay ? AppColors.primaryBlue.withOpacity(0.3) : Colors.transparent,
+                  ),
+                ),
               ),
             ),
           ],
         ),
-      ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          height: 52,
+          child: OutlinedButton.icon(
+            onPressed: () => _showCancelDialog(context, bookingId),
+            icon: const Icon(
+              Icons.cancel_outlined,
+              size: 18,
+            ),
+            label: const Text(
+              'Hủy vé',
+              style: TextStyle(
+                fontFamily: 'BalooBhaijaan2',
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.red,
+              side: BorderSide(
+                color: Colors.red.withOpacity(0.3),
+                width: 1.5,
+              ),
+              backgroundColor: Colors.red.withOpacity(0.05),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              elevation: 0,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showCancelDialog(BuildContext context, String bookingId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          contentPadding: const EdgeInsets.all(32),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Icon
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(40),
+                ),
+                child: Icon(
+                  Icons.cancel_outlined,
+                  size: 40,
+                  color: Colors.red[600],
+                ),
+              ),
+              const SizedBox(height: 24),
+              
+              // Title
+              const Text(
+                'Xác nhận hủy vé',
+                style: TextStyle(
+                  fontFamily: 'BalooBhaijaan2',
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF1E293B),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              
+              // Content
+              const Text(
+                'Bạn có chắc chắn muốn hủy vé này không? Hành động này không thể hoàn tác.',
+                style: TextStyle(
+                  fontFamily: 'BalooBhaijaan2',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  color: Color(0xFF64748B),
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+              
+              // Buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Đóng dialog
+                      },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF64748B),
+                        side: const BorderSide(color: Color(0xFFE5E7EB)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: const Text(
+                        'Không',
+                        style: TextStyle(
+                          fontFamily: 'BalooBhaijaan2',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Đóng dialog
+                        _cancelBooking(bookingId);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        elevation: 0,
+                      ),
+                      child: const Text(
+                        'Hủy vé',
+                        style: TextStyle(
+                          fontFamily: 'BalooBhaijaan2',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _cancelBooking(String bookingId) async {
+    // TODO: Implement actual cancel booking API call
+    try {
+      // Simulate API call
+      await Future.delayed(const Duration(seconds: 1));
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Vé đã được hủy thành công'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        
+        // Navigate back to bookings list
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Không thể hủy vé: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  void _navigateBackToBookings(BuildContext context) {
+    // Navigate back to MyBookingsScreen
+    // This ensures we always go back to the bookings list regardless of how we got here
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const MyBookingsScreen()),
+      (route) => false, // Remove all previous routes
     );
   }
 

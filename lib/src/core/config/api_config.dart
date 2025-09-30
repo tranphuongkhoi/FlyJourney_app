@@ -29,6 +29,11 @@ class ApiConfig {
   // Payment endpoints
   static const String paymentMomo = '/payment/momo';
   
+  // Support endpoints
+  static const String supportSession = '/support/session';
+  static const String supportMessage = '/support/message';
+  static const String supportAvailability = '/support/availability';
+  
   // Request timeout
   static const Duration requestTimeout = Duration(seconds: 30);
   
@@ -36,7 +41,7 @@ class ApiConfig {
   static const bool useMockData = false; // Set to false when using real API
   
   // Development Mode Settings
-  static const bool isDevMode = true; // Enable dev shortcuts and presets
+  static const bool isDevMode = false; // Enable dev shortcuts and presets
   
   // Available data dates for development testing
   static const Map<String, List<String>> devDataDates = {

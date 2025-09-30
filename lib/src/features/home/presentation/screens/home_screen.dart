@@ -88,29 +88,30 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
-          GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const NotificationsScreen(),
-                ),
-              );
-            },
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade50,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade200),
-              ),
-              child: const Icon(
-                Icons.notifications_outlined,
-                color: Color(0xFF6B7280),
-                size: 20,
-              ),
-            ),
-          ),
+          // Notification button disabled
+          // GestureDetector(
+          //   onTap: () {
+          //     Navigator.push(
+          //       context,
+          //       MaterialPageRoute(
+          //         builder: (context) => const NotificationsScreen(),
+          //       ),
+          //     );
+          //   },
+          //   child: Container(
+          //     padding: const EdgeInsets.all(8),
+          //     decoration: BoxDecoration(
+          //       color: Colors.grey.shade50,
+          //       borderRadius: BorderRadius.circular(12),
+          //       border: Border.all(color: Colors.grey.shade200),
+          //     ),
+          //     child: const Icon(
+          //       Icons.notifications_outlined,
+          //       color: Color(0xFF6B7280),
+          //       size: 20,
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fly_journey/src/features/auth/data/services/auth_service.dart';
 import 'package:fly_journey/src/features/auth/presentation/screens/login_screen.dart';
+import 'package:fly_journey/src/features/support/presentation/screens/support_chat_screen.dart';
 import 'package:fly_journey/src/core/constants/colors.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -251,7 +252,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _buildMenuItem(Icons.person_outline, 'Thông tin cá nhân', () {}),
           _buildMenuItem(Icons.bookmark_outline, 'Vé đã đặt', () {}),
           _buildMenuItem(Icons.notifications_none, 'Thông báo', () {}),
-          _buildMenuItem(Icons.help_outline, 'Hỗ trợ', () {}),
+          _buildMenuItem(Icons.help_outline, 'Hỗ trợ', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SupportChatScreen()),
+            );
+          }),
           _buildMenuItem(Icons.settings, 'Cài đặt', () {}),
         ],
       ),
