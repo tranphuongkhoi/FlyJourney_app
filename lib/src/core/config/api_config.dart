@@ -1,6 +1,6 @@
 class ApiConfig {
   // API Configuration
-  static const String baseUrl = 'http://localhost:3000/api/v1';
+  static const String baseUrl = 'http://YOUR_SERVER_IP:3000/api/v1';
   
   //Auth nhma để từ từ tính
   //static const String apiKey = 'YOUR_API_KEY';
