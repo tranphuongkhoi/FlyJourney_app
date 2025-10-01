@@ -32,6 +32,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
     return Scaffold(
       backgroundColor: Colors.white, // Same as MyBookingsScreen
       body: SafeArea(
+        top: false,
+        bottom: false,
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
           child: Column(

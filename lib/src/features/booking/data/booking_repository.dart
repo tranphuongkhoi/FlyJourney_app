@@ -155,6 +155,10 @@ class BookingRepository {
     };
 
     try {
+      // Debug: print request data
+      print('Booking request data: ${json.encode(body)}');
+      print('Auth headers: ${_auth.getAuthHeaders()}');
+      
       final response = await _client
           .post(
             uri,
@@ -163,8 +167,11 @@ class BookingRepository {
           )
           .timeout(ApiConfig.requestTimeout);
 
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
       if (response.statusCode != 200 && response.statusCode != 201) {
-        throw BookingApiException('Yêu cầu thất bại', statusCode: response.statusCode);
+        throw BookingApiException('Yêu cầu thất bại: ${response.body}', statusCode: response.statusCode);
       }
 
       final Map<String, dynamic> resp = json.decode(response.body) as Map<String, dynamic>;

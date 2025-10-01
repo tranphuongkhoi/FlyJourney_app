@@ -74,7 +74,7 @@ class _MainScreenState extends State<MainScreen> {
             left: 16.0,
             right: 16.0,
             top: 8.0,
-            bottom: MediaQuery.of(context).padding.bottom,
+            bottom: MediaQuery.of(context).padding.bottom > 0 ? 16.0 : 20.0,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,

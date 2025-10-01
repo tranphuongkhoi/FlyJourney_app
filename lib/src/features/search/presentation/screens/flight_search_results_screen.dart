@@ -102,69 +102,81 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
     return null;
   }
 
-  Widget _buildViewDetailsButton() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      width: double.infinity,
-      child: FloatingActionButton.extended(
-        onPressed: () {
-          if (_selectedOutboundFlight != null && _selectedInboundFlight != null) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => FlightOverviewScreen(
-                    flight: _selectedOutboundFlight!,
-                    returnFlight: _selectedInboundFlight!,
-                    passengers: _totalPassengers,
-                    returnDate: _parseReturnDate(),
-                  ),
-                ),
-              );
-          }
-        },
-        backgroundColor: AppColors.primaryBlue,
-        elevation: 8,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        label: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.airplane_ticket,
-              color: Colors.white,
-              size: 24,
+  Widget _buildActionButtons() {
+    final bool canProceedToOverview = widget.isRoundTrip 
+        ? (_selectedOutboundFlight != null && _selectedInboundFlight != null)
+        : false;
+    
+    if (!canProceedToOverview) {
+      return const SizedBox.shrink();
+    }
+    
+    return Row(
+      children: [
+        Expanded(
+          child: OutlinedButton(
+            onPressed: () {
+              setState(() {
+                _selectedOutboundFlight = null;
+                _selectedInboundFlight = null;
+              });
+            },
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(color: Color(0xFF3B82F6), width: 2),
+              foregroundColor: const Color(0xFF3B82F6),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 16),
             ),
-            const SizedBox(width: 12),
-            const Text(
-              'Xem chi tiết vé khứ hồi',
+            child: const Text(
+              'Chọn lại',
               style: TextStyle(
                 fontFamily: 'BalooBhaijaan2',
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
               ),
             ),
-            const SizedBox(width: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: ElevatedButton(
+            onPressed: () {
+              if (_selectedOutboundFlight != null && _selectedInboundFlight != null) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => FlightOverviewScreen(
+                      flight: _selectedOutboundFlight!,
+                      returnFlight: _selectedInboundFlight!,
+                      passengers: _totalPassengers,
+                      returnDate: _parseReturnDate(),
+                    ),
+                  ),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF3B82F6),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Text(
-                '${NumberFormat('#,###', 'vi').format((_selectedOutboundFlight?.price ?? 0) + (_selectedInboundFlight?.price ?? 0))} ₫',
-                style: const TextStyle(
-                  fontFamily: 'BalooBhaijaan2',
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              elevation: 0,
+            ),
+            child: const Text(
+              'Xác nhận',
+              style: TextStyle(
+                fontFamily: 'BalooBhaijaan2',
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
               ),
             ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 
@@ -245,43 +257,48 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFE0F7FA), // Exact same as homepage
       body: SafeArea(
-        child: BlocListener<SearchCubit, SearchState>(
-          bloc: _searchCubit,
-          listener: (context, state) {
-            if (state is SearchLoaded) {
-              setState(() {
-                _flights = state.flights;
-                _outboundFlights = state.outboundFlights;
-                _inboundFlights = state.inboundFlights;
-                _filteredFlights = List.from(_flights);
-                _errorMessage = state.message;
-                _applyFiltersFromParams();
-              });
-            } else if (state is SearchError) {
-              setState(() {
-                _errorMessage = state.message;
-                _flights = [];
-                _filteredFlights = [];
-                _outboundFlights = [];
-                _inboundFlights = [];
-              });
-            }
-          },
-          child: BlocBuilder<SearchCubit, SearchState>(
-            bloc: _searchCubit,
-            builder: (context, state) {
-              if (state is SearchLoading || state is SearchInitial) {
-                return _buildLoadingScreen();
-              }
-              return _buildMainContent();
-            },
-          ),
+        top: false,
+        bottom: false,
+        child: Column(
+          children: [
+            _buildTopBar(context),
+            Expanded(
+              child: BlocListener<SearchCubit, SearchState>(
+                bloc: _searchCubit,
+                listener: (context, state) {
+                  if (state is SearchLoaded) {
+                    setState(() {
+                      _flights = state.flights;
+                      _outboundFlights = state.outboundFlights;
+                      _inboundFlights = state.inboundFlights;
+                      _filteredFlights = List.from(_flights);
+                      _errorMessage = state.message;
+                      _applyFiltersFromParams();
+                    });
+                  } else if (state is SearchError) {
+                    setState(() {
+                      _errorMessage = state.message;
+                      _flights = [];
+                      _filteredFlights = [];
+                      _outboundFlights = [];
+                      _inboundFlights = [];
+                    });
+                  }
+                },
+                child: BlocBuilder<SearchCubit, SearchState>(
+                  bloc: _searchCubit,
+                  builder: (context, state) {
+                    if (state is SearchLoading || state is SearchInitial) {
+                      return _buildLoadingScreen();
+                    }
+                    return _buildMainContent();
+                  },
+                ),
+              ),
+            ),
+          ],
         ),
       ),
-      floatingActionButton: canProceedToOverview
-          ? _buildViewDetailsButton()
-          : null,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
@@ -322,11 +339,7 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
   }
 
   Widget _buildMainContent() {
-    return Column(
-      children: [
-        _buildTopBar(),
-        Expanded(
-          child: SingleChildScrollView(
+    return SingleChildScrollView(
             padding: const EdgeInsets.all(20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -338,12 +351,12 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
                 ],
                 const SizedBox(height: 24),
                 _buildFlightsList(),
+                const SizedBox(height: 24),
+                _buildActionButtons(),
+                const SizedBox(height: 20),
               ],
             ),
-          ),
-        ),
-      ],
-    );
+          );
   }
 
   Widget _buildErrorMessage() {
@@ -397,48 +410,49 @@ class _FlightSearchResultsScreenState extends State<FlightSearchResultsScreen> {
     );
   }
 
-  Widget _buildTopBar() {
+  Widget _buildTopBar(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+      padding: EdgeInsets.fromLTRB(
+        20, 
+        16 + MediaQuery.of(context).padding.top, 
+        20, 
+        16
+      ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+          GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
                   ),
-                  child: const Icon(
-                    Icons.arrow_back,
-                    color: Color(0xFF6B7280),
-                    size: 20,
-                  ),
-                ),
+                ],
               ),
-              const SizedBox(width: 16),
-              const Text(
-                'Kết quả tìm kiếm',
-                style: TextStyle(
-                  fontFamily: 'BalooBhaijaan2',
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF1E293B),
-                ),
+              child: const Icon(
+                Icons.arrow_back,
+                color: Color(0xFF3B82F6),
+                size: 20,
               ),
-            ],
+            ),
           ),
+          const SizedBox(width: 16),
+          const Text(
+            'Kết quả tìm kiếm',
+            style: TextStyle(
+              fontFamily: 'BalooBhaijaan2',
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF1E293B),
+            ),
+          ),
+          const Spacer(),
           // Fly Journey Brand with Hero Animation
           Hero(
             tag: 'fly_journey_logo',

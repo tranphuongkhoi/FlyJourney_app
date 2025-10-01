@@ -83,6 +83,8 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
+        top: false,
+        bottom: false,
         child: Column(
           children: [
             _buildTopBar(context),
@@ -101,7 +103,12 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
 
   Widget _buildTopBar(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      padding: EdgeInsets.fromLTRB(
+        20, 
+        16 + MediaQuery.of(context).padding.top, 
+        20, 
+        16
+      ),
       child: Row(
         children: [
           GestureDetector(

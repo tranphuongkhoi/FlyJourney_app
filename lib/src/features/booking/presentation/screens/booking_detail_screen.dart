@@ -28,33 +28,106 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white, // Same as MyBookingsScreen
-      appBar: AppBar(
-        title: Text('Chi tiết vé #${widget.bookingId}'),
-        centerTitle: true,
-        backgroundColor: Colors.white, // Same as MyBookingsScreen
-        foregroundColor: Colors.black,
-        elevation: 0,
-      ),
-      body: FutureBuilder<Map<String, dynamic>>(
-        future: _future,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Text(
-                  'Không thể tải chi tiết vé:\n${snapshot.error}',
-                  textAlign: TextAlign.center,
-                ),
+      body: SafeArea(
+        top: false,
+        bottom: false,
+        child: Column(
+          children: [
+            _buildTopBar(context),
+            Expanded(
+              child: FutureBuilder<Map<String, dynamic>>(
+                future: _future,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Không thể tải thông tin vé',
+                            style: const TextStyle(
+                              fontFamily: 'BalooBhaijaan2',
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF1E293B),
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            snapshot.error.toString(),
+                            style: const TextStyle(
+                              fontFamily: 'BalooBhaijaan2',
+                              fontSize: 14,
+                              color: Color(0xFF64748B),
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                  final data = snapshot.data!;
+                  return _buildContent(context, data);
+                },
               ),
-            );
-          }
-          final data = snapshot.data!;
-          return _buildContent(context, data);
-        },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTopBar(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+        20, 
+        16 + MediaQuery.of(context).padding.top, 
+        20, 
+        16
+      ),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.arrow_back,
+                color: Color(0xFF3B82F6),
+                size: 20,
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          const Expanded(
+            child: Text(
+              'Chi tiết vé',
+              style: TextStyle(
+                fontFamily: 'BalooBhaijaan2',
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF1E293B),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

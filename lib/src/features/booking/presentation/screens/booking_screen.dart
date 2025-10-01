@@ -69,16 +69,21 @@ class _BookingScreenState extends State<BookingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(
+        backgroundColor: Colors.white,
+        foregroundColor: const Color(0xFF1E293B),
+        elevation: 0,
+        title: const Text(
           'Thông tin đặt vé',
           style: TextStyle(
-            color: Theme.of(context).colorScheme.onPrimaryContainer,
+            fontFamily: 'BalooBhaijaan2',
+            fontSize: 28,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF1E293B),
           ),
         ),
-        iconTheme: IconThemeData(
-          color: Theme.of(context).colorScheme.onPrimaryContainer,
-        ),
+        centerTitle: true,
         actions: [
           if (DevConfig.showDevTestUI)
             TextButton(
@@ -93,7 +98,7 @@ class _BookingScreenState extends State<BookingScreen> {
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + MediaQuery.of(context).padding.bottom),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -798,3 +803,4 @@ class _BookingScreenState extends State<BookingScreen> {
     );
   }
 }
+

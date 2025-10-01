@@ -50,12 +50,13 @@ class BookingConfirmationScreen extends StatelessWidget {
                     ],
                     const SizedBox(height: 24),
                     _buildPricingSummary(totalPrice),
-                    const SizedBox(height: 100),
+                    const SizedBox(height: 24),
+                    _buildBottomButtons(context),
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),
             ),
-            _buildBottomButtons(context),
           ],
         ),
       ),
@@ -537,80 +538,65 @@ class BookingConfirmationScreen extends StatelessWidget {
   }
 
   Widget _buildBottomButtons(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
+    return Row(
+      children: [
+        Expanded(
+          child: OutlinedButton(
+            onPressed: () => Navigator.pop(context),
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(color: AppColors.primaryBlue),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text(
+              'Chọn lại',
+              style: TextStyle(
+                fontFamily: 'BalooBhaijaan2',
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primaryBlue,
+              ),
+            ),
           ),
-        ],
-      ),
-      child: SafeArea(
-        child: Row(
-          children: [
-            Expanded(
-              child: OutlinedButton(
-                onPressed: () => Navigator.pop(context),
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: AppColors.primaryBlue),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  'Chọn lại',
-                  style: TextStyle(
-                    fontFamily: 'BalooBhaijaan2',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.primaryBlue,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PassengerInformationScreen(
-                        outboundFlight: outboundFlight,
-                        returnFlight: returnFlight,
-                        passengers: passengers,
-                        returnDate: returnDate,
-                      ),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryBlue,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 0,
-                ),
-                child: const Text(
-                  'Tiếp tục',
-                  style: TextStyle(
-                    fontFamily: 'BalooBhaijaan2',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          ],
         ),
-      ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PassengerInformationScreen(
+                    outboundFlight: outboundFlight,
+                    returnFlight: returnFlight,
+                    passengers: passengers,
+                    returnDate: returnDate,
+                  ),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryBlue,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 0,
+            ),
+            child: const Text(
+              'Tiếp tục',
+              style: TextStyle(
+                fontFamily: 'BalooBhaijaan2',
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

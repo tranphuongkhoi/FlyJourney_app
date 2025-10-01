@@ -92,6 +92,8 @@ class _PassengerInformationScreenState extends State<PassengerInformationScreen>
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: true,
       body: SafeArea(
+        top: false,
+        bottom: false,
         child: Column(
           children: [
             _buildTopBar(),
@@ -99,7 +101,6 @@ class _PassengerInformationScreenState extends State<PassengerInformationScreen>
             Expanded(
               child: _buildFormContent(),
             ),
-            _buildBottomButtons(),
           ],
         ),
       ),
@@ -113,7 +114,12 @@ class _PassengerInformationScreenState extends State<PassengerInformationScreen>
   
   Widget _buildTopBar() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      padding: EdgeInsets.fromLTRB(
+        20, 
+        16 + MediaQuery.of(context).padding.top, 
+        20, 
+        16
+      ),
       child: Row(
         children: [
           GestureDetector(
@@ -315,13 +321,62 @@ class _PassengerInformationScreenState extends State<PassengerInformationScreen>
             _buildDocumentSection(passenger),
             const SizedBox(height: 24),
             _buildBaggageSection(passenger),
-            const SizedBox(height: 100),
+            const SizedBox(height: 24),
+            _buildPassengerActionButton(passengerIndex),
+            const SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
-  
+
+  Widget _buildPassengerActionButton(int passengerIndex) {
+    final canProceed = _canProceedToNext();
+    final isLastPassenger = passengerIndex == widget.passengers - 1;
+    
+    return Container(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: canProceed ? () {
+          if (isLastPassenger) {
+            // Go to final form
+            _pageController.nextPage(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          } else {
+            // Go to next passenger
+            _pageController.nextPage(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          }
+          // Trigger smooth animation
+          _animationController.reset();
+          _animationController.forward();
+        } : null,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: canProceed ? const Color(0xFF3B82F6) : Colors.grey.shade300,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: 0,
+        ),
+        child: Text(
+          isLastPassenger ? 'Thông tin liên hệ' : 'Hành khách tiếp theo',
+          style: TextStyle(
+            fontFamily: 'BalooBhaijaan2',
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: canProceed ? Colors.white : Colors.grey.shade600,
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildPassengerHeader(int index) {
     final isBooker = index == 0;
     
@@ -688,27 +743,83 @@ class _PassengerInformationScreenState extends State<PassengerInformationScreen>
   
   Widget _buildFinalForm() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader('Thông tin liên hệ', Icons.contact_mail),
+          _buildSectionHeader('Dịch vụ bổ sung', Icons.miscellaneous_services),
+          const SizedBox(height: 12),
+          _buildAdditionalServicesSection(),
           const SizedBox(height: 16),
+          _buildSectionHeader('Yêu cầu đặc biệt', Icons.note_add),
+          const SizedBox(height: 12),
+          _buildSpecialRequestsSection(),
+          const SizedBox(height: 16),
+          _buildSectionHeader('Kiểm tra thông tin', Icons.checklist),
+          const SizedBox(height: 12),
+          _buildValidationSection(),
+          const SizedBox(height: 24),
+          _buildSectionHeader('Thông tin liên hệ', Icons.contact_mail),
+          const SizedBox(height: 12),
           _buildContactSection(),
           const SizedBox(height: 24),
-          _buildSectionHeader('Dịch vụ bổ sung', Icons.miscellaneous_services),
-          const SizedBox(height: 16),
-          _buildAdditionalServicesSection(),
-          const SizedBox(height: 24),
-          _buildSectionHeader('Yêu cầu đặc biệt', Icons.note_add),
-          const SizedBox(height: 16),
-          _buildSpecialRequestsSection(),
-          const SizedBox(height: 24),
-          _buildSectionHeader('Kiểm tra thông tin', Icons.checklist),
-          const SizedBox(height: 16),
-          _buildValidationSection(),
-          const SizedBox(height: 100),
+          _buildActionButton(),
+          const SizedBox(height: 20),
         ],
+      ),
+    );
+  }
+
+  Widget _buildActionButton() {
+    final canProceed = _canProceedToNext();
+    final missingFields = _getMissingRequiredFields();
+    
+    // Debug: show what's missing
+    print('Debug: currentPassengerIndex = $currentPassengerIndex, widget.passengers = ${widget.passengers}');
+    print('Debug: canProceed = $canProceed');
+    if (currentPassengerIndex >= widget.passengers) {
+      print('Debug: In final form - Email: "${contactInfo.email}", Address: "${contactInfo.address}"');
+      print('Debug: Contact info valid: ${contactInfo.isValid()}');
+    }
+    
+    return Container(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: canProceed ? () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => BookingSummaryScreen(
+                outboundFlight: widget.outboundFlight,
+                returnFlight: widget.returnFlight,
+                passengers: widget.passengers,
+                returnDate: widget.returnDate,
+                passengersList: passengersList,
+                contactInfo: contactInfo,
+                baggageSelections: passengersList.map((p) => p.extraBaggage).toList(),
+                selectedServices: _selectedServices.toList(),
+              ),
+            ),
+          );
+        } : null,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: canProceed ? const Color(0xFF3B82F6) : Colors.grey.shade300,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: 0,
+        ),
+        child: Text(
+          canProceed ? 'Xem tóm tắt' : 'Vui lòng điền email hợp lệ và địa chỉ',
+          style: TextStyle(
+            fontFamily: 'BalooBhaijaan2',
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: canProceed ? Colors.white : Colors.grey.shade600,
+          ),
+        ),
       ),
     );
   }
@@ -1037,7 +1148,7 @@ class _PassengerInformationScreenState extends State<PassengerInformationScreen>
     required List<Widget> children,
   }) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -1307,7 +1418,7 @@ class _PassengerInformationScreenState extends State<PassengerInformationScreen>
     }
     
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
@@ -1335,7 +1446,7 @@ class _PassengerInformationScreenState extends State<PassengerInformationScreen>
                   },
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: AppColors.primaryBlue),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -1413,8 +1524,8 @@ class _PassengerInformationScreenState extends State<PassengerInformationScreen>
       final passenger = passengersList[currentPassengerIndex];
       return passenger.isValid();
     } else {
-      // Final form validation
-      return contactInfo.isValid() && _getMissingRequiredFields().isEmpty;
+      // Final form validation - check contact info and all passengers
+      return contactInfo.isValid() && passengersList.every((p) => p.isValid());
     }
   }
   

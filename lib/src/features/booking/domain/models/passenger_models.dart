@@ -41,6 +41,10 @@ class ContactInfo {
   String email = '';
   
   bool isValid() {
-    return address.isNotEmpty && email.isNotEmpty && email.contains('@');
+    return address.isNotEmpty && 
+           email.isNotEmpty && 
+           email.contains('@') &&
+           email.contains('.') &&
+           email.length > 5;
   }
 }

@@ -361,7 +361,6 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
         totalAmount: _grandTotal,
       );
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đặt vé thành công')));
       // Navigate to booking detail if id exists
       if (result != null && result['booking_id'] != null) {
         final id = result['booking_id'].toString();

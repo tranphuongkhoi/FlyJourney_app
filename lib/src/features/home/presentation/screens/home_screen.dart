@@ -21,6 +21,8 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
+        top: false,
+        bottom: false,
         child: Column(
           children: [
             _buildTopBar(),
@@ -59,7 +61,12 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildTopBar() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+      padding: EdgeInsets.fromLTRB(
+        20.0, 
+        16.0 + MediaQuery.of(context).padding.top, 
+        20.0, 
+        16.0
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
