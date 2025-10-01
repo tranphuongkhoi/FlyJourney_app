@@ -63,8 +63,20 @@ class _PaymentFlowScreenState extends State<PaymentFlowScreen> {
   Widget build(BuildContext context) {
     final currency = NumberFormat('#,###', 'vi').format(widget.amount);
     return Scaffold(
+      backgroundColor: Colors.white, // Same as MyBookingsScreen
       appBar: AppBar(
-        title: const Text('Thanh toán MoMo'),
+        backgroundColor: Colors.white, // Same as MyBookingsScreen
+        foregroundColor: Colors.black,
+        elevation: 0,
+        title: const Text(
+          'Thanh toán MoMo',
+          style: TextStyle(
+            fontFamily: 'BalooBhaijaan2',
+            fontSize: 28,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF1E293B),
+          ),
+        ),
         centerTitle: true,
       ),
       body: Padding(
@@ -94,23 +106,57 @@ class _PaymentFlowScreenState extends State<PaymentFlowScreen> {
               child: Row(
                 children: [
                   Expanded(
-                    child: OutlinedButton(
-                      onPressed: _submitting ? null : () => Navigator.pop(context),
-                      child: const Text('Hủy'),
+                    child: SizedBox(
+                      height: 56,
+                      child: OutlinedButton(
+                        onPressed: _submitting ? null : () => Navigator.pop(context),
+                        child: const Text(
+                          'Hủy',
+                          style: TextStyle(
+                            fontFamily: 'BalooBhaijaan2',
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: Color(0xFF3B82F6), width: 2),
+                          foregroundColor: const Color(0xFF3B82F6),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: _submitting ? null : _startPayment,
-                      icon: _submitting
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                            )
-                          : const Icon(Icons.payment),
-                      label: Text(_submitting ? 'Đang xử lý...' : 'Thanh toán'),
+                    child: SizedBox(
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: _submitting ? null : _startPayment,
+                        child: _submitting
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              )
+                            : const Text(
+                                'Thanh toán',
+                                style: TextStyle(
+                                  fontFamily: 'BalooBhaijaan2',
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF3B82F6),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -129,7 +175,11 @@ class _PaymentFlowScreenState extends State<PaymentFlowScreen> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(0xFF3B82F6).withOpacity(0.15),
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
         ],
@@ -137,13 +187,22 @@ class _PaymentFlowScreenState extends State<PaymentFlowScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Chọn phương thức thanh toán', style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text(
+            'Chọn phương thức thanh toán',
+            style: TextStyle(
+              fontFamily: 'BalooBhaijaan2',
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1E293B),
+            ),
+          ),
           const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
+          Column(
             children: [
               _methodChip(_PayMethod.momo, 'MoMo', Icons.qr_code_2),
+              const SizedBox(height: 8),
               _methodChip(_PayMethod.atm, 'ATM/Bank', Icons.credit_card),
+              const SizedBox(height: 8),
               _methodChip(_PayMethod.qr, 'QR/Internet Banking', Icons.qr_code),
             ],
           ),
@@ -154,13 +213,73 @@ class _PaymentFlowScreenState extends State<PaymentFlowScreen> {
 
   Widget _methodChip(_PayMethod method, String label, IconData icon) {
     final selected = _method == method;
-    return ChoiceChip(
-      label: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [Icon(icon, size: 16), const SizedBox(width: 6), Text(label)],
+    return Container(
+      width: double.infinity,
+      height: 56,
+      child: InkWell(
+        onTap: () => setState(() => _method = method),
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: selected 
+                ? const Color(0xFF3B82F6).withOpacity(0.1)
+                : Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: selected 
+                  ? const Color(0xFF3B82F6)
+                  : const Color(0xFF3B82F6).withOpacity(0.15),
+              width: selected ? 2 : 1.5,
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: selected 
+                      ? const Color(0xFF3B82F6)
+                      : const Color(0xFF3B82F6).withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: selected
+                    ? const Icon(
+                        Icons.check,
+                        color: Colors.white,
+                        size: 16,
+                      )
+                    : Icon(
+                        icon,
+                        color: const Color(0xFF3B82F6),
+                        size: 16,
+                      ),
+              ),
+              const SizedBox(width: 12),
+              Icon(
+                icon,
+                color: selected 
+                    ? const Color(0xFF3B82F6)
+                    : const Color(0xFF6B7280),
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: TextStyle(
+                  fontFamily: 'BalooBhaijaan2',
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: selected 
+                      ? const Color(0xFF3B82F6)
+                      : const Color(0xFF1E293B),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
-      selected: selected,
-      onSelected: (_) => setState(() => _method = method),
     );
   }
 
@@ -171,6 +290,10 @@ class _PaymentFlowScreenState extends State<PaymentFlowScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(0xFF3B82F6).withOpacity(0.15),
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
         ],
@@ -178,7 +301,15 @@ class _PaymentFlowScreenState extends State<PaymentFlowScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Thông tin thanh toán', style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text(
+            'Thông tin thanh toán',
+            style: TextStyle(
+              fontFamily: 'BalooBhaijaan2',
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1E293B),
+            ),
+          ),
           const SizedBox(height: 8),
           _row('Mã đặt chỗ', '#${widget.bookingId}'),
           _row('Số tiền', '$amount ₫'),
@@ -196,6 +327,10 @@ class _PaymentFlowScreenState extends State<PaymentFlowScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(0xFF3B82F6).withOpacity(0.15),
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
         ],
@@ -203,7 +338,15 @@ class _PaymentFlowScreenState extends State<PaymentFlowScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Quét QR bằng MoMo để thanh toán', style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text(
+            'Quét QR bằng MoMo để thanh toán',
+            style: TextStyle(
+              fontFamily: 'BalooBhaijaan2',
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1E293B),
+            ),
+          ),
           const SizedBox(height: 12),
           if (momo != null) _qrPreview(momo),
           const SizedBox(height: 12),
