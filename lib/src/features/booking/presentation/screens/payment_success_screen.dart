@@ -97,8 +97,9 @@ class PaymentSuccessScreen extends StatelessWidget {
   }
 
   Widget _buildSuccessContent(BuildContext context) {
-    final bookingId = 'FL${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
-    
+    final bookingId =
+        'FL${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
+
     return Container(
       margin: const EdgeInsets.all(24),
       padding: const EdgeInsets.all(24),
@@ -140,7 +141,7 @@ class PaymentSuccessScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          
+
           // Total Amount
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -166,7 +167,7 @@ class PaymentSuccessScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          
+
           // Passengers
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -192,7 +193,7 @@ class PaymentSuccessScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          
+
           // Booking Time
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -312,7 +313,7 @@ class PaymentSuccessScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Đặt thêm vé
           SizedBox(
             width: double.infinity,
@@ -328,7 +329,8 @@ class PaymentSuccessScreen extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.add_circle_outline, color: AppColors.primaryBlue, size: 20),
+                  Icon(Icons.add_circle_outline,
+                      color: AppColors.primaryBlue, size: 20),
                   const SizedBox(width: 12),
                   Text(
                     'Đặt thêm vé',
@@ -344,7 +346,7 @@ class PaymentSuccessScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Về trang chủ
           SizedBox(
             width: double.infinity,
@@ -359,7 +361,8 @@ class PaymentSuccessScreen extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.home_outlined, color: Colors.grey.shade600, size: 20),
+                  Icon(Icons.home_outlined,
+                      color: Colors.grey.shade600, size: 20),
                   const SizedBox(width: 12),
                   Text(
                     'Về trang chủ',
@@ -385,7 +388,7 @@ class PaymentSuccessScreen extends StatelessWidget {
       context,
       MaterialPageRoute(
         builder: (context) => MainScreen(
-          initialIndex: 2, // MyBookings tab index
+          initialIndex: 3, // MyBookings tab index
           initialBookingId: bookingId,
         ),
       ),
