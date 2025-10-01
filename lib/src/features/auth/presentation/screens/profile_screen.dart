@@ -152,9 +152,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE0F7FA), // Homepage background color
+      backgroundColor: Colors.white, // Same as MyBookingsScreen
       appBar: AppBar(
-        backgroundColor: const Color(0xFFE0F7FA), // Homepage background color
+        backgroundColor: Colors.white, // Same as MyBookingsScreen
         elevation: 0,
         toolbarHeight: 80, // Increased height to match other screens
         title: const Text(
@@ -168,15 +168,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         centerTitle: true, // Center the title to match other screens
         automaticallyImplyLeading: false,
-        actions: _authService.isLoggedIn ? [
-          IconButton(
-            onPressed: _logout,
-            icon: const Icon(
-              Icons.logout,
-              color: Color(0xFF6B7280),
-            ),
-          ),
-        ] : null,
       ),
       body: _authService.isLoggedIn
           ? _buildLoggedInProfile()
@@ -198,6 +189,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: const Color(0xFF3B82F6).withOpacity(0.15),
+                width: 1.5,
+              ),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.05),
@@ -269,6 +264,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               MaterialPageRoute(builder: (context) => const SupportChatScreen()),
             );
           }),
+          _buildMenuItem(Icons.logout, 'Đăng xuất', _logout, isLogout: true),
         ],
       ),
     );
@@ -363,7 +359,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildMenuItem(IconData icon, String title, VoidCallback onTap) {
+  Widget _buildMenuItem(IconData icon, String title, VoidCallback onTap, {bool isLogout = false}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
@@ -374,6 +370,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: const Color(0xFF3B82F6).withOpacity(0.15),
+              width: 1.5,
+            ),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.03),
@@ -387,12 +387,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryBlue.withOpacity(0.1),
+                  color: isLogout ? Colors.red.withOpacity(0.1) : AppColors.primaryBlue.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
                   icon,
-                  color: AppColors.primaryBlue,
+                  color: isLogout ? Colors.red : AppColors.primaryBlue,
                   size: 20,
                 ),
               ),
