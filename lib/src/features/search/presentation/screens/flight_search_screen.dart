@@ -5,7 +5,6 @@ import 'package:fly_journey/src/core/config/dev_config.dart';
 import 'package:fly_journey/src/core/constants/airlines.dart';
 import 'package:fly_journey/src/core/constants/colors.dart';
 import 'package:fly_journey/src/core/widgets/flight_filters.dart';
-import 'package:fly_journey/src/features/connection/presentation/screens/connection_test_screen.dart';
 import 'package:fly_journey/src/features/notifications/presentation/screens/notifications_screen.dart';
 import 'package:fly_journey/src/features/search/domain/models/airport.dart';
 import 'package:fly_journey/src/features/search/data/airports.dart';
@@ -97,15 +96,6 @@ class _FlightSearchScreenState extends State<FlightSearchScreen> {
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const NotificationsScreen()),
-            ),
-          ),
-          IconButton(
-            tooltip: 'Kết nối',
-            icon: const Icon(Icons.wifi_tethering_rounded,
-                color: Color(0xFF64748B)),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ConnectionTestScreen()),
             ),
           ),
           const SizedBox(width: 4),

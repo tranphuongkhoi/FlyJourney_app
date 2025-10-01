@@ -564,8 +564,13 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
   }
 
   void _navigateBackToBookings(BuildContext context) {
-    // Simply pop back to previous screen (which should have bottom navbar)
-    Navigator.pop(context);
+    // Navigate back to MainScreen with My Bookings tab selected
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      '/main',
+      (route) => false,
+      arguments: {'initialTab': 3}, // 3 = My Bookings tab (index 3)
+    );
   }
 
   Widget _statusChip(String status) {
@@ -603,6 +608,10 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(0xFF3B82F6).withOpacity(0.15),
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
         ],
@@ -611,7 +620,15 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (title != null) ...[
-            Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(
+              title,
+              style: const TextStyle(
+                fontFamily: 'BalooBhaijaan2',
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF1E293B),
+              ),
+            ),
             const SizedBox(height: 8),
           ],
           if (child != null) child,
@@ -626,9 +643,12 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
+        color: const Color(0xFF3B82F6).withOpacity(0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(
+          color: const Color(0xFF3B82F6).withOpacity(0.15),
+          width: 1.5,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

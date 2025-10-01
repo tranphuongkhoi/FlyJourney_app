@@ -74,7 +74,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             )
           : const MainScreen(),
       routes: {
-        '/main': (context) => const MainScreen(),
+        '/main': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+          final initialTab = args?['initialTab'] as int? ?? 0;
+          return MainScreen(initialIndex: initialTab);
+        },
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/otp-verification': (context) => const OtpVerificationScreen(),

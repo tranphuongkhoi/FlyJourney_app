@@ -139,30 +139,24 @@ class _PassengerInformationScreenState extends State<PassengerInformationScreen>
             ),
           ),
           const SizedBox(width: 16),
-          const Text(
-            'Thông tin hành khách',
-            style: TextStyle(
-              fontFamily: 'BalooBhaijaan2',
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF1E293B),
+          const Expanded(
+            child: Text(
+              'Thông tin hành khách',
+              style: TextStyle(
+                fontFamily: 'BalooBhaijaan2',
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF1E293B),
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          const Spacer(),
+          const SizedBox(width: 8),
           if (DevConfig.showDevTestUI)
             TextButton(
               onPressed: _devAutofill,
               child: const Text('Dev Test'),
             ),
-          const SizedBox(width: 8),
-          const Text(
-            'Bước 2 / 3',
-            style: TextStyle(
-              fontFamily: 'BalooBhaijaan2',
-              fontSize: 14,
-              color: Color(0xFF64748B),
-            ),
-          ),
         ],
       ),
     );

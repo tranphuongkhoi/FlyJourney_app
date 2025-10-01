@@ -1,6 +1,6 @@
 class DevConfig {
   // true = production mode (no past dates). false = dev (allow past dates)
-  static const bool productionMode = false;
+  static const bool productionMode = true;
 
   // Allow selecting dates in the past when not in production
   static bool get allowPastDates => !productionMode;

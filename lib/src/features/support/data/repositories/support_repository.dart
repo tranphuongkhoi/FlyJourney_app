@@ -95,7 +95,9 @@ class SupportRepository {
       await _apiClient.closeSession(sessionId);
     } catch (e) {
       // Silently handle close session errors - not critical
-      print('Failed to close support session: $e');
+      if (kDebugMode) {
+        debugPrint('Failed to close support session: $e');
+      }
     }
   }
 
