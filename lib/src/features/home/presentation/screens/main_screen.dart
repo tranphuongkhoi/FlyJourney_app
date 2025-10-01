@@ -41,7 +41,13 @@ class _MainScreenState extends State<MainScreen> {
         _selectedDestination = null; // Reset selected destination
       });
     }),
-    const ProfileScreen(),
+    ProfileScreen(
+      onNavigateToBookings: () {
+        setState(() {
+          _currentIndex = 2; // Navigate to MyBookings tab
+        });
+      },
+    ),
   ];
 
   @override
@@ -59,18 +65,21 @@ class _MainScreenState extends State<MainScreen> {
             ),
           ],
         ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildNavItem(0, Icons.home_outlined, Icons.home, 'Trang chủ'),
-                _buildNavItem(1, Icons.explore_outlined, Icons.explore, 'Khám phá'),
-                _buildNavItem(2, Icons.bookmark_outline, Icons.bookmark, 'Vé của tôi'),
-                _buildNavItem(3, Icons.person_outline, Icons.person, 'Hồ sơ'),
-              ],
-            ),
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: 16.0,
+            right: 16.0,
+            top: 8.0,
+            bottom: MediaQuery.of(context).padding.bottom,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildNavItem(0, Icons.home_outlined, Icons.home, 'Trang chủ'),
+              _buildNavItem(1, Icons.explore_outlined, Icons.explore, 'Khám phá'),
+              _buildNavItem(2, Icons.bookmark_outline, Icons.bookmark, 'Vé của tôi'),
+              _buildNavItem(3, Icons.person_outline, Icons.person, 'Hồ sơ'),
+            ],
           ),
         ),
       ),

@@ -958,34 +958,52 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
       return Row(
         children: [
           Expanded(
-            child: OutlinedButton.icon(
-              onPressed: () => _openBookingDetails(booking),
-              icon: const Icon(Icons.receipt_long),
-              label: const Text('Xem chi tiết'),
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Color(0xFF3B82F6), width: 2),
-                foregroundColor: const Color(0xFF3B82F6),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+            child: SizedBox(
+              height: 56,
+              child: OutlinedButton.icon(
+                onPressed: () => _openBookingDetails(booking),
+                icon: const Icon(Icons.receipt_long, size: 20),
+                label: const Text(
+                  'Xem chi tiết',
+                  style: TextStyle(
+                    fontFamily: 'BalooBhaijaan2',
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Color(0xFF3B82F6), width: 2),
+                  foregroundColor: const Color(0xFF3B82F6),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
             ),
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: ElevatedButton.icon(
-              onPressed: () => _openPayment(booking),
-              icon: const Icon(Icons.payments),
-              label: const Text('Thanh toán'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF3B82F6),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+            child: SizedBox(
+              height: 56,
+              child: ElevatedButton.icon(
+                onPressed: () => _openPayment(booking),
+                icon: const Icon(Icons.payments, size: 20),
+                label: const Text(
+                  'Thanh toán',
+                  style: TextStyle(
+                    fontFamily: 'BalooBhaijaan2',
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-                elevation: 0,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF3B82F6),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 0,
+                ),
               ),
             ),
           ),

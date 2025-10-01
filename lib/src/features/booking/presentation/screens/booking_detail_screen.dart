@@ -27,11 +27,11 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE0F7FA), // Match với các trang khác
+      backgroundColor: Colors.white, // Same as MyBookingsScreen
       appBar: AppBar(
         title: Text('Chi tiết vé #${widget.bookingId}'),
         centerTitle: true,
-        backgroundColor: const Color(0xFFE0F7FA), // Match với các trang khác
+        backgroundColor: Colors.white, // Same as MyBookingsScreen
         foregroundColor: Colors.black,
         elevation: 0,
       ),
@@ -53,17 +53,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
             );
           }
           final data = snapshot.data!;
-          return Stack(
-            children: [
-              _buildContent(context, data),
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: _bottomActions(context, data),
-              ),
-            ],
-          );
+          return _buildContent(context, data);
         },
       ),
     );
@@ -85,7 +75,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
     final arrCode = (data['arrival_airport_code'] ?? '').toString();
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 100), // Bottom padding để tránh overlap với bottom actions
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16), // Normal padding
       children: [
         // Tổng quan đặt chỗ
         _section(
@@ -172,6 +162,10 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
           title: 'Thanh toán',
           child: _buildPayment(data['payment'] as Map<String, dynamic>?),
         ),
+        
+        const SizedBox(height: 24),
+        _buildActionButtons(context, data),
+        const SizedBox(height: 24),
       ],
     );
   }
@@ -247,7 +241,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
     ]);
   }
 
-  Widget _bottomActions(BuildContext context, Map<String, dynamic> data) {
+  Widget _buildActionButtons(BuildContext context, Map<String, dynamic> data) {
     final status = (data['status'] ?? '').toString().toLowerCase();
     final canPay = status.contains('pending');
     final canCancel = status.contains('pending') || status.contains('waiting');
@@ -257,23 +251,9 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
         ? amountDynamic.toDouble()
         : double.tryParse(amountDynamic.toString().replaceAll(',', '').replaceAll(' ', '')) ?? 0.0;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-            child: canCancel ? _buildThreeButtons(context, bookingId, canPay, amount) : _buildTwoButtons(context, canPay, bookingId, amount),
-          ),
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: canCancel ? _buildThreeButtons(context, bookingId, canPay, amount) : _buildTwoButtons(context, canPay, bookingId, amount),
     );
   }
 
@@ -281,38 +261,33 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
     return Row(
       children: [
         Expanded(
-          child: Container(
-            height: 52,
+          child: SizedBox(
+            height: 56,
             child: OutlinedButton(
               onPressed: () => _navigateBackToBookings(context),
               child: const Text(
-                'Quay lại danh sách',
+                'Về vé của tôi',
                 style: TextStyle(
                   fontFamily: 'BalooBhaijaan2',
-                  fontSize: 14,
+                  fontSize: 15,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primaryBlue,
-                side: BorderSide(
-                  color: AppColors.primaryBlue.withOpacity(0.3),
-                  width: 1.5,
-                ),
-                backgroundColor: AppColors.primaryBlue.withOpacity(0.05),
+                side: const BorderSide(color: Color(0xFF3B82F6), width: 2),
+                foregroundColor: const Color(0xFF3B82F6),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                elevation: 0,
               ),
             ),
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: Container(
-            height: 52,
-            child: ElevatedButton.icon(
+          child: SizedBox(
+            height: 56,
+            child: ElevatedButton(
               onPressed: canPay
                   ? () {
                       Navigator.of(context).push(
@@ -325,26 +300,21 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                       );
                     }
                   : null,
-              icon: const Icon(
-                Icons.payments_rounded,
-                size: 18,
-              ),
-              label: const Text(
+              child: const Text(
                 'Thanh toán',
                 style: TextStyle(
                   fontFamily: 'BalooBhaijaan2',
-                  fontSize: 14,
+                  fontSize: 15,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: canPay ? AppColors.primaryBlue : const Color(0xFF94A3B8),
+                backgroundColor: canPay ? const Color(0xFF3B82F6) : const Color(0xFF94A3B8),
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                elevation: canPay ? 2 : 0,
-                shadowColor: canPay ? AppColors.primaryBlue.withOpacity(0.3) : Colors.transparent,
+                elevation: 0,
               ),
             ),
           ),
@@ -360,38 +330,33 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
         Row(
           children: [
             Expanded(
-              child: Container(
-                height: 52,
+              child: SizedBox(
+                height: 56,
                 child: OutlinedButton(
                   onPressed: () => _navigateBackToBookings(context),
                   child: const Text(
-                    'Quay lại danh sách',
+                    'Về vé của tôi',
                     style: TextStyle(
                       fontFamily: 'BalooBhaijaan2',
-                      fontSize: 14,
+                      fontSize: 15,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.primaryBlue,
-                    side: BorderSide(
-                      color: AppColors.primaryBlue.withOpacity(0.3),
-                      width: 1.5,
-                    ),
-                    backgroundColor: AppColors.primaryBlue.withOpacity(0.05),
+                    side: const BorderSide(color: Color(0xFF3B82F6), width: 2),
+                    foregroundColor: const Color(0xFF3B82F6),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    elevation: 0,
                   ),
                 ),
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: Container(
-                height: 52,
-                child: ElevatedButton.icon(
+              child: SizedBox(
+                height: 56,
+                child: ElevatedButton(
                   onPressed: canPay
                       ? () {
                           Navigator.of(context).push(
@@ -404,26 +369,21 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                           );
                         }
                       : null,
-                  icon: const Icon(
-                    Icons.payments_rounded,
-                    size: 18,
-                  ),
-                  label: const Text(
+                  child: const Text(
                     'Thanh toán',
                     style: TextStyle(
                       fontFamily: 'BalooBhaijaan2',
-                      fontSize: 14,
+                      fontSize: 15,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: canPay ? AppColors.primaryBlue : const Color(0xFF94A3B8),
+                    backgroundColor: canPay ? const Color(0xFF3B82F6) : const Color(0xFF94A3B8),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    elevation: canPay ? 2 : 0,
-                    shadowColor: canPay ? AppColors.primaryBlue.withOpacity(0.3) : Colors.transparent,
+                    elevation: 0,
                   ),
                 ),
               ),
@@ -433,32 +393,23 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
         const SizedBox(height: 12),
         SizedBox(
           width: double.infinity,
-          height: 52,
-          child: OutlinedButton.icon(
+          height: 56,
+          child: OutlinedButton(
             onPressed: () => _showCancelDialog(context, bookingId),
-            icon: const Icon(
-              Icons.cancel_outlined,
-              size: 18,
-            ),
-            label: const Text(
+            child: const Text(
               'Hủy vé',
               style: TextStyle(
                 fontFamily: 'BalooBhaijaan2',
-                fontSize: 14,
+                fontSize: 15,
                 fontWeight: FontWeight.w600,
               ),
             ),
             style: OutlinedButton.styleFrom(
+              side: const BorderSide(color: Colors.red, width: 2),
               foregroundColor: Colors.red,
-              side: BorderSide(
-                color: Colors.red.withOpacity(0.3),
-                width: 1.5,
-              ),
-              backgroundColor: Colors.red.withOpacity(0.05),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(12),
               ),
-              elevation: 0,
             ),
           ),
         ),
@@ -613,13 +564,8 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
   }
 
   void _navigateBackToBookings(BuildContext context) {
-    // Navigate back to MyBookingsScreen
-    // This ensures we always go back to the bookings list regardless of how we got here
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const MyBookingsScreen()),
-      (route) => false, // Remove all previous routes
-    );
+    // Simply pop back to previous screen (which should have bottom navbar)
+    Navigator.pop(context);
   }
 
   Widget _statusChip(String status) {
