@@ -1,4 +1,4 @@
-name: cnh_n
+name: fly_journey
 description: "Khám phá thế giới với ứng dụng đặt vé máy bay tiện lợi của chúng tôi, giúp bạn tìm kiếm, so sánh và đặt vé dễ dàng cho mọi hành trình."
 publish_to: "none"
 version: 1.0.0
@@ -13,6 +13,11 @@ dependencies:
   google_fonts: ^6.1.0
   shared_preferences: ^2.0.0
   intl: 0.20.2
+  http: ^1.1.0
+  dio: ^5.9.0
+  flutter_secure_storage: ^9.2.4
+  flutter_bloc: ^8.1.4
+  url_launcher: ^6.3.0
 
 dev_dependencies:
   flutter_test:
@@ -21,3 +26,32 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  
+  assets:
+    - assets/Nata_Sans/
+    - assets/Baloo_Bhaijaan_2/
+    - assets/airlines/
+  
+  fonts:
+    - family: NataSans
+      fonts:
+        - asset: assets/Nata_Sans/static/NataSans-Regular.ttf
+          weight: 400
+        - asset: assets/Nata_Sans/static/NataSans-Medium.ttf
+          weight: 500
+        - asset: assets/Nata_Sans/static/NataSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/Nata_Sans/static/NataSans-Bold.ttf
+          weight: 700
+    - family: BalooBhaijaan2
+      fonts:
+        - asset: assets/Baloo_Bhaijaan_2/static/BalooBhaijaan2-Regular.ttf
+          weight: 400
+        - asset: assets/Baloo_Bhaijaan_2/static/BalooBhaijaan2-Medium.ttf
+          weight: 500
+        - asset: assets/Baloo_Bhaijaan_2/static/BalooBhaijaan2-SemiBold.ttf
+          weight: 600
+        - asset: assets/Baloo_Bhaijaan_2/static/BalooBhaijaan2-Bold.ttf
+          weight: 700
+        - asset: assets/Baloo_Bhaijaan_2/static/BalooBhaijaan2-ExtraBold.ttf
+          weight: 800
